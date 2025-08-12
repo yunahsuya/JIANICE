@@ -106,8 +106,9 @@
             max-size="1MB"
           />
 
-          <v-checkbox
+          <v-switch
             v-model="sell.value.value"
+            color="success"
             :error-messages="sell.errorMessage.value"
             hide-details
             label="是否顯示在回憶牆上"
@@ -116,8 +117,8 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn color="red" :disabled="isSubmitting" @click="closeDialog">取消</v-btn>
-          <v-btn color="green" :loading="isSubmitting" type="submit">
+          <v-btn color="red" :disabled="isSubmitting" variant="tonal" @click="closeDialog">取消</v-btn>
+          <v-btn color="green" :loading="isSubmitting" type="submit" variant="tonal">
             {{ diaglog.id.length > 0 ? '編輯' : '新增' }}
           </v-btn>
         </v-card-actions>
@@ -313,7 +314,7 @@
     initialValues: {
       // date: '',
       date: new Date().toISOString(), // 預設今天日期和時間 (包含完整時間)
-      description: '1. \n2. \n3. ',
+      description: '1.  \n2.  \n3.  ',
       category: '快樂',
       sell: false,
     },
