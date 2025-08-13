@@ -83,7 +83,7 @@ export const get = async (req, res) => {
   try {
     // 只抓「sell 為 true」的新聞，也就是有上架（對外公開）的新聞
     // 給普通使用者看，因為他們不該看到還沒上架或下架的新聞
-    const newsdatas = await Newsdata.find({ sell: true })
+    const newsdatas = await Newsdata.find()
     res.status(StatusCodes.OK).json({
       success: true,
       message: '健康新聞列表取得成功',
@@ -129,7 +129,7 @@ export const update = async (req, res) => {
       req.params.id,
       {
         ...req.body,
-        image: req.file?.path,
+        image: req.files?.[0]?.path,
       },
       {
         new: true,

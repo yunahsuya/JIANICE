@@ -33,7 +33,8 @@
 
           <!-- 圖片 -->
           <template #[`item.image`]="{ value }">
-            <v-img :src="value" width="75" />
+
+            <v-img v-for="img in value" :key="img" :src="img" width="75" />
           </template>
 
           <!-- 上架 -->
@@ -103,7 +104,9 @@
             deletable
             :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
             help-text="選擇或拖曳檔案"
+            :max-files="5"
             max-size="1MB"
+            multiple
           />
 
           <v-switch

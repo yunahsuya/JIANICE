@@ -11,7 +11,7 @@ export const create = async (req, res) => {
       category: req.body.category,
       sell: req.body.sell,
       // 使用上傳的檔案 Cloudinary 網址
-      image: req.file?.path,
+      image: req.files?.[0]?.path,
     })
     res.status(StatusCodes.CREATED).json({
       success: true,
@@ -86,7 +86,7 @@ export const update = async (req, res) => {
         // 更新不一定要傳圖片，沒有傳圖片就是用舊的
         // 如果沒有傳圖片，就不會有 req.file，就會是 undefined，不會更新
         // 如果有傳圖片，就會用新的圖片路徑
-        image: req.file?.path,
+        image: req.files?.[0]?.path,
       },
       {
         new: true,

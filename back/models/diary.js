@@ -21,7 +21,7 @@ const schema = new Schema(
 
     // 圖片
     image: {
-      type: String,
+      type: [String],
       required: [true, '圖片是必填的'],
     },
 

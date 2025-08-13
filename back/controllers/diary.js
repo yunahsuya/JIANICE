@@ -8,7 +8,7 @@ export const create = async (req, res) => {
     await Diary.create({
       date: req.body.date,
       description: req.body.description,
-      image: req.file?.path,
+      image: req.files?.[0]?.path,
       sell: req.body.sell,
       category: req.body.category,
     })
@@ -85,7 +85,7 @@ export const update = async (req, res) => {
       req.params.id,
       {
         ...req.body,
-        image: req.file?.path,
+        image: req.files?.[0]?.path,
       },
       {
         new: true,

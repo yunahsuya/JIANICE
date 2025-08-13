@@ -45,8 +45,8 @@ export default (req, res, next) => {
 
     這樣寫的好處是：可以在上傳完立刻做錯誤判斷和自訂回應。
   */
-  // upload.array('image', 12)(req, res, (error) => {
-  upload.single('image')(req, res, (error) => {
+  upload.array('image', 12)(req, res, (error) => {
+    // upload.single('image')(req, res, (error) => {
     console.log(req, res, '測試')
     // 處理上傳錯誤
     /* 
@@ -68,13 +68,17 @@ export default (req, res, next) => {
     }
     // 繼續下一步
     // 如果沒有錯誤，代表上傳成功，這行印出剛剛上傳成功的檔案資訊，通常會有檔案名稱、路徑、大小等。
-    console.log('上傳成功:', req.file)
-    /* 
+    console.log(
+      '上傳成功:',
+      req.files,
+    )(
+      /* 
       呼叫 next() 代表「讓 Express 往下一個中間件或路由繼續執行」，
 
       所以如果檔案成功上傳，接下來可以繼續做資料存資料庫、回應使用者等後續工作。
     */
-    next()
+      next(),
+    )
   })
 }
 

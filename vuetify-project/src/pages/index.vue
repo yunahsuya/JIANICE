@@ -34,7 +34,7 @@
                 v-bind="props"
                 append-icon="mdi-chevron-down"
                 :ripple="false"
-                variant="text"
+                variant="outlined"
               >
                 {{ sortOptions[selectedSort].text }}
               </v-btn>
@@ -67,7 +67,8 @@
           :length="totalPages"
           :total-visible="5"
         />
-      </v-col></v-row>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -80,6 +81,7 @@
   const createSnackbar = useSnackbar()
 
   const products = ref([])
+
   const filteredProducts = computed(() => {
     return products.value.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(search.value.toLowerCase())

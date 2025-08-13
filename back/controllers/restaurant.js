@@ -76,7 +76,7 @@ export const create = async (req, res) => {
       description: req.body.description,
       category: req.body.category,
       sell: req.body.sell,
-      image: req.file?.path,
+      image: req.files?.[0]?.path,
       nutritionInfo: req.body.nutritionInfo,
       city: req.body.city,
     })
@@ -276,7 +276,7 @@ export const update = async (req, res) => {
         // req.file => 是經過 multer（或上傳工具）處理後的檔案物件
         // ?. => 是 optional chaining → 沒有圖片也不會報錯，image 就會變成 undefined，代表圖片不更新
         // req.file?.path => 是否更新圖片 (可選擇性更新圖片)
-        image: req.file?.path,
+        image: req.files?.[0]?.path,
       },
       {
         // 更新設定
