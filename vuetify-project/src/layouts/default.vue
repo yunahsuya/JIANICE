@@ -7,7 +7,7 @@
   -->
   <v-app-bar color="#01523f">
     <v-container class="d-flex align-center">
-      <v-app-bar-title>JIANICE</v-app-bar-title>
+      <v-app-bar-title style="cursor: pointer;" @click="$router.push('/')">JIANICE</v-app-bar-title>
       <!--
           <template v-for="item of navItems" :key="item.to">
           用這個迴圈，把所有 navItems 依序渲染成按鈕
