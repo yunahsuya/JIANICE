@@ -6,7 +6,6 @@
     <v-card-subtitle>
       <v-chip
         v-for="cat in category"
-        id="cate"
         :key="cat"
         class="mr-1"
         color="success"
@@ -25,11 +24,11 @@
       <!-- :to="'/newsdata/' + url" -->
 
       <v-btn
-        id="button"
+        class="m-2 text-body-1 font-weight-bold"
         color="success"
         text="詳細資訊"
         :to="'/newsdata/' + _id"
-        variant="tonal"
+        variant="flat"
       />
     </v-card-actions>
   </v-card>
@@ -38,13 +37,3 @@
 <script setup>
   defineProps(['_id', 'title', 'content', 'url', 'date', 'category'])
 </script>
-
-<style scoped>
-#button {
-  font-weight: 600;
-}
-
-#cate{
-  font-weight: 600;
-}
-</style>

@@ -12,10 +12,11 @@
     <v-card-actions class="mb-3">
       <v-spacer />
       <v-btn
+        id="button"
         color="orange"
         text="詳細資訊"
         :to="'/product/' + _id"
-        variant="tonal"
+        variant="flat"
       />
     </v-card-actions>
 
