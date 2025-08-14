@@ -34,7 +34,13 @@
           <!-- 圖片 -->
           <template #[`item.image`]="{ value }">
 
-            <v-img v-for="img in value" :key="img" :src="img" width="75" />
+            <v-img
+              v-for="img in value"
+              :key="img"
+              class="flex flex-direction: row;"
+              :src="img"
+              width="200"
+            />
           </template>
 
           <!-- 上架 -->
@@ -341,7 +347,8 @@
   // 當你送出表單時，會先用 handleSubmit 來檢查，然後才執行裡面這個函式。
   // 當使用者送出表單時，先檢查他上傳的第一個圖片檔案有沒有錯誤，如果有錯誤，就跳出紅色錯誤提示，然後不繼續送出表單。
   const submit = handleSubmit(async values => {
-    if (fileRecords.value[0]?.error) {
+    // 檢查是否有任何圖片檔案有錯誤
+    if (fileRecords.value.some(file => file.error)) {
       createSnackbar ({
         text: '請選擇有效的圖片檔案',
         snackbarProps: {
@@ -381,8 +388,11 @@
       fd.append('sell', values.sell)
       fd.append('category', values.category)
 
+      // 將所有選取的圖片檔案都加入到 FormData
       if (fileRecords.value.length > 0) {
-        fd.append('image', fileRecords.value[0].file)
+        for (const fileRecord of fileRecords.value) {
+          fd.append('image', fileRecord.file)
+        }
       }
 
       await (diaglog.value.id.length === 0 ? diaryService.create(fd) : diaryService.update(diaglog.value.id, fd))
