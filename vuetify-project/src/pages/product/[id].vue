@@ -77,6 +77,20 @@
 
   const getProduct = async () => {
     try {
+      /*
+        來源檔案
+        ProductCard.vue
+
+        來源程式碼
+        :to="'/product/' + _id" => /product/[id].vue (自動吃 product/[id].vue 這個檔案)
+
+        檔案名稱
+        product/[id].vue
+
+        程式碼
+        const { data } = await productService.getId(route.params.id)
+        getId(route.params.id) => 吃他的 id
+      */
       const { data } = await productService.getId(route.params.id)
       product.value.name = data.product.name
       product.value.price = data.product.price

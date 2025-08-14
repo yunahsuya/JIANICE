@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <h1 class="text-center">健康新聞</h1>
+        <!-- <h1 class="text-center">健康新聞</h1> -->
 
         <v-text-field
           v-model="search"
@@ -14,6 +14,7 @@
           @update:model-value="page = 1"
         />
 
+        <!-- 多選 => multiple (如果選到別類，再回來會不見)-->
         <v-chip-group
           v-model="selectedCategory"
           mandatory
@@ -102,7 +103,9 @@
   const filteredNewsdatas = computed(() => {
     return newsdatas.value.filter(newsdata => {
       const matchesSearch = newsdata.title.toLowerCase().includes(search.value.toLowerCase())
-      const matchesCategory = selectedCategory.value ? newsdata.category === selectedCategory.value : true
+      const matchesCategory = selectedCategory.value
+        ? (Array.isArray(newsdata.category) ? newsdata.category.includes(selectedCategory.value) : newsdata.category === selectedCategory.value)
+        : true
       return matchesSearch && matchesCategory
     }).sort((a, b) => {
       const sortOption = sortOptions[selectedSort.value]
