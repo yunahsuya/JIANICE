@@ -19,18 +19,22 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/admin/': RouteRecordInfo<'/admin/', '/admin', Record<never, never>, Record<never, never>>,
     '/admin/orders': RouteRecordInfo<'/admin/orders', '/admin/orders', Record<never, never>, Record<never, never>>,
     '/admin/products': RouteRecordInfo<'/admin/products', '/admin/products', Record<never, never>, Record<never, never>>,
     '/admin/restaurants': RouteRecordInfo<'/admin/restaurants', '/admin/restaurants', Record<never, never>, Record<never, never>>,
     '/cart': RouteRecordInfo<'/cart', '/cart', Record<never, never>, Record<never, never>>,
     '/diary': RouteRecordInfo<'/diary', '/diary', Record<never, never>, Record<never, never>>,
+    '/favorite': RouteRecordInfo<'/favorite', '/favorite', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
     '/newsdata': RouteRecordInfo<'/newsdata', '/newsdata', Record<never, never>, Record<never, never>>,
     '/newsdata/[id]': RouteRecordInfo<'/newsdata/[id]', '/newsdata/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/nutrition': RouteRecordInfo<'/nutrition', '/nutrition', Record<never, never>, Record<never, never>>,
     '/orders': RouteRecordInfo<'/orders', '/orders', Record<never, never>, Record<never, never>>,
     '/product/[id]': RouteRecordInfo<'/product/[id]', '/product/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/register': RouteRecordInfo<'/register', '/register', Record<never, never>, Record<never, never>>,
+    '/restaurant': RouteRecordInfo<'/restaurant', '/restaurant', Record<never, never>, Record<never, never>>,
     '/user/': RouteRecordInfo<'/user/', '/user', Record<never, never>, Record<never, never>>,
     '/user/diary': RouteRecordInfo<'/user/diary', '/user/diary', Record<never, never>, Record<never, never>>,
   }

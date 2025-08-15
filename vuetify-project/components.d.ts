@@ -8,9 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    FloatingactionButtons: typeof import('./src/components/FloatingactionButtons.vue')['default']
     NewsdataCard: typeof import('./src/components/NewsdataCard.vue')['default']
     ProductCard: typeof import('./src/components/ProductCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SwiperCarousel: typeof import('./src/components/SwiperCarousel.vue')['default']
   }
 }

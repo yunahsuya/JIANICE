@@ -7,7 +7,7 @@
   -->
   <v-app-bar color="#01523f">
     <v-container class="d-flex align-center">
-      <v-app-bar-title style="cursor: pointer;" @click="$router.push('/')">JIANICE</v-app-bar-title>
+      <v-app-bar-title class="cursor-pointer" @click="$router.push('/')">JIANICE</v-app-bar-title>
       <!--
           <template v-for="item of navItems" :key="item.to">
           用這個迴圈，把所有 navItems 依序渲染成按鈕
@@ -35,6 +35,7 @@
           點擊會呼叫 logout 函式來執行登出流程
       -->
       <v-btn v-if="user.isLoggedIn" prepend-icon="mdi-logout" @click="logout">登出</v-btn>
+
     </v-container>
   </v-app-bar>
 
@@ -69,6 +70,8 @@
   // useSnackbar：顯示彈跳訊息（小提示）
   import { useSnackbar } from 'vuetify-use-dialog'
 
+  import FloatingactionButtons from '@/components/FloatingactionButtons.vue'
+
   // userService：跟後端溝通的使用者相關功能（例如登出）
   import userService from '@/services/user'
 
@@ -95,9 +98,9 @@
   */
   const navItems = computed(() => [
     { title: '首頁', to: '/', icon: 'mdi-home', show: true },
-    { title: '餐廳分類', to: '/classification', icon: 'mdi-silverware-fork-knife', show: true },
+    { title: '餐廳', to: '/restaurant', icon: 'mdi-silverware-fork-knife', show: true },
 
-    { title: '收藏店家', to: '/collect', icon: 'mdi-heart', show: user.isLoggedIn },
+    { title: '口袋名單', to: '/favorite', icon: 'mdi-heart', show: user.isLoggedIn },
     { title: '健康新聞', to: '/newsdata', icon: 'mdi-newspaper-variant-outline', show: true },
 
     { title: '營養管理', to: '/nutrition', icon: 'mdi-nutrition', show: user.isLoggedIn },
