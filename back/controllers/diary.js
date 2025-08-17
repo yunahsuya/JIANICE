@@ -6,8 +6,8 @@ import validator from 'validator'
 export const create = async (req, res) => {
   try {
     // 處理多檔案上傳，將所有圖片路徑存入陣列
-    const imagePaths = req.files ? req.files.map(file => file.path) : []
-    
+    const imagePaths = req.files ? req.files.map((file) => file.path) : []
+
     await Diary.create({
       date: req.body.date,
       description: req.body.description,
@@ -85,7 +85,7 @@ export const update = async (req, res) => {
     }
 
     // 處理多檔案上傳，將所有圖片路徑存入陣列
-    const imagePaths = req.files ? req.files.map(file => file.path) : undefined
+    const imagePaths = req.files ? req.files.map((file) => file.path) : undefined
 
     const diary = await Diary.findByIdAndUpdate(
       req.params.id,

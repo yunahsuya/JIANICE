@@ -107,7 +107,7 @@
 
     { title: '日記牆', to: '/diary', icon: 'mdi-robot-love-outline', show: user.isLoggedIn },
 
-    { title: '關於我們', to: '/about', icon: 'mdi-account-box-outline', show: true },
+    { title: '關於JIANICE', to: '/about', icon: 'mdi-account-box-outline', show: true },
 
     { title: '註冊', to: '/register', icon: 'mdi-account-plus', show: !user.isLoggedIn },
     { title: '登入', to: '/login', icon: 'mdi-login', show: !user.isLoggedIn },
