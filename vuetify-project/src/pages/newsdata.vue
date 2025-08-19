@@ -1,173 +1,344 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <!-- <h1 class="text-center">健康新聞</h1> -->
+  <v-row>
+    <v-col cols="12">
 
-        <v-text-field
-          v-model="search"
-          flat
-          hide-details
-          placeholder="搜尋健康新聞"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-          @update:model-value="page = 1"
-        />
+      <!-- 健康新聞區塊 -->
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <h2 class="text-h4 mb-4">最新健康新聞</h2>
 
-        <!-- 多選 => multiple (如果選到別類，再回來會不見)-->
-        <v-chip-group
-          v-model="selectedCategory"
-          mandatory
-          @update:model-value="page = 1"
-        >
+            <!-- 搜尋控制項 -->
+            <v-row class="mb-4">
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="searchKeyword"
+                  label="搜尋關鍵字"
+                  placeholder="例如：營養、健康、癌症、兒童"
+                  clearable
+                  @keyup.enter="searchNews"
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model="startDate"
+                  label="開始日期"
+                  placeholder="2024/01/01"
+                  clearable
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model="endDate"
+                  label="結束日期"
+                  placeholder="2024/12/31"
+                  clearable
+                />
+              </v-col>
+              <v-col cols="12" md="2">
+                <v-btn
+                  color="primary"
+                  block
+                  @click="searchNews"
+                  :loading="loading"
+                >
+                  搜尋
+                </v-btn>
+              </v-col>
+            </v-row>
 
-          <v-chip
-            filter
-            text="全部"
-            :value="''"
-            variant="outlined"
-          />
+            <!-- 快速搜尋按鈕 -->
+            <v-row class="mb-4">
+              <v-col cols="12">
+                <v-chip-group>
+                  <v-chip
+                    v-for="topic in healthTopics"
+                    :key="topic"
+                    @click="searchByTopic(topic)"
+                    variant="outlined"
+                    color="primary"
+                  >
+                    {{ topic }}
+                  </v-chip>
+                </v-chip-group>
+              </v-col>
+            </v-row>
 
-          <v-chip
-            v-for="option in categoryOptions"
-            :key="option"
-            filter
-            :text="option"
-            :value="option"
-            variant="outlined"
-          />
+            <!-- 載入中 -->
+            <v-row v-if="loading">
+              <v-col cols="12" class="text-center">
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                  size="64"
+                />
+                <p class="mt-4">正在載入健康新聞...</p>
+              </v-col>
+            </v-row>
 
-          <v-spacer />
+            <!-- 錯誤訊息 -->
+            <v-alert
+              v-if="error"
+              type="error"
+              class="mb-4"
+              closable
+              @click:close="error = ''"
+            >
+              {{ error }}
+            </v-alert>
 
-          <v-menu>
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                append-icon="mdi-chevron-down"
-                :ripple="false"
-                variant="outlined"
+            <!-- 新聞列表 -->
+            <v-row v-if="newsData.length > 0">
+              <v-col
+                v-for="news in newsData"
+                :key="news.標題"
+                cols="12"
+                md="6"
+                lg="4"
               >
-                {{ sortOptions[selectedSort].text }}
-              </v-btn>
-            </template>
+                <v-card
+                  class="h-100"
+                  elevation="2"
+                  hover
+                >
+                  <v-card-title class="text-h6">
+                    {{ news.標題 }}
+                  </v-card-title>
 
-            <v-list>
-              <v-list-item
-                v-for="(option, i) in sortOptions"
-                :key="option.text"
-                @click="selectedSort = i; page = 1"
-              >
-                {{ option.text }}
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-chip-group>
-      </v-col>
+                  <v-card-text>
+                    <!-- 使用v-html來渲染HTML內容 -->
+                    <div
+                      class="text-body-2 news-content"
+                      v-html="truncateContent(news.內容, 200)"
+                    />
 
-      <v-col
-        v-for="newsdata in currentPageNewsdatas"
-        :key="newsdata._id"
-        cols="12"
-        lg="9"
-        md="6"
-      >
+                    <div class="d-flex justify-space-between align-center mt-3">
+                      <v-chip
+                        size="small"
+                        color="info"
+                        variant="outlined"
+                      >
+                        {{ formatDate(news.發布日期) }}
+                      </v-chip>
+                      <v-chip
+                        v-if="news.修改日期 && news.修改日期 !== news.發布日期"
+                        size="small"
+                        color="warning"
+                        variant="outlined"
+                      >
+                        更新: {{ formatDate(news.修改日期) }}
+                      </v-chip>
+                    </div>
+                  </v-card-text>
 
-        <NewsdataCard v-bind="newsdata" />
+                  <v-card-actions>
+                    <v-btn
+                      color="primary"
+                      variant="text"
+                      @click="openNewsLink(news.連結網址)"
+                    >
+                      閱讀更多
+                    </v-btn>
+                    <v-btn
+                      v-if="news.附加檔案 && news.附加檔案.length > 0"
+                      color="secondary"
+                      variant="text"
+                      @click="openNewsLink(news.附加檔案[0])"
+                    >
+                      下載附件
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
 
-      </v-col>
+            <!-- 無資料 -->
+            <v-row v-else-if="!loading && newsData.length === 0">
+              <v-col cols="12" class="text-center">
+                <v-icon size="64" color="grey">mdi-newspaper-variant-outline</v-icon>
+                <p class="text-h6 mt-4">沒有找到相關的健康新聞</p>
+                <p class="text-body-2 text-grey">請嘗試其他關鍵字或日期範圍</p>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-container>
 
-      <v-col cols="12">
-        <v-pagination
-          v-model="page"
-          circle
-          :length="totalPages"
-          :total-visible="5"
-        />
-      </v-col>
-    </v-row>
-  </v-container>
+
+
+        <!-- 頁尾 -->
+        <v-footer class="text-center d-flex flex-column ga-2 " color="indigo-lighten-1">
+          <div class="d-flex ga-3">
+            <v-btn
+              v-for="icon in icons"
+              :key="icon"
+              density="comfortable"
+              :icon="icon"
+              variant="text"
+            />
+          </div>
+
+          <v-divider class="my-2" thickness="2" width="50" />
+
+          <div class="text-caption font-weight-regular opacity-60">
+            Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+          </div>
+
+          <v-divider />
+
+          <div>
+            <v-divider class="pt-5" />
+
+            {{ new Date().getFullYear() }} — <strong> © Yuna 版權所有</strong>
+          </div>
+        </v-footer>
+    </v-col>
+  </v-row>
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
-  import { useSnackbar } from 'vuetify-use-dialog'
+import { ref, onMounted } from 'vue'
+import AboutCard from '@/components/InfoCard.vue'
+import hpaNewsService from '@/services/hpaNews'
 
-  import NewsdataCard from '@/components/NewsdataCard.vue'
+const icons = [
+  'mdi-github',
+  'mdi-google',
+  'mdi-linkedin',
+  'mdi-instagram',
+]
 
-  import newsdataService from '@/services/newsdata'
+// 響應式資料
+const newsData = ref([])
+const loading = ref(false)
+const error = ref('')
+const searchKeyword = ref('')
+const startDate = ref('')
+const endDate = ref('')
 
-  const createSnackbar = useSnackbar()
+// 健康主題選項
+const healthTopics = [
+  '營養',
+  '健康',
+  '癌症',
+  '糖尿病',
+  '高血壓',
+  '肥胖',
+  '運動',
+  '飲食',
+  '兒童',
+  '戒菸'
+]
 
-  const newsdatas = ref([])
+// 搜尋新聞
+const searchNews = async () => {
+  loading.value = true
+  error.value = ''
 
-  const filteredNewsdatas = computed(() => {
-    return newsdatas.value.filter(newsdata => {
-      const matchesSearch = newsdata.title.toLowerCase().includes(search.value.toLowerCase())
-      const matchesCategory = selectedCategory.value
-        ? (Array.isArray(newsdata.category) ? newsdata.category.includes(selectedCategory.value) : newsdata.category === selectedCategory.value)
-        : true
-      return matchesSearch && matchesCategory
-    }).sort((a, b) => {
-      const sortOption = sortOptions[selectedSort.value]
-
-      if (sortOption.key === 'createdAt' || sortOption.key === 'updatedAt') {
-        return sortOption.direction * (new Date(a[sortOption.key]) - new Date(b[sortOption.key]))
-      }
-      return sortOption.direction * (a[sortOption.key] > b[sortOption.key] ? 1 : -1)
-    })
-  })
-
-  const ITEMS_PER_PAGE = 10
-  const page = ref(1)
-  const totalPages = computed(() => {
-    return Math.ceil(filteredNewsdatas.value.length / ITEMS_PER_PAGE)
-  })
-
-  const currentPageNewsdatas = computed(() => {
-    return filteredNewsdatas.value.slice((page.value - 1) * ITEMS_PER_PAGE, page.value * ITEMS_PER_PAGE)
-  })
-  const search = ref('')
-
-  const selectedCategory = ref('')
-  const categoryOptions = ['癌症', '菸', '飲食', '篩檢', '三高', '二手菸', '熱傷害', '防治', '健康', '其他']
-
-  const selectedSort = ref(0)
-
-  const sortOptions = [
-    { text: '標題', key: 'title', direction: 1 },
-    // { text: '最新發佈', key: '發布日期', direction: -1 },
-    // { text: '最舊發佈', key: '發布日期', direction: 1 },
-
-  ]
-
-  const getNewsdatas = async () => {
-    try {
-      const { data } = await newsdataService.get()
-      console.log(data)
-
-      newsdatas.value = data.newsdatas
-    } catch (error) {
-      console.error('Error fetching newsdatas', error)
-      createSnackbar({
-        text: '無法載入健康新聞資料',
-
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-    }
+  try {
+    const response = await hpaNewsService.searchNews(
+      searchKeyword.value,
+      startDate.value,
+      endDate.value
+    )
+    newsData.value = response.data.data || []
+  } catch (err) {
+    console.error('搜尋新聞失敗:', err)
+    error.value = '載入新聞時發生錯誤，請稍後再試'
+    newsData.value = []
+  } finally {
+    loading.value = false
   }
-  getNewsdatas()
-  // getNewsdatas().then(res => console.log(res))
+}
 
+// 根據主題搜尋
+const searchByTopic = async (topic) => {
+  searchKeyword.value = topic
+  await searchNews()
+}
+
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('zh-TW')
+  } catch {
+    return dateString
+  }
+}
+
+// 截斷內容並移除HTML標籤
+const truncateContent = (htmlContent, maxLength) => {
+  if (!htmlContent) return ''
+
+  // 移除HTML標籤
+  const textContent = htmlContent.replace(/<[^>]*>/g, '')
+
+  // 截斷文字
+  if (textContent.length <= maxLength) {
+    return htmlContent
+  }
+
+  // 截斷並加上省略號
+  const truncatedText = textContent.substring(0, maxLength) + '...'
+  return truncatedText
+}
+
+// 開啟新聞連結
+const openNewsLink = (url) => {
+  if (url) {
+    window.open(url, '_blank')
+  }
+}
+
+// 頁面載入時取得最新新聞
+const loadLatestNews = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const response = await hpaNewsService.getLatestNews()
+    newsData.value = response.data.data || []
+  } catch (err) {
+    console.error('載入最新新聞失敗:', err)
+    error.value = '載入最新新聞時發生錯誤，請稍後再試'
+    newsData.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const info = () => {
+  const el = document.querySelector('#info')
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
+}
+
+// 頁面載入時執行
+onMounted(() => {
+  loadLatestNews()
+})
 </script>
+
+<style scoped>
+.news-content {
+  line-height: 1.6;
+  max-height: 120px;
+  overflow: hidden;
+}
+
+.news-content :deep(p) {
+  margin-bottom: 0.5rem;
+}
+
+.news-content :deep(strong) {
+  font-weight: bold;
+}
+</style>
 
 <route lang="yaml">
   meta:
-    # 標題
-    title: '健康新聞'
-    # 只能在登入的情況下看
-    login: ''
-    # 不是管理員也能看
+    title: '關於我們'
+    login: 'login-only'
     admin: false
 </route>

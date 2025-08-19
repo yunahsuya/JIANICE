@@ -30,6 +30,9 @@ import restaurantRouter from './routes/restaurant.js'
 // 健康新聞
 import newsdataRouter from './routes/newsdata.js'
 
+// 國民健康署新聞 (測試用)
+import hpaNewsRouter from './routes/hpanews.js'
+
 // 幫你處理「使用者要登入」時的驗證流程，本身不負責怎麼驗證，而是提供一個框架，讓你用各種策略（Strategy）去實作
 import './passport.js'
 
@@ -121,6 +124,9 @@ app.use('/restaurant', restaurantRouter)
 
 // 健康新聞
 app.use('/newsdata', newsdataRouter)
+
+// 國民健康署新聞
+app.use('/hpanews', hpaNewsRouter)
 
 // 處理未定義的路由
 // 這行是「萬用路由」，會攔截所有前面沒定義的路由，回 404，提醒前端這條路徑不存在
