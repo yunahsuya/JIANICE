@@ -5,13 +5,13 @@ import validator from 'validator'
 // 新增日記
 export const create = async (req, res) => {
   try {
-    // 處理多檔案上傳，將所有圖片路徑存入陣列
-    const imagePaths = req.files ? req.files.map((file) => file.path) : []
+    // 處理多檔案上傳，將所有圖片 URL 存入陣列
+    const imageUrls = req.files ? req.files.map((file) => file.path) : []
 
     await Diary.create({
       date: req.body.date,
       description: req.body.description,
-      image: imagePaths,
+      image: imageUrls,
       sell: req.body.sell,
       category: req.body.category,
     })
@@ -84,21 +84,38 @@ export const update = async (req, res) => {
       throw new Error('DIARY ID')
     }
 
-    // 處理多檔案上傳，將所有圖片路徑存入陣列
-    const imagePaths = req.files ? req.files.map((file) => file.path) : undefined
+    // 處理多檔案上傳，將所有圖片 URL 存入陣列
+    const imageUrls = req.files ? req.files.map((file) => file.path) : []
 
-    const diary = await Diary.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...req.body,
-        // 只有在有新圖片時才更新圖片欄位
-        ...(imagePaths && { image: imagePaths }),
-      },
-      {
-        new: true,
-        runValidators: true,
-      },
-    ).orFail(new Error('DIARY NOT FOUND'))
+    const updateData = { ...req.body }
+
+    // 修改：處理圖片更新邏輯
+    let finalImages = []
+
+    // 如果有現有圖片，解析並加入
+    if (req.body.existingImages) {
+      try {
+        const existingImages = JSON.parse(req.body.existingImages)
+        finalImages = [...existingImages]
+      } catch (error) {
+        console.error('解析現有圖片失敗:', error)
+      }
+    }
+
+    // 如果有新上傳的圖片，加入
+    if (imageUrls.length > 0) {
+      finalImages = [...finalImages, ...imageUrls]
+    }
+
+    // 只有在有圖片時才更新 image 欄位
+    if (finalImages.length > 0) {
+      updateData.image = finalImages
+    }
+
+    const diary = await Diary.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).orFail(new Error('DIARY NOT FOUND'))
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -113,7 +130,7 @@ export const update = async (req, res) => {
         success: false,
         message: '無效的日記 ID',
       })
-    } else if (error.name === 'DIARY NOT FOUND') {
+    } else if (error.message === 'DIARY NOT FOUND') {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: '日記不存在',

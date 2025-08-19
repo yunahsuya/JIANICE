@@ -5,7 +5,7 @@
       這是一個綠色的上方工具列（color="#01523f"）
       裡面放置網站名稱和按鈕，讓使用者可以切換不同頁面
   -->
-  <v-app-bar color="#01523f">
+  <v-app-bar color="#36652A">
     <v-container class="d-flex align-center">
       <v-app-bar-title class="cursor-pointer" @click="$router.push('/')">JIANICE</v-app-bar-title>
       <!--

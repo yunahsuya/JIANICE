@@ -33,14 +33,18 @@
 
           <!-- 圖片 -->
           <template #[`item.image`]="{ value }">
-
-            <v-img
-              v-for="img in value"
-              :key="img"
-              class="flex flex-direction: row;"
-              :src="img"
-              width="200"
-            />
+            <div v-if="value && value.length > 0" class="d-flex flex-wrap gap-2">
+              <v-img
+                v-for="img in value"
+                :key="img"
+                :src="img"
+                width="100"
+                height="100"
+                cover
+                class="rounded"
+              />
+            </div>
+            <span v-else class="text-grey">無圖片</span>
           </template>
 
           <!-- 上架 -->
@@ -113,6 +117,7 @@
             :max-files="5"
             max-size="1MB"
             multiple
+            :url-resolver="(file) => file.url || file.data"
           />
 
           <v-switch
@@ -244,6 +249,21 @@
       description.value.value = item.description
       sell.value.value = item.sell
       category.value.value = item.category
+
+      // 新增：載入現有圖片
+      if (item.image && item.image.length > 0) {
+        // 將現有圖片路徑轉換為 VueFileAgent 格式
+        const existingFiles = item.image.map((imageUrl, index) => ({
+          name: `existing-image-${index}.jpg`,
+          size: 0, // 現有圖片沒有檔案大小資訊
+          type: 'image/jpeg', // 預設類型
+          url: imageUrl, // 圖片 URL
+          isExisting: true // 標記為現有圖片
+        }))
+        fileRecords.value = existingFiles
+      } else {
+        fileRecords.value = []
+      }
     } else {
       // 新增模式：自動填入當前時間
       diaglog.value.id = ''
@@ -258,6 +278,9 @@
       description.value.value = '1. \n2. \n3. '
       category.value.value = '快樂'
       sell.value.value = false
+      // 清空圖片記錄
+      fileRecords.value = []
+      rawFileRecords.value = []
     }
     diaglog.value.open = true
   }
@@ -275,11 +298,9 @@
     diaglog.value.id = ''
     // 重置整個表單的欄位值 (回到初始狀態)
     resetForm()
-    // 把圖片上傳欄位的檔案記錄，刪掉
-    // fileAgent => Vue File Agent 套件
-    // .value 是因為它是 ref
-    // .deleteFileRecord() => 清除已上傳的圖片 (套件提供的方法)
-    fileAgent.value.deleteFileRecord()
+    // 清空圖片記錄
+    fileRecords.value = []
+    rawFileRecords.value = []
   }
 
   const categoryOptions = ['快樂', '難過', '生氣', '平靜']
@@ -388,11 +409,21 @@
       fd.append('sell', values.sell)
       fd.append('category', values.category)
 
-      // 將所有選取的圖片檔案都加入到 FormData
-      if (fileRecords.value.length > 0) {
-        for (const fileRecord of fileRecords.value) {
+      // 🔥 修改：正確處理圖片上傳邏輯
+      const newFiles = fileRecords.value.filter(file => file.file) // 只上傳新檔案
+      const existingFiles = fileRecords.value.filter(file => file.isExisting) // 保留現有檔案
+
+      // 將新選取的圖片檔案都加入到 FormData
+      if (newFiles.length > 0) {
+        for (const fileRecord of newFiles) {
           fd.append('image', fileRecord.file)
         }
+      }
+
+      // 如果是編輯模式且有現有圖片，將現有圖片 URL 也傳送
+      if (diaglog.value.id.length > 0 && existingFiles.length > 0) {
+        const existingUrls = existingFiles.map(file => file.url)
+        fd.append('existingImages', JSON.stringify(existingUrls))
       }
 
       await (diaglog.value.id.length === 0 ? diaryService.create(fd) : diaryService.update(diaglog.value.id, fd))

@@ -17,15 +17,21 @@
 
           <p style="font-size: 48px; padding-left: 90px; line-height: 45px; margin-bottom: 25px;">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
 
-          <p style="font-size: 24px; padding-left: 90px; line-height: 35px;"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
+          <p style="font-size: 24px; padding-left: 90px; line-height: 35px; font-weight:400"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
             我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。</p>
 
-          <v-btn class="text-white" color="orange-darken-2" rounded style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;">瞭解更多功能</v-btn>
+          <v-btn
+            class="text-white"
+            color="orange-darken-2"
+            rounded
+            style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;"
+            @click="info"
+          >瞭解更多功能</v-btn>
         </div>
 
       </v-parallax>
 
-      <v-container>
+      <v-container id="info">
         <AboutCard />
       </v-container>
 
@@ -90,7 +96,7 @@
 </template>
 
 <script setup>
-  import AboutCard from '@/components/AboutCard.vue'
+  import AboutCard from '@/components/InfoCard.vue'
 
   const icons = [
     'mdi-github',
@@ -98,6 +104,11 @@
     'mdi-linkedin',
     'mdi-instagram',
   ]
+
+  const info = () => {
+    const el = document.querySelector('#info')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
 </script>
 
 <route lang="yaml">

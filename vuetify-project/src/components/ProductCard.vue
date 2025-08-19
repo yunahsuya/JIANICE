@@ -19,7 +19,10 @@
     <!-- <v-card-title> → 卡片標題區域
          {{ name }} → 顯示傳入的 name 屬性
     -->
-    <v-card-title>{{ name }}
+    <v-card-title class="d-flex align-center">
+      {{ name }}
+
+      <v-spacer />
 
       <!-- <v-spacer> → Vuetify 的彈性間距，用來把後面的按鈕或元素推到最右邊 -->
       <!-- <v-spacer /> -->

@@ -1,175 +1,135 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12">
-        <v-text-field
-          v-model="search"
-          flat
-          hide-details
-          placeholder="搜尋商品"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-          width="800"
-          @update:model-value="page = 1"
-        />
-        <v-chip-group v-model="selectedCategory" mandatory @update:model-value="page = 1">
-          <v-chip
-            filter
-            text="全部"
-            :value="''"
-            variant="outlined"
-          />
-          <v-chip
-            v-for="option in categoryOptions"
-            :key="option"
-            filter
-            :text="option"
-            :value="option"
-            variant="outlined"
-          />
-          <v-spacer />
-          <v-menu>
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                append-icon="mdi-chevron-down"
-                :ripple="false"
-                variant="outlined"
-              >
-                {{ sortOptions[selectedSort].text }}
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(option, i) in sortOptions"
-                :key="option.text"
-                @click="selectedSort = i; page = 1"
-              >
-                {{ option.text }}
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-chip-group>
-      </v-col>
-      <v-col
-        v-for="product in currentPageProducts"
-        :key="product._id"
-        cols="12"
-        lg="4"
-        md="6"
+
+  <v-row>
+    <v-col cols="12">
+
+      <!--  -->
+
+      <!-- 視差 -->
+      <v-parallax
+        src="../assets/pexels-goumbik-349610.jpg"
       >
-        <ProductCard v-bind="product" />
-      </v-col>
-      <v-col cols="12">
-        <v-pagination
-          v-model="page"
-          circle
-          :length="totalPages"
-          :total-visible="5"
-        />
-      </v-col>
-    </v-row>
-  </v-container>
+        <!-- fill-height => 填滿高度 -->
+        <!-- #027601 -->
+        <!-- #0E6200 -->
+        <div class="d-flex flex-column h-screen justify-center" style="color: #0E6200;">
+          <p style="font-size: 48px; font-weight: bold; padding-left: 90px;">不只是選擇餐廳</p>
+
+          <p style="font-size: 48px; padding-left: 90px; line-height: 45px; margin-bottom: 25px;">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
+
+          <p style="font-size: 24px; padding-left: 90px; line-height: 35px; font-weight:400"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
+            我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。</p>
+
+          <v-btn
+            class="text-white"
+            color="orange-darken-2"
+            rounded
+            style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;"
+            @click="info"
+          >瞭解更多功能</v-btn>
+        </div>
+
+      </v-parallax>
+
+      <!-- 功能介紹 -->
+      <v-container id="info">
+        <InfoCard />
+      </v-container>
+
+      <v-divider class="border-opacity-25" color="success" :thickness="3" />
+
+      <!-- 問題回報 -->
+      <v-container>
+        <IssueCard />
+      </v-container>
+
+      <v-divider class="border-opacity-25" color="success" :thickness="3" />
+
+      <!-- 願景 -->
+      <v-container>
+        <VisionCard />
+      </v-container>
+
+      <!-- 卡片 (測試用) -->
+      <!-- <v-card
+        class="mx-auto"
+        rounded="0"
+      >
+        <v-img
+          cover
+          height="100%"
+          src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
+        >
+
+          <div class="d-flex flex-column fill-height justify-center align-center text-white">
+            <h1 class="text-h1 font-weight pl-4 ">
+              Vuetify
+            </h1>
+            <h4 class="text-h4 pl-10">
+              Build your application today!
+            </h4>
+          </div>
+
+        </v-img>
+      </v-card> -->
+
+      <!-- 頁尾 -->
+      <v-footer class="text-center d-flex flex-column ga-2 " color="grey-darken-4">
+        <div class="d-flex ga-3">
+          <v-btn
+            v-for="icon in icons"
+            :key="icon"
+            density="comfortable"
+            :icon="icon"
+            variant="text"
+          />
+        </div>
+
+        <v-divider class="my-2" thickness="2" width="50" />
+
+        <div class="text-caption font-weight-regular opacity-60">
+          Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+        </div>
+
+        <v-divider />
+
+        <div>
+          <v-divider class="pt-5" />
+
+          {{ new Date().getFullYear() }} — <strong> © Yuna 版權所有</strong>
+        </div>
+      </v-footer>
+
+    </v-col>
+  </v-row>
+
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
-  import { useSnackbar } from 'vuetify-use-dialog'
-  import ProductCard from '@/components/ProductCard.vue'
-  import productService from '@/services/product'
+  import AboutCard from '@/components/InfoCard.vue'
 
-  const createSnackbar = useSnackbar()
-
-  const products = ref([])
-
-  const filteredProducts = computed(() => {
-    return products.value.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(search.value.toLowerCase())
-      const matchesCategory = selectedCategory.value ? product.category === selectedCategory.value : true
-      return matchesSearch && matchesCategory
-    }).sort((a, b) => {
-      // .sort()
-      // return 0 順序不變
-      // return < 0     a 在前
-      // return > 0     b 在前
-      // return a - b   正序
-      // return b - a   倒序
-      // 根據選擇的排序選項進行排序
-      // sortOptions[selectedSort.value] 會是選到的排序選項
-      // { text: '名稱', key: 'name', direction: 1 }
-      const sortOption = sortOptions[selectedSort.value]
-      // 如果是日期的排序
-      if (sortOption.key === 'createdAt' || sortOption.key === 'updatedAt') {
-        // 使用 new Date() 轉換日期字串為日期物件，然後進行比較
-        return sortOption.direction * (new Date(a[sortOption.key]) - new Date(b[sortOption.key]))
-      }
-      return sortOption.direction * (a[sortOption.key] > b[sortOption.key] ? 1 : -1)
-    })
-  })
-
-  const ITEMS_PER_PAGE = 10
-  const page = ref(1)
-  const totalPages = computed(() => {
-    return Math.ceil(filteredProducts.value.length / ITEMS_PER_PAGE)
-  })
-  const currentPageProducts = computed(() => {
-    // .slice(開始索引, 結束索引)
-    // 從開始索引取到結束索引，不包含結束
-    // 一頁 12 筆
-    // 第 1 頁 = 0 ~ 11 = .slice(0, 12)
-    // 第 2 頁 = 12 ~ 23 = .slice(12, 24)
-    // 第 3 頁 = 24 ~ 35 = .slice(24, 36)
-    return filteredProducts.value.slice((page.value - 1) * ITEMS_PER_PAGE, page.value * ITEMS_PER_PAGE)
-  })
-
-  const search = ref('')
-
-  const selectedCategory = ref('')
-  const categoryOptions = ['電子產品', '服裝', '家居用品', '書籍', '玩具', '食品', '其他', '麵', '飯', '夜市']
-
-  // 選擇的排序選項索引
-  const selectedSort = ref(0)
-  // 排序選項
-  // text: 顯示的文字
-  // key: 排序的鍵
-  // direction: 排序方向，1 為升序，-1 為降序
-  // 使用 key 和 direction 來排序 products
-  const sortOptions = [
-    { text: '名稱', key: 'name', direction: 1 },
-    { text: '價格：低到高', key: 'price', direction: 1 },
-    { text: '價格：高到低', key: 'price', direction: -1 },
-    { text: '最新商品', key: 'createdAt', direction: -1 },
-    { text: '最舊商品', key: 'createdAt', direction: 1 },
-
-    // 營養 (還沒改)
-    // { text: '營養：低到高', key: 'createdAt', direction: 1 },
-    // { text: '營養：高到低', key: 'createdAt', direction: 1 },
-
+  const icons = [
+    'mdi-github',
+    'mdi-google',
+    'mdi-linkedin',
+    'mdi-instagram',
   ]
 
-  const getProducts = async () => {
-    try {
-      const { data } = await productService.get()
-      products.value = data.products
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      createSnackbar({
-        text: '無法載入商品資料',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-    }
+  const info = () => {
+    const el = document.querySelector('#info')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
-  getProducts()
 </script>
+
+<!-- <style>
+  .v-container > .v-locale--is-ltr {
+    background-color: #fff;
+  }
+</style> -->
 
 <route lang="yaml">
   meta:
-    # 標題
-    title: '首頁'
-    # 有沒有登入都能看
-    login: ''
-    # 不是管理員也能看
+    title: '關於我們'
+    login: 'login-only'
     admin: false
 </route>

@@ -1,7 +1,7 @@
 <template>
-  <v-container>
-    <h1 class="text-center">主要功能</h1>
-    <v-divider class="border-opacity-100 d-flex justify-center" inset style="width: 400px;" :thickness="7" />
+  <v-container class="h-screen">
+    <h1 class="text-center mt-8">主要功能</h1>
+    <v-divider class="mx-auto my-1 border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
 
     <v-row>
 
@@ -9,6 +9,7 @@
 
         <v-card
           class="mt-8"
+          color="green"
           prepend-icon="mdi-home-heart"
           variant="tonal"
           width="450"

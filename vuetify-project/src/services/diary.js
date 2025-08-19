@@ -19,7 +19,7 @@ export default {
 
   // 取得某一篇特定的日記
   getId (id) {
-    return apiService.get('/diary' + id)
+    return apiService.get('/diary/' + id)
   },
 
   // 更新某篇日記
