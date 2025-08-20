@@ -129,7 +129,7 @@
 
 <route lang="yaml">
   meta:
-    title: '關於我們'
+    title: '首頁'
     login: 'login-only'
     admin: false
 </route>

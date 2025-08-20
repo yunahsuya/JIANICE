@@ -1,24 +1,26 @@
 // 全域快取服務 - 靜默版本
 class CacheService {
-  constructor() {
+  constructor () {
     this.cache = new Map()
-    this.defaultTTL = 24 * 60 * 60 * 1000 // 24小時 (1天)
+    this.defaultTTL = 2 * 24 * 60 * 60 * 1000 // 48小時 (2天)
   }
 
   // 設定快取
-  set(key, data, ttl = this.defaultTTL) {
+  set (key, data, ttl = this.defaultTTL) {
     const timestamp = Date.now()
     this.cache.set(key, {
       data,
       timestamp,
-      ttl
+      ttl,
     })
   }
 
   // 取得快取
-  get(key) {
+  get (key) {
     const item = this.cache.get(key)
-    if (!item) return null
+    if (!item) {
+      return null
+    }
 
     const now = Date.now()
     if (now - item.timestamp > item.ttl) {
@@ -30,9 +32,11 @@ class CacheService {
   }
 
   // 檢查快取是否存在且有效
-  has(key) {
+  has (key) {
     const item = this.cache.get(key)
-    if (!item) return false
+    if (!item) {
+      return false
+    }
 
     const now = Date.now()
     if (now - item.timestamp > item.ttl) {
@@ -44,20 +48,20 @@ class CacheService {
   }
 
   // 清除特定快取
-  delete(key) {
+  delete (key) {
     this.cache.delete(key)
   }
 
   // 清除所有快取
-  clear() {
+  clear () {
     this.cache.clear()
   }
 
   // 取得快取統計
-  getStats() {
+  getStats () {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
     }
   }
 }

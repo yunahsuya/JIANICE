@@ -75,7 +75,7 @@
             :error-messages="date.errorMessage.value"
             label="日期和時間"
             prepend-icon="mdi-calendar-clock"
-            type="date"
+            type="datetime-local"
           />
 
           <!-- <v-date-picker

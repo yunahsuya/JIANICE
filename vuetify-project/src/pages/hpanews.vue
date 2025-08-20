@@ -172,14 +172,13 @@
 </template>
 
 <script setup>
-  import { onMounted, ref, onActivated, onDeactivated } from 'vue'
-  import AboutCard from '@/components/InfoCard.vue'
-  import hpaNewsService from '@/services/hpanews'
+  import { onActivated, onDeactivated, onMounted, ref } from 'vue'
   import cacheService from '@/services/cache'
+  import hpaNewsService from '@/services/hpanews'
 
   // 定義組件名稱，用於 keep-alive
   defineOptions({
-    name: 'Hpanews'
+    name: 'Hpanews',
   })
 
   const icons = [
@@ -194,15 +193,13 @@
   const loading = ref(false)
   const error = ref('')
   const searchKeyword = ref('')
-  const startDate = ref('')
-  const endDate = ref('')
   const selectedMonth = ref(null)
   const selectedTopic = ref('全部')
 
   // 快取鍵值
   const CACHE_KEYS = {
     LATEST_NEWS: 'hpanews_latest',
-    SEARCH_PREFIX: 'hpanews_search_'
+    SEARCH_PREFIX: 'hpanews_search_',
   }
 
   // 健康主題選項
@@ -342,19 +339,18 @@
 
   // 當組件被重新啟用時（從其他頁面返回）
   // 優化的頁面重新啟用邏輯
-// 極簡化的頁面重新啟用邏輯
-onActivated(() => {
-  // 只在沒有資料時才載入，避免不必要的檢查
-  if (newsData.value.length === 0) {
-    const cachedData = cacheService.get(CACHE_KEYS.LATEST_NEWS)
-    if (cachedData) {
-      newsData.value = cachedData
-    } else {
-      loadLatestNews()
+  // 極簡化的頁面重新啟用邏輯
+  onActivated(() => {
+    // 只在沒有資料時才載入，避免不必要的檢查
+    if (newsData.value.length === 0) {
+      const cachedData = cacheService.get(CACHE_KEYS.LATEST_NEWS)
+      if (cachedData) {
+        newsData.value = cachedData
+      } else {
+        loadLatestNews()
+      }
     }
-  }
-})
-
+  })
 
 </script>
 

@@ -26,8 +26,8 @@ const CACHE_FILE_PATH = path.join(process.cwd(), 'cache', 'hpa-news-cache.json')
 const cache = {
   data: {}, // 改為物件，以年份為key
   timestamp: {},
-  // 快取時間：24小時（24 * 60 * 60 * 1000 毫秒）
-  ttl: 24 * 60 * 60 * 1000,
+  // 快取時間：48小時（ 2 * 24 * 60 * 60 * 1000 毫秒）
+  ttl: 2 * 24 * 60 * 60 * 1000,
 }
 
 // 確保快取目錄存在

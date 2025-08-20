@@ -6,9 +6,6 @@ const router = Router()
 // 當年全部
 router.get('/', hpaNews.getAllNews)
 
-// 當年 + 關鍵字（舊路徑相容）
-router.get('/search/keyword', hpaNews.searchNewsByKeyword)
-
 // 當年 + (可選) 關鍵字（建議前端統一用這支）
 router.get('/search', hpaNews.searchNews)
 
