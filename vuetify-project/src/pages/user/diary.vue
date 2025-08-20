@@ -37,11 +37,11 @@
               <v-img
                 v-for="img in value"
                 :key="img"
+                class="rounded"
+                cover
+                height="100"
                 :src="img"
                 width="100"
-                height="100"
-                cover
-                class="rounded"
               />
             </div>
             <span v-else class="text-grey">無圖片</span>
@@ -75,7 +75,7 @@
             :error-messages="date.errorMessage.value"
             label="日期和時間"
             prepend-icon="mdi-calendar-clock"
-            type="datetime-local"
+            type="date"
           />
 
           <!-- <v-date-picker
@@ -258,7 +258,7 @@
           size: 0, // 現有圖片沒有檔案大小資訊
           type: 'image/jpeg', // 預設類型
           url: imageUrl, // 圖片 URL
-          isExisting: true // 標記為現有圖片
+          isExisting: true, // 標記為現有圖片
         }))
         fileRecords.value = existingFiles
       } else {

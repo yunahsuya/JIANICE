@@ -38,34 +38,34 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="searchKeyword"
+                  clearable
                   label="搜尋關鍵字"
                   placeholder="例如：營養、健康、癌症、兒童"
-                  clearable
                   @keyup.enter="searchNews"
                 />
               </v-col>
               <v-col cols="12" md="3">
                 <v-text-field
                   v-model="startDate"
+                  clearable
                   label="開始日期"
                   placeholder="2024/01/01"
-                  clearable
                 />
               </v-col>
               <v-col cols="12" md="3">
                 <v-text-field
                   v-model="endDate"
+                  clearable
                   label="結束日期"
                   placeholder="2024/12/31"
-                  clearable
                 />
               </v-col>
               <v-col cols="12" md="2">
                 <v-btn
-                  color="primary"
                   block
-                  @click="searchNews"
+                  color="primary"
                   :loading="loading"
+                  @click="searchNews"
                 >
                   搜尋
                 </v-btn>
@@ -79,9 +79,9 @@
                   <v-chip
                     v-for="topic in healthTopics"
                     :key="topic"
-                    @click="searchByTopic(topic)"
-                    variant="outlined"
                     color="primary"
+                    variant="outlined"
+                    @click="searchByTopic(topic)"
                   >
                     {{ topic }}
                   </v-chip>
@@ -91,10 +91,10 @@
 
             <!-- 載入中 -->
             <v-row v-if="loading">
-              <v-col cols="12" class="text-center">
+              <v-col class="text-center" cols="12">
                 <v-progress-circular
-                  indeterminate
                   color="primary"
+                  indeterminate
                   size="64"
                 />
                 <p class="mt-4">正在載入健康新聞...</p>
@@ -104,9 +104,9 @@
             <!-- 錯誤訊息 -->
             <v-alert
               v-if="error"
-              type="error"
               class="mb-4"
               closable
+              type="error"
               @click:close="error = ''"
             >
               {{ error }}
@@ -118,8 +118,8 @@
                 v-for="news in newsData"
                 :key="news.標題"
                 cols="12"
-                md="6"
                 lg="4"
+                md="6"
               >
                 <v-card
                   class="h-100"
@@ -139,16 +139,16 @@
 
                     <div class="d-flex justify-space-between align-center mt-3">
                       <v-chip
-                        size="small"
                         color="info"
+                        size="small"
                         variant="outlined"
                       >
                         {{ formatDate(news.發布日期) }}
                       </v-chip>
                       <v-chip
                         v-if="news.修改日期 && news.修改日期 !== news.發布日期"
-                        size="small"
                         color="warning"
+                        size="small"
                         variant="outlined"
                       >
                         更新: {{ formatDate(news.修改日期) }}
@@ -179,8 +179,8 @@
 
             <!-- 無資料 -->
             <v-row v-else-if="!loading && newsData.length === 0">
-              <v-col cols="12" class="text-center">
-                <v-icon size="64" color="grey">mdi-newspaper-variant-outline</v-icon>
+              <v-col class="text-center" cols="12">
+                <v-icon color="grey" size="64">mdi-newspaper-variant-outline</v-icon>
                 <p class="text-h6 mt-4">沒有找到相關的健康新聞</p>
                 <p class="text-body-2 text-grey">請嘗試其他關鍵字或日期範圍</p>
               </v-col>
@@ -238,127 +238,127 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import AboutCard from '@/components/InfoCard.vue'
-import hpaNewsService from '@/services/hpaNews'
+  import { onMounted, ref } from 'vue'
+  import AboutCard from '@/components/InfoCard.vue'
+  // import hpaNewsService from '@/services/hpanews11'
 
-const icons = [
-  'mdi-github',
-  'mdi-google',
-  'mdi-linkedin',
-  'mdi-instagram',
-]
+  const icons = [
+    'mdi-github',
+    'mdi-google',
+    'mdi-linkedin',
+    'mdi-instagram',
+  ]
 
-// 響應式資料
-const newsData = ref([])
-const loading = ref(false)
-const error = ref('')
-const searchKeyword = ref('')
-const startDate = ref('')
-const endDate = ref('')
+  // 響應式資料
+  const newsData = ref([])
+  const loading = ref(false)
+  const error = ref('')
+  const searchKeyword = ref('')
+  const startDate = ref('')
+  const endDate = ref('')
 
-// 健康主題選項
-const healthTopics = [
-  '營養',
-  '健康',
-  '癌症',
-  '糖尿病',
-  '高血壓',
-  '肥胖',
-  '運動',
-  '飲食',
-  '兒童',
-  '戒菸'
-]
+  // 健康主題選項
+  const healthTopics = [
+    '營養',
+    '健康',
+    '癌症',
+    '糖尿病',
+    '高血壓',
+    '肥胖',
+    '運動',
+    '飲食',
+    '兒童',
+    '戒菸',
+  ]
 
-// 搜尋新聞
-const searchNews = async () => {
-  loading.value = true
-  error.value = ''
+  // 搜尋新聞
+  const searchNews = async () => {
+    loading.value = true
+    error.value = ''
 
-  try {
-    const response = await hpaNewsService.searchNews(
-      searchKeyword.value,
-      startDate.value,
-      endDate.value
-    )
-    newsData.value = response.data.data || []
-  } catch (err) {
-    console.error('搜尋新聞失敗:', err)
-    error.value = '載入新聞時發生錯誤，請稍後再試'
-    newsData.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-// 根據主題搜尋
-const searchByTopic = async (topic) => {
-  searchKeyword.value = topic
-  await searchNews()
-}
-
-// 格式化日期
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  try {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('zh-TW')
-  } catch {
-    return dateString
-  }
-}
-
-// 截斷內容並移除HTML標籤
-const truncateContent = (htmlContent, maxLength) => {
-  if (!htmlContent) return ''
-
-  // 移除HTML標籤
-  const textContent = htmlContent.replace(/<[^>]*>/g, '')
-
-  // 截斷文字
-  if (textContent.length <= maxLength) {
-    return htmlContent
+    try {
+      const response = await hpaNewsService.searchNews(
+        searchKeyword.value,
+        startDate.value,
+        endDate.value,
+      )
+      newsData.value = response.data.data || []
+    } catch (error_) {
+      console.error('搜尋新聞失敗:', error_)
+      error.value = '載入新聞時發生錯誤，請稍後再試'
+      newsData.value = []
+    } finally {
+      loading.value = false
+    }
   }
 
-  // 截斷並加上省略號
-  const truncatedText = textContent.substring(0, maxLength) + '...'
-  return truncatedText
-}
-
-// 開啟新聞連結
-const openNewsLink = (url) => {
-  if (url) {
-    window.open(url, '_blank')
+  // 根據主題搜尋
+  const searchByTopic = async topic => {
+    searchKeyword.value = topic
+    await searchNews()
   }
-}
 
-// 頁面載入時取得最新新聞
-const loadLatestNews = async () => {
-  loading.value = true
-  error.value = ''
-
-  try {
-    const response = await hpaNewsService.getLatestNews()
-    newsData.value = response.data.data || []
-  } catch (err) {
-    console.error('載入最新新聞失敗:', err)
-    error.value = '載入最新新聞時發生錯誤，請稍後再試'
-    newsData.value = []
-  } finally {
-    loading.value = false
+  // 格式化日期
+  const formatDate = dateString => {
+    if (!dateString) return ''
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('zh-TW')
+    } catch {
+      return dateString
+    }
   }
-}
 
-const info = () => {
-  const el = document.querySelector('#info')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
-}
+  // 截斷內容並移除HTML標籤
+  const truncateContent = (htmlContent, maxLength) => {
+    if (!htmlContent) return ''
 
-// 頁面載入時執行
-onMounted(() => {
-  loadLatestNews()
-})
+    // 移除HTML標籤
+    const textContent = htmlContent.replace(/<[^>]*>/g, '')
+
+    // 截斷文字
+    if (textContent.length <= maxLength) {
+      return htmlContent
+    }
+
+    // 截斷並加上省略號
+    const truncatedText = textContent.slice(0, Math.max(0, maxLength)) + '...'
+    return truncatedText
+  }
+
+  // 開啟新聞連結
+  const openNewsLink = url => {
+    if (url) {
+      window.open(url, '_blank')
+    }
+  }
+
+  // 頁面載入時取得最新新聞
+  const loadLatestNews = async () => {
+    loading.value = true
+    error.value = ''
+
+    try {
+      const response = await hpaNewsService.getLatestNews()
+      newsData.value = response.data.data || []
+    } catch (error_) {
+      console.error('載入最新新聞失敗:', error_)
+      error.value = '載入最新新聞時發生錯誤，請稍後再試'
+      newsData.value = []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const info = () => {
+    const el = document.querySelector('#info')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // 頁面載入時執行
+  onMounted(() => {
+    loadLatestNews()
+  })
 </script>
 
 <style scoped>

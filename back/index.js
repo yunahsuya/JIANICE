@@ -28,9 +28,10 @@ import diaryRouter from './routes/diary.js'
 import restaurantRouter from './routes/restaurant.js'
 
 // 健康新聞
-import newsdataRouter from './routes/newsdata.js'
+// import newsdataRouter from './routes/newsdata.js'
 
 // 國民健康署新聞 (測試用)
+// import hpaNewsRouter from './routes/hpanews11.js'
 import hpaNewsRouter from './routes/hpanews.js'
 
 // 幫你處理「使用者要登入」時的驗證流程，本身不負責怎麼驗證，而是提供一個框架，讓你用各種策略（Strategy）去實作
@@ -123,7 +124,7 @@ app.use('/diary', diaryRouter)
 app.use('/restaurant', restaurantRouter)
 
 // 健康新聞
-app.use('/newsdata', newsdataRouter)
+// app.use('/newsdata', newsdataRouter)
 
 // 國民健康署新聞
 app.use('/hpanews', hpaNewsRouter)

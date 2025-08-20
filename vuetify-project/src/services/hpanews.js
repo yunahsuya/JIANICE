@@ -1,37 +1,20 @@
 import apiService from './api'
 
 export default {
-  // 取得所有新聞
-  getAllNews () {
+  // 今年全部
+  getAllThisYear () {
     return apiService.api.get('/hpanews')
   },
-
-  // 根據關鍵字搜尋新聞
-  searchNewsByKeyword (keyword) {
-    return apiService.api.get('/hpanews/search/keyword', {
-      params: { keyword }
-    })
-  },
-
-  // 根據日期範圍搜尋新聞
-  searchNewsByDate (startdate, enddate) {
-    return apiService.api.get('/hpanews/search/date', {
-      params: { startdate, enddate }
-    })
-  },
-
-  // 綜合搜尋
-  searchNews (keyword, startdate, enddate) {
+  // 今年 + 關鍵字（建議用這支）
+  searchThisYear (keyword) {
     const params = {}
-    if (keyword) params.keyword = keyword
-    if (startdate) params.startdate = startdate
-    if (enddate) params.enddate = enddate
-
+    if (keyword) {
+      params.keyword = keyword
+    }
     return apiService.api.get('/hpanews/search', { params })
   },
-
-  // 取得最新新聞
-  getLatestNews () {
+  // 今年（別名）
+  getLatestThisYear () {
     return apiService.api.get('/hpanews/latest')
-  }
+  },
 }

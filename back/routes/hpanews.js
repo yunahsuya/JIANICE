@@ -1,21 +1,21 @@
 import { Router } from 'express'
-import * as hpaNews from '../controllers/hpaNews.js'
+import * as hpaNews from '../controllers/hpanews.js'
 
 const router = Router()
 
-// 取得所有新聞
+// 當年全部
 router.get('/', hpaNews.getAllNews)
 
-// 根據關鍵字搜尋新聞
+// 當年 + 關鍵字（舊路徑相容）
 router.get('/search/keyword', hpaNews.searchNewsByKeyword)
 
-// 根據日期範圍搜尋新聞
-router.get('/search/date', hpaNews.searchNewsByDate)
-
-// 綜合搜尋
+// 當年 + (可選) 關鍵字（建議前端統一用這支）
 router.get('/search', hpaNews.searchNews)
 
-// 取得最新新聞
+// 當年（別名）
 router.get('/latest', hpaNews.getLatestNews)
+
+// 清除快取（可選，用於管理）
+router.delete('/cache', hpaNews.clearCacheEndpoint)
 
 export default router
