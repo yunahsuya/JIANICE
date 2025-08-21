@@ -6,7 +6,7 @@
       <v-container>
         <v-row>
           <v-col cols="12">
-            <h2 class="text-h4 mb-2">最新健康新聞</h2>
+            <h1 class="mb-2">最新健康新聞</h1>
 
             <v-divider class="mb-5 border-opacity-50" color="orange-darken-2" length="150" :thickness="5" />
 
@@ -34,13 +34,14 @@
               </v-col>
             </v-row>
 
-            <!-- 快速搜尋按鈕 -->
+            <!-- 分類按鈕 -->
             <v-chip-group class="mb-4">
               <v-chip
                 v-for="topic in healthTopics"
                 :key="topic"
                 color="primary"
-                variant="outlined"
+                filter
+                text="全部"
                 @click="searchByTopic(topic)"
               >
                 {{ topic }}
@@ -79,6 +80,7 @@
                 md="6"
               >
                 <v-card
+                  v-lazy
                   class="h-100"
                   elevation="2"
                   hover

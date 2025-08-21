@@ -1,15 +1,15 @@
 <template>
   <v-container>
     <!-- 頁面標題區域 -->
-    <v-row>
-      <v-col cols="12">
+    <v-row class="mb-6">
+      <v-col class="text-center" cols="12">
         <h1 class="text-h2 font-weight-bold text-success mb-2">回憶牆</h1>
-        <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p>
+        <p class="text-body-1 text-medium-emphasis">記錄生活中的美好時刻，分享您的快樂回憶</p>
       </v-col>
     </v-row>
 
     <!-- 篩選和搜尋區域 -->
-    <v-row class="mb-4">
+    <v-row class="mb-6">
 
       <!-- 搜尋回憶 -->
       <v-col cols="12" md="6">
@@ -25,31 +25,24 @@
       <!-- 選擇分類 -->
       <v-chip-group
         v-model="selectedCategory"
-        class="d-flex align-center ml-10"
         clearable
         cols="12"
         hide-details
         md="6"
+        prepend-icon="mdi-filter"
       >
 
         <!-- 全部 -->
         <v-chip
-          class="mr-3"
-          color="primary"
           filter
-          size="x-large"
           text="全部"
           :value="''"
         />
 
-        <!-- 分類細項 (開心、難過...) -->
         <v-chip
           v-for="option in categoryOptions"
           :key="option"
-          class="mr-3"
-          color="primary"
           filter
-          size="x-large"
           :text="option"
           :value="option"
         />
@@ -65,14 +58,24 @@
       </v-col>
     </v-row>
 
+    <!-- <v-row>
+      <v-col
+        v-for="diary in currentPageDiarys"
+        :key="diary._id"
+        cols="12"
+        lg="4"
+        md="6"
+      />
+    </v-row> -->
+
     <!-- 日記卡片網格 -->
     <v-row v-else-if="filteredDiarys.length > 0">
       <v-col
         v-for="diary in filteredDiarys"
         :key="diary._id"
         cols="12"
-        lg="4"
-        md="6"
+        lg="3"
+        md="4"
         sm="6"
       >
         <DiaryCard :diary="diary" @click="openDiaryDetail(diary)" />
@@ -139,7 +142,7 @@
           <!-- 描述內容 -->
           <div class="text-body-1">
             <h4 class="text-h6 mb-2">今日三件好事：</h4>
-            <p class="text-body-1 description-content">{{ detailDialog.diary.description }}</p>
+            <p class="text-body-1">{{ detailDialog.diary.description }}</p>
           </div>
 
           <!-- 建立時間 -->
@@ -248,12 +251,5 @@
 .v-carousel {
   border-radius: 8px;
   overflow: hidden;
-}
-
-/* 新增：讓詳情頁面的描述內容可以換行 */
-.description-content {
-  white-space: pre-line;
-  word-wrap: break-word;
-  line-height: 1.8;
 }
 </style>

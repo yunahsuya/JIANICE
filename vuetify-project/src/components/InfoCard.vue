@@ -8,6 +8,7 @@
       <v-col cols="6">
 
         <v-card
+          v-lazy
           class="mt-8"
           color="green"
           prepend-icon="mdi-home-heart"
@@ -31,6 +32,7 @@
 
       <v-col cols="6">
         <v-card
+          v-lazy
           class="mt-8"
           prepend-icon="mdi-nutrition"
           variant="tonal"
@@ -51,6 +53,7 @@
 
       <v-col cols="6">
         <v-card
+          v-lazy
           prepend-icon="mdi-newspaper"
           variant="tonal"
           width="450"
@@ -70,7 +73,7 @@
 
       <v-col cols="6">
         <v-card
-
+          v-lazy
           prepend-icon="mdi-panorama-variant-outline"
           variant="tonal"
           width="450"

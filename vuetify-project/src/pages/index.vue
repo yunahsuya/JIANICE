@@ -106,7 +106,6 @@
 </template>
 
 <script setup>
-  import AboutCard from '@/components/InfoCard.vue'
 
   const icons = [
     'mdi-github',

@@ -322,7 +322,7 @@
       // 描述
       description: yup
         .string()
-        .max(500, '最多只能有 500 字元'),
+        .max(1000, '最多只能有 1000 字元'),
 
       // 分類
       category: yup

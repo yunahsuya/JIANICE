@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutCard: typeof import('./src/components/InfoCard.vue')['default']
+    DiaryCard: typeof import('./src/components/DiaryCard.vue')['default']
     EmptyStates: typeof import('./src/components/EmptyStates.vue')['default']
     FloatingactionButtons: typeof import('./src/components/FloatingactionButtons.vue')['default']
     InfoCard: typeof import('./src/components/InfoCard.vue')['default']
