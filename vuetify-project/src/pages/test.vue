@@ -158,7 +158,7 @@
 
 <script setup>
   import { computed, onMounted, ref } from 'vue'
-  import DiaryCard from '@/components/DiaryCard.vue'
+  import DiaryCard from '@/components/diary/DiaryCard.vue'
   import diaryService from '@/services/diary'
   import { useUserStore } from '@/stores/user'
 

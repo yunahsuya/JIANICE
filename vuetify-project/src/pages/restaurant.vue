@@ -83,7 +83,7 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useSnackbar } from 'vuetify-use-dialog'
-  import RestaurantCard from '@/components/RestaurantCard.vue'
+  import RestaurantCard from '@/components/restaurant/RestaurantCard.vue'
   import restaurantService from '@/services/restaurant'
 
   const createSnackbar = useSnackbar()

@@ -24,6 +24,7 @@
               <v-col class="pa-4" cols="12" md="2">
                 <v-btn
                   block
+                  class="text-body-1 font-weight-bold"
                   color="primary"
                   height="50"
                   :loading="loading"
@@ -39,8 +40,10 @@
               <v-chip
                 v-for="topic in healthTopics"
                 :key="topic"
+                class="font-weight-medium"
                 color="primary"
                 filter
+                size="large"
                 text="全部"
                 @click="searchByTopic(topic)"
               >
@@ -81,7 +84,7 @@
               >
                 <v-card
                   v-lazy
-                  class="h-100"
+                  class="h-100 mb-3"
                   elevation="2"
                   hover
                   style="cursor: pointer;"
@@ -120,6 +123,7 @@
                   <v-card-actions @click.stop>
                     <v-spacer />
                     <v-btn
+                      class="mt-3 mr-2"
                       color="primary"
                       variant="elevated"
                       @click="openNewsLink(news.連結網址)"
@@ -144,7 +148,7 @@
       </v-container>
 
       <!-- 頁尾 -->
-      <v-footer class="text-center d-flex flex-column ga-2 " color="indigo-lighten-1">
+      <v-footer class="text-center d-flex flex-column ga-2 mt-7 " color="indigo-lighten-1">
         <div class="d-flex ga-3">
           <v-btn
             v-for="icon in icons"
