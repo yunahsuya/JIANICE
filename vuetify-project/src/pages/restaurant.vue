@@ -31,9 +31,9 @@
             :key="category.value"
             class="font-weight-medium transition-all hover-lift mt-2 mr-3"
             :color="selectedCity === category.value ? 'primary' : 'default'"
+            :loading="loading && selectedCity === category.value"
             size="large"
             :variant="selectedCity === category.value ? 'elevated' : 'outlined'"
-            :loading="loading && selectedCity === category.value"
             @click="selectCategory(category.value)"
           >
             <v-icon class="mr-2" :icon="category.icon" />
@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-  import { computed, ref, watch, nextTick } from 'vue'
+  import { computed, nextTick, ref, watch } from 'vue'
   import { useSnackbar } from 'vuetify-use-dialog'
   import RestaurantCard from '@/components/restaurant/RestaurantCard.vue'
   import restaurantService from '@/services/restaurant'
@@ -189,7 +189,7 @@
       if (restaurantSection.value) {
         restaurantSection.value.scrollIntoView({
           behavior: 'smooth',
-          block: 'start'
+          block: 'start',
         })
       }
     })

@@ -257,3 +257,10 @@
   line-height: 1.8;
 }
 </style>
+
+<route lang="yaml">
+  meta:
+    title: '日記牆'
+    login: ''
+    admin: false
+</route>

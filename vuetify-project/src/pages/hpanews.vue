@@ -74,9 +74,9 @@
             </v-alert>
 
             <!-- 新聞列表 -->
-            <v-row v-if="newsData.length > 0">
+            <v-row v-if="currentPageNews.length > 0">
               <v-col
-                v-for="news in newsData"
+                v-for="news in currentPageNews"
                 :key="news.標題"
                 cols="12"
                 lg="4"
@@ -136,13 +136,23 @@
             </v-row>
 
             <!-- 無資料 -->
-            <v-row v-else-if="!loading && newsData.length === 0">
+            <v-row v-else-if="!loading && currentPageNews.length === 0">
               <v-col class="text-center" cols="12">
                 <v-icon color="grey" size="64">mdi-newspaper-variant-outline</v-icon>
                 <p class="text-h6 mt-4">沒有找到相關的健康新聞</p>
                 <p class="text-body-2 text-grey">請嘗試其他關鍵字或日期範圍</p>
               </v-col>
             </v-row>
+
+            <!-- 分頁 -->
+            <div v-if="totalPages > 1 && !loading" class="d-flex justify-center mt-10">
+              <v-pagination
+                v-model="page"
+                :length="totalPages"
+                rounded="circle"
+                :total-visible="7"
+              />
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -178,7 +188,7 @@
 </template>
 
 <script setup>
-  import { onActivated, onDeactivated, onMounted, ref } from 'vue'
+  import { onActivated, onDeactivated, onMounted, ref, computed, watch } from 'vue'
   import cacheService from '@/services/cache'
   import hpaNewsService from '@/services/hpanews'
 
@@ -201,6 +211,21 @@
   const searchKeyword = ref('')
   const selectedMonth = ref(null)
   const selectedTopic = ref('全部')
+  const page = ref(1)
+
+  // 分頁設定
+  const ITEMS_PER_PAGE = 12
+
+  // 計算屬性
+  const totalPages = computed(() => {
+    return Math.ceil(newsData.value.length / ITEMS_PER_PAGE)
+  })
+
+  const currentPageNews = computed(() => {
+    const start = (page.value - 1) * ITEMS_PER_PAGE
+    const end = start + ITEMS_PER_PAGE
+    return newsData.value.slice(start, end)
+  })
 
   // 快取鍵值
   const CACHE_KEYS = {
@@ -229,6 +254,7 @@
   const searchNews = async () => {
     loading.value = true
     error.value = ''
+    page.value = 1 // 重置分頁
 
     try {
       // 檢查搜尋快取
@@ -261,6 +287,7 @@
   // 根據主題搜尋
   const searchByTopic = async topic => {
     selectedTopic.value = topic
+    page.value = 1 // 重置分頁
 
     if (topic === '全部') {
       searchKeyword.value = ''
@@ -312,6 +339,7 @@
   const loadLatestNews = async () => {
     loading.value = true
     error.value = ''
+    page.value = 1 // 重置分頁
 
     try {
       // 檢查快取是否有效
@@ -338,6 +366,11 @@
     }
   }
 
+  // 監聽搜尋變化，重置分頁
+  watch(searchKeyword, () => {
+    page.value = 1
+  })
+
   // 頁面載入時執行
   onMounted(() => {
     loadLatestNews()
@@ -359,6 +392,7 @@
   })
 
 </script>
+
 
 <style scoped>
 .news-content {
