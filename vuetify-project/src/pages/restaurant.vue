@@ -22,8 +22,8 @@
     </div>
 
     <v-container class="rounded-t-xl mt-n5 pa-10" style="min-height: calc(100vh - 300px);">
-      <!-- 分類標籤 -->
-      <div class="mb-10">
+      <!-- 分類標籤 - 固定在頂部 -->
+      <div ref="categorySection" class="mb-10 sticky-top">
         <h1 class="font-weight-semibold mb-2">選擇地區</h1>
         <div class="d-flex flex-wrap gap-3">
           <v-chip
@@ -120,6 +120,7 @@
   const selectedCity = ref('')
   const page = ref(1)
   const restaurantSection = ref(null)
+  const categorySection = ref(null)
 
   // 分類資料
   const categories = [
@@ -183,11 +184,11 @@
     return filteredRestaurants.value.slice(start, end)
   })
 
-  // 平滑滾動到餐廳列表區域
-  const scrollToRestaurantSection = () => {
+  // 改進的滾動函數 - 滾動到分類區域而不是餐廳列表
+  const scrollToCategorySection = () => {
     nextTick(() => {
-      if (restaurantSection.value) {
-        restaurantSection.value.scrollIntoView({
+      if (categorySection.value) {
+        categorySection.value.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
         })
@@ -202,8 +203,8 @@
     selectedCity.value = city
     page.value = 1
 
-    // 立即滾動到餐廳列表區域
-    scrollToRestaurantSection()
+    // 滾動到分類區域，確保分類選項可見
+    scrollToCategorySection()
 
     // 如果已經有資料，直接使用過濾功能，不需要重新載入
     if (restaurants.value.length > 0) {
@@ -217,6 +218,8 @@
       console.error('Error selecting category:', error)
     }
   }
+
+
 
   const getRestaurants = async () => {
     loading.value = true
