@@ -1,219 +1,336 @@
 <template>
-  <v-row>
-    <v-col cols="12">
-      <!-- 視差 -->
-      <v-parallax
-        src="../assets/pexels-goumbik-349610.jpg"
-      >
-        <div class="d-flex flex-column h-screen justify-center" style="color: #0E6200;">
-          <p style="font-size: 48px; font-weight: bold; padding-left: 90px;">不只是選擇餐廳</p>
+  <div>
 
-          <p style="font-size: 48px; padding-left: 90px; line-height: 45px; margin-bottom: 25px;">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
-
-          <p style="font-size: 24px; padding-left: 90px; line-height: 35px; font-weight:400"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
-            我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。</p>
-
-          <v-btn
-            class="text-white"
-            color="orange-darken-2"
-            rounded
-            style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;"
-            @click="info"
-          >瞭解更多功能</v-btn>
+    <!-- 團隊故事 Section -->
+    <section id="story" class="bg-white">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            我們的故事
+          </h2>
+          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
         </div>
-      </v-parallax>
 
-      <v-container id="info">
-        <AboutCard />
+        <v-row class="align-center">
+          <v-col cols="12" md="6">
+            <div class="pr-md-8">
+              <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
+                創辦理念
+              </h3>
+              <p class="text-body-1 text-grey-darken-1 mb-6 line-height-1-7">
+                在現代快節奏的生活中，我們發現許多人面臨著相同的困擾：不知道要吃什麼、擔心營養不均衡、以及想要記錄美好用餐時光卻找不到合適的方式。
+              </p>
+              <p class="text-body-1 text-grey-darken-1 mb-6 line-height-1-7">
+                於是，我們決定創建 JiaNice，一個整合餐廳推薦、營養管理、健康資訊和回憶保存的綜合平台，讓每一次用餐都成為值得期待的美好體驗。
+              </p>
+            </div>
+          </v-col>
+
+          <v-col cols="12" md="6">
+            <v-card class="overflow-hidden" elevation="8" rounded="xl">
+              <v-img
+                class="transition-swing"
+                cover
+                height="300"
+                src="../assets/pexels-viktoria-slowikowska-5677720.jpg"
+              />
+            </v-card>
+          </v-col>
+        </v-row>
       </v-container>
+    </section>
 
-      <!-- 原有的卡片和頁尾 -->
-      <v-card class="mx-auto" rounded="0">
-        <v-img
-          cover
-          height="100%"
-          src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
-        >
-          <div class="d-flex flex-column fill-height justify-center align-center text-white">
-            <h1 class="text-h1 font-weight pl-4 ">
-              Vuetify
-            </h1>
-            <h4 class="text-h4 pl-10">
-              Build your application today!
-            </h4>
-          </div>
-        </v-img>
+    <!-- 技術特色 Section -->
+    <section class="bg-grey-lighten-5">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            技術特色
+          </h2>
+          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+        </div>
 
-        <!-- 頁尾 -->
-        <v-footer class="text-center d-flex flex-column ga-2 " color="indigo-lighten-1">
-          <div class="d-flex ga-3">
-            <v-btn
-              v-for="icon in icons"
-              :key="icon"
-              density="comfortable"
-              :icon="icon"
-              variant="text"
-            />
-          </div>
+        <v-row class="justify-center">
+          <v-col
+            v-for="(tech, index) in techFeatures"
+            :key="index"
+            cols="12"
+            lg="4"
+            md="6"
+          >
+            <v-card
+              class="h-100 transition-swing"
+              :class="{ 'elevation-12': tech.hover }"
+              elevation="4"
+              rounded="xl"
+              @mouseenter="tech.hover = true"
+              @mouseleave="tech.hover = false"
+            >
+              <div class="text-center pa-6">
+                <v-icon class="mb-4" color="orange-darken-2" :icon="tech.icon" size="48" />
+                <v-card-title class="text-h6 font-weight-bold text-grey-darken-3 text-center">
+                  {{ tech.title }}
+                </v-card-title>
+              </div>
+              <v-card-text class="pt-0 px-6 pb-6">
+                <p class="text-body-2 text-grey-darken-1 text-center">
+                  {{ tech.description }}
+                </p>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
 
-          <v-divider class="my-2" thickness="2" width="50" />
+    <!-- 發展歷程 Section -->
+    <section class="bg-white">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            發展歷程
+          </h2>
+          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+        </div>
 
-          <div class="text-caption font-weight-regular opacity-60">
-            Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-          </div>
+        <v-timeline align="start" side="end">
+          <v-timeline-item
+            v-for="(milestone, index) in milestones"
+            :key="index"
+            :dot-color="milestone.color"
+            size="large"
+          >
+            <template #opposite>
+              <div class="text-h6 font-weight-bold text-grey-darken-3">
+                {{ milestone.date }}
+              </div>
+            </template>
+            <v-card class="elevation-4" rounded="xl">
+              <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+                {{ milestone.title }}
+              </v-card-title>
+              <v-card-text class="text-body-2 text-grey-darken-1">
+                {{ milestone.description }}
+              </v-card-text>
+            </v-card>
+          </v-timeline-item>
+        </v-timeline>
+      </v-container>
+    </section>
 
-          <v-divider />
+    <!-- 用戶見證 Section -->
+    <section class="bg-grey-lighten-5">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            用戶見證
+          </h2>
+          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+        </div>
 
-          <div>
-            <v-divider class="pt-5" />
+        <v-row class="justify-center">
+          <v-col
+            v-for="(testimonial, index) in testimonials"
+            :key="index"
+            cols="12"
+            lg="4"
+            md="6"
+          >
+            <v-card class="h-100" elevation="4" rounded="xl">
+              <v-card-text class="pa-6">
+                <div class="d-flex align-center mb-4">
+                  <v-avatar class="mr-4" size="60">
+                    <v-img :src="testimonial.avatar" />
+                  </v-avatar>
+                  <div>
+                    <div class="text-h6 font-weight-bold text-grey-darken-3">
+                      {{ testimonial.name }}
+                    </div>
+                    <div class="text-body-2 text-grey-darken-1">
+                      {{ testimonial.title }}
+                    </div>
+                  </div>
+                </div>
+                <p class="text-body-1 text-grey-darken-1 line-height-1-7">
+                  "{{ testimonial.quote }}"
+                </p>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
 
-            {{ new Date().getFullYear() }} — <strong> © Yuna 版權所有</strong>
-          </div>
-        </v-footer>
-      </v-card>
-    </v-col>
-  </v-row>
+    <!-- 聯絡資訊 Section -->
+    <section class="bg-white">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            聯絡我們
+          </h2>
+          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+        </div>
+
+        <v-row class="justify-center">
+          <v-col cols="12" md="8">
+            <v-card class="pa-8" elevation="4" rounded="xl">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
+                    聯絡方式
+                  </h3>
+                  <div class="mb-4">
+                    <div class="d-flex align-center mb-3">
+                      <v-icon class="mr-3" color="orange-darken-2">mdi-email</v-icon>
+                      <span class="text-body-1">service@jianice.com</span>
+                    </div>
+                    <div class="d-flex align-center mb-3">
+                      <v-icon class="mr-3" color="orange-darken-2">mdi-phone</v-icon>
+                      <span class="text-body-1">02-1234-5678</span>
+                    </div>
+                    <div class="d-flex align-center mb-3">
+                      <v-icon class="mr-3" color="orange-darken-2">mdi-map-marker</v-icon>
+                      <span class="text-body-1">台北市信義區信義路五段7號</span>
+                    </div>
+                  </div>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
+                    營業時間
+                  </h3>
+                  <div class="text-body-1 text-grey-darken-1">
+                    <div class="mb-2">週一至週五：09:00 - 18:00</div>
+                    <div class="mb-2">週六：10:00 - 16:00</div>
+                    <div class="mb-2">週日：休息</div>
+                  </div>
+                </v-col>
+              </v-row>
+
+              <v-divider class="my-6" />
+
+              <div class="text-center">
+                <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
+                  關注我們
+                </h3>
+                <div class="d-flex justify-center">
+                  <v-btn
+                    v-for="social in socialLinks"
+                    :key="social.name"
+                    class="mx-2"
+                    color="orange-darken-2"
+                    :icon="social.icon"
+                    size="large"
+                    variant="text"
+                  />
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <!-- Footer -->
+    <v-footer class="bg-grey-darken-4 text-white">
+      <v-container class="py-8">
+        <v-row class="justify-center">
+          <v-col class="text-center" cols="12" md="8">
+            <p class="text-body-1 mb-4 opacity-80">
+              JiaNice 致力於為您提供最佳的飲食體驗，讓健康與美味並存
+            </p>
+            <p class="text-caption opacity-60">
+              © {{ new Date().getFullYear() }} JiaNice. 版權所有
+            </p>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-footer>
+  </div>
 </template>
 
 <script setup>
-  import { onMounted, ref } from 'vue'
-  import AboutCard from '@/components/InfoCard.vue'
-  // import hpaNewsService from '@/services/hpanews11'
+  const techFeatures = ref([
+    {
+      icon: 'mdi-shield-check',
+      title: '資料安全',
+      description: '採用最新的加密技術，確保您的個人資料和用餐記錄安全無虞。',
+      hover: false,
+    },
+    {
+      icon: 'mdi-api',
+      title: 'API 整合',
+      description: '與健康署等官方機構合作，提供最準確的健康資訊和營養數據。',
+      hover: false,
+    },
+    {
+      icon: 'mdi-cellphone-cog',
+      title: '響應式設計',
+      description: '支援各種裝置，無論是手機、平板還是電腦，都能提供最佳體驗。',
+      hover: false,
+    },
+  ])
 
-  const icons = [
-    'mdi-github',
-    'mdi-google',
-    'mdi-linkedin',
-    'mdi-instagram',
-  ]
+  const milestones = ref([
+    {
+      date: '2024年1月',
+      title: '專案啟動',
+      description: '團隊成立，開始規劃 JiaNice 平台架構和功能設計。',
+      color: 'orange-darken-2',
+    },
+    {
+      date: '2024年3月',
+      title: 'MVP 開發',
+      description: '完成核心功能開發，包括餐廳推薦和營養管理系統。',
+      color: 'green',
+    },
+    {
+      date: '2024年6月',
+      title: 'Beta 測試',
+      description: '邀請首批用戶進行測試，收集回饋並優化使用者體驗。',
+      color: 'blue',
+    },
+    {
+      date: '2024年9月',
+      title: '正式上線',
+      description: 'JiaNice 正式對外開放，開始為更多用戶提供服務。',
+      color: 'purple',
+    },
+  ])
 
-  // 響應式資料
-  const newsData = ref([])
-  const loading = ref(false)
-  const error = ref('')
-  const searchKeyword = ref('')
-  const startDate = ref('')
-  const endDate = ref('')
+  const testimonials = ref([
+    {
+      name: '林小明',
+      title: '上班族',
+      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+      quote: 'JiaNice 解決了我每天最大的困擾 - 不知道要吃什麼。現在我的飲食更均衡，也更有趣了！',
+    },
+    {
+      name: '王美玲',
+      title: '營養師',
+      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+      quote: '作為營養師，我很推薦 JiaNice。它讓健康飲食變得簡單易懂，用戶更容易堅持。',
+    },
+    {
+      name: '張志偉',
+      title: '美食部落客',
+      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+      quote: '不只是找餐廳，還能記錄美好回憶。JiaNice 讓每一次用餐都成為值得珍藏的故事。',
+    },
+  ])
 
-  // 健康主題選項
-  const healthTopics = [
-    '營養',
-    '健康',
-    '癌症',
-    '糖尿病',
-    '高血壓',
-    '肥胖',
-    '運動',
-    '飲食',
-    '兒童',
-    '戒菸',
-  ]
+  const socialLinks = ref([
+    { name: 'facebook', icon: 'mdi-facebook' },
+    { name: 'instagram', icon: 'mdi-instagram' },
+    { name: 'twitter', icon: 'mdi-twitter' },
+    { name: 'youtube', icon: 'mdi-youtube' },
+  ])
 
-  // 搜尋新聞
-  const searchNews = async () => {
-    loading.value = true
-    error.value = ''
-
-    try {
-      const response = await hpaNewsService.searchNews(
-        searchKeyword.value,
-        startDate.value,
-        endDate.value,
-      )
-      newsData.value = response.data.data || []
-    } catch (error_) {
-      console.error('搜尋新聞失敗:', error_)
-      error.value = '載入新聞時發生錯誤，請稍後再試'
-      newsData.value = []
-    } finally {
-      loading.value = false
-    }
-  }
-
-  // 根據主題搜尋
-  const searchByTopic = async topic => {
-    searchKeyword.value = topic
-    await searchNews()
-  }
-
-  // 格式化日期
-  const formatDate = dateString => {
-    if (!dateString) return ''
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString('zh-TW')
-    } catch {
-      return dateString
-    }
-  }
-
-  // 截斷內容並移除HTML標籤
-  const truncateContent = (htmlContent, maxLength) => {
-    if (!htmlContent) return ''
-
-    // 移除HTML標籤
-    const textContent = htmlContent.replace(/<[^>]*>/g, '')
-
-    // 截斷文字
-    if (textContent.length <= maxLength) {
-      return htmlContent
-    }
-
-    // 截斷並加上省略號
-    const truncatedText = textContent.slice(0, Math.max(0, maxLength)) + '...'
-    return truncatedText
-  }
-
-  // 開啟新聞連結
-  const openNewsLink = url => {
-    if (url) {
-      window.open(url, '_blank')
-    }
-  }
-
-  // 頁面載入時取得最新新聞
-  const loadLatestNews = async () => {
-    loading.value = true
-    error.value = ''
-
-    try {
-      const response = await hpaNewsService.getLatestNews()
-      newsData.value = response.data.data || []
-    } catch (error_) {
-      console.error('載入最新新聞失敗:', error_)
-      error.value = '載入最新新聞時發生錯誤，請稍後再試'
-      newsData.value = []
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const info = () => {
-    const el = document.querySelector('#info')
+  const scrollToStory = () => {
+    const el = document.querySelector('#story')
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
-
-  // 頁面載入時執行
-  onMounted(() => {
-    loadLatestNews()
-  })
 </script>
-
-<style scoped>
-.news-content {
-  line-height: 1.6;
-  max-height: 120px;
-  overflow: hidden;
-}
-
-.news-content :deep(p) {
-  margin-bottom: 0.5rem;
-}
-
-.news-content :deep(strong) {
-  font-weight: bold;
-}
-</style>
 
 <route lang="yaml">
   meta:
