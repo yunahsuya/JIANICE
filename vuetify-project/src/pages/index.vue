@@ -5,7 +5,7 @@
       class="h-screen"
       src="../assets/pexels-goumbik-349610.jpg"
     >
-      <div class="d-flex align-center h-100">
+      <div class="d-flex align-center h-100" style="color: #0E6200;">
         <div class="mx-auto mx-md-10" style="max-width: 800px; color: white;">
           <h1 class="text-h2 text-md-h1 font-weight-bold mb-4">
             不只是選擇餐廳
@@ -39,7 +39,8 @@
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             主要功能
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
           <p class="text-body-1 text-grey-darken-1" style="max-width: 600px; margin: 0 auto;">
             讓每一次用餐都成為美好的體驗
           </p>
@@ -94,9 +95,10 @@
       <v-container class="py-16">
         <div class="text-center mb-12">
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
-            我們的願景
+            JIANICE 的願景
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
         </div>
 
         <v-row class="align-center">

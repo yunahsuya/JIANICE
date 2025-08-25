@@ -6,9 +6,9 @@
       <v-container class="py-16">
         <div class="text-center mb-12">
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
-            我們的故事
+            JIANICE 的故事
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
         </div>
 
         <v-row class="align-center">
@@ -47,7 +47,8 @@
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             技術特色
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
         </div>
 
         <v-row class="justify-center">
@@ -90,7 +91,8 @@
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             發展歷程
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
         </div>
 
         <v-timeline align="start" side="end">
@@ -125,7 +127,8 @@
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             用戶見證
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
         </div>
 
         <v-row class="justify-center">
@@ -168,7 +171,8 @@
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             聯絡我們
           </h2>
-          <v-divider class="mx-auto mb-4" color="orange-darken-2" thickness="4" width="80" />
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+
         </div>
 
         <v-row class="justify-center">
@@ -182,29 +186,16 @@
                   <div class="mb-4">
                     <div class="d-flex align-center mb-3">
                       <v-icon class="mr-3" color="orange-darken-2">mdi-email</v-icon>
-                      <span class="text-body-1">service@jianice.com</span>
+                      <span class="text-body-1">yunahsuya@gmail.com</span>
                     </div>
                     <div class="d-flex align-center mb-3">
                       <v-icon class="mr-3" color="orange-darken-2">mdi-phone</v-icon>
-                      <span class="text-body-1">02-1234-5678</span>
+                      <span class="text-body-1">0905-336-968</span>
                     </div>
-                    <div class="d-flex align-center mb-3">
-                      <v-icon class="mr-3" color="orange-darken-2">mdi-map-marker</v-icon>
-                      <span class="text-body-1">台北市信義區信義路五段7號</span>
-                    </div>
+
                   </div>
                 </v-col>
 
-                <v-col cols="12" md="6">
-                  <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
-                    營業時間
-                  </h3>
-                  <div class="text-body-1 text-grey-darken-1">
-                    <div class="mb-2">週一至週五：09:00 - 18:00</div>
-                    <div class="mb-2">週六：10:00 - 16:00</div>
-                    <div class="mb-2">週日：休息</div>
-                  </div>
-                </v-col>
               </v-row>
 
               <v-divider class="my-6" />

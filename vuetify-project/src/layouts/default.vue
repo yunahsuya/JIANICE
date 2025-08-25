@@ -100,7 +100,7 @@
     { title: '首頁', to: '/', icon: 'mdi-home', show: true },
     { title: '餐廳', to: '/restaurant', icon: 'mdi-silverware-fork-knife', show: true },
 
-    { title: '產品', to: '/product', icon: 'mdi-silverware-fork-knife', show: true },
+    // { title: '產品', to: '/product', icon: 'mdi-silverware-fork-knife', show: true },
 
     { title: '口袋名單', to: '/favorite', icon: 'mdi-heart', show: user.isLoggedIn },
     { title: '健康新聞', to: '/hpanews', icon: 'mdi-newspaper-variant-outline', show: true },
@@ -113,8 +113,8 @@
 
     { title: '註冊', to: '/register', icon: 'mdi-account-plus', show: !user.isLoggedIn },
     { title: '登入', to: '/login', icon: 'mdi-login', show: !user.isLoggedIn },
-    { title: '購物車', to: '/cart', icon: 'mdi-cart', show: user.isLoggedIn },
-    { title: '訂單', to: '/orders', icon: 'mdi-invoice-list-outline', show: user.isLoggedIn },
+    // { title: '購物車', to: '/cart', icon: 'mdi-cart', show: user.isLoggedIn },
+    // { title: '訂單', to: '/orders', icon: 'mdi-invoice-list-outline', show: user.isLoggedIn },
     { title: '管理者後台', to: '/admin', icon: 'mdi-cog', show: user.isLoggedIn && user.isAdmin },
 
     { title: '健康天地', to: '/user', icon: 'mdi-heart-cog-outline', show: user.isLoggedIn && user.isAdmin },

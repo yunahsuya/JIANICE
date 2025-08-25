@@ -76,7 +76,7 @@
         營養提示
       </v-btn>
 
-      <v-btn
+      <!-- <v-btn
         class="font-weight-medium"
         color="secondary"
         rounded="lg"
@@ -86,7 +86,7 @@
       >
         <v-icon class="mr-2" icon="mdi-heart" />
         收藏
-      </v-btn>
+      </v-btn> -->
     </v-card-actions>
 
     <!-- 詳情對話框 -->
