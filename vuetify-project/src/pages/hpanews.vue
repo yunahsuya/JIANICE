@@ -188,7 +188,7 @@
 </template>
 
 <script setup>
-  import { onActivated, onDeactivated, onMounted, ref, computed, watch } from 'vue'
+  import { computed, onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
   import cacheService from '@/services/cache'
   import hpaNewsService from '@/services/hpanews'
 
@@ -393,7 +393,6 @@
 
 </script>
 
-
 <style scoped>
 .news-content {
   line-height: 1.6;
@@ -413,6 +412,5 @@
 <route lang="yaml">
   meta:
     title: '健康新聞'
-    login: 'login-only'
     admin: false
 </route>

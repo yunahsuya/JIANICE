@@ -89,24 +89,6 @@
       </v-container>
     </section>
 
-    <!-- Stats Section -->
-    <section class="bg-grey-darken-4 text-white">
-      <v-container class="py-16">
-        <v-row class="justify-center text-center">
-          <v-col v-for="(stat, index) in stats" :key="index" cols="6" md="3">
-            <div class="pa-4">
-              <div class="text-h2 text-md-h1 font-weight-bold text-orange-darken-2 mb-2">
-                {{ stat.number }}
-              </div>
-              <div class="text-body-1 opacity-90">
-                {{ stat.label }}
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <!-- Vision Section -->
     <section class="bg-white">
       <v-container class="py-16">
@@ -270,13 +252,6 @@
     },
   ])
 
-  const stats = [
-    { number: '1000+', label: '合作餐廳' },
-    { number: '50K+', label: '活躍用戶' },
-    { number: '100K+', label: '美食回憶' },
-    { number: '24/7', label: '貼心服務' },
-  ]
-
   const socialIcons = [
     { name: 'github', icon: 'mdi-github' },
     { name: 'instagram', icon: 'mdi-instagram' },
@@ -305,6 +280,5 @@
 <route lang="yaml">
   meta:
     title: '首頁'
-    login: 'login-only'
     admin: false
 </route>

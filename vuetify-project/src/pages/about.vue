@@ -335,6 +335,5 @@
 <route lang="yaml">
   meta:
     title: '關於我們'
-    login: 'login-only'
     admin: false
 </route>
