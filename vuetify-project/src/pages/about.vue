@@ -121,7 +121,7 @@
     </section>
 
     <!-- 用戶見證 Section -->
-    <section class="bg-grey-lighten-5">
+    <!-- <section class="bg-grey-lighten-5">
       <v-container class="py-16">
         <div class="text-center mb-12">
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
@@ -162,7 +162,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </section>
+    </section> -->
 
     <!-- 聯絡資訊 Section -->
     <section class="bg-white">
@@ -184,13 +184,22 @@
                     聯絡方式
                   </h3>
                   <div class="mb-4">
+                    <!-- 信箱 -->
                     <div class="d-flex align-center mb-3">
                       <v-icon class="mr-3" color="orange-darken-2">mdi-email</v-icon>
                       <span class="text-body-1">yunahsuya@gmail.com</span>
                     </div>
+
+                    <!-- 電話 -->
                     <div class="d-flex align-center mb-3">
                       <v-icon class="mr-3" color="orange-darken-2">mdi-phone</v-icon>
                       <span class="text-body-1">0905-336-968</span>
+                    </div>
+
+                    <!-- 網站連結 -->
+                    <div class="d-flex align-center mb-3">
+                      <v-icon class="mr-3" color="orange-darken-2">mdi-github</v-icon>
+                      <a class="text-body-1" href="https://github.com/yunahsuya">https://github.com/yunahsuya</a>
                     </div>
 
                   </div>
@@ -264,51 +273,69 @@
 
   const milestones = ref([
     {
-      date: '2024年1月',
-      title: '專案啟動',
-      description: '團隊成立，開始規劃 JiaNice 平台架構和功能設計。',
+      date: '2025年3月',
+      title: '職訓局上課',
+      description: '開始職訓局課程、HTML、CSS 基礎、JavaScript 初步',
       color: 'orange-darken-2',
     },
     {
-      date: '2024年3月',
+      date: '2025年4月',
       title: 'MVP 開發',
       description: '完成核心功能開發，包括餐廳推薦和營養管理系統。',
       color: 'green',
     },
     {
-      date: '2024年6月',
-      title: 'Beta 測試',
+      date: '2025年5月',
+      title: '證照考試',
       description: '邀請首批用戶進行測試，收集回饋並優化使用者體驗。',
       color: 'blue',
     },
     {
-      date: '2024年9月',
+      date: '2025年6月',
       title: '正式上線',
+      description: 'JiaNice 正式對外開放，開始為更多用戶提供服務。',
+      color: 'purple',
+    },
+    {
+      date: '2025年7月',
+      title: '結訓 (報告)',
+      description: 'JiaNice 正式對外開放，開始為更多用戶提供服務。',
+      color: 'purple',
+    },
+    {
+      date: '2025年8月',
+      title: '專題製作',
+      description: 'JiaNice 正式對外開放，開始為更多用戶提供服務。',
+      color: 'purple',
+    },
+    {
+      date: '2025年9月',
+      title: '結訓 (報告)',
       description: 'JiaNice 正式對外開放，開始為更多用戶提供服務。',
       color: 'purple',
     },
   ])
 
-  const testimonials = ref([
-    {
-      name: '林小明',
-      title: '上班族',
-      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
-      quote: 'JiaNice 解決了我每天最大的困擾 - 不知道要吃什麼。現在我的飲食更均衡，也更有趣了！',
-    },
-    {
-      name: '王美玲',
-      title: '營養師',
-      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
-      quote: '作為營養師，我很推薦 JiaNice。它讓健康飲食變得簡單易懂，用戶更容易堅持。',
-    },
-    {
-      name: '張志偉',
-      title: '美食部落客',
-      avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
-      quote: '不只是找餐廳，還能記錄美好回憶。JiaNice 讓每一次用餐都成為值得珍藏的故事。',
-    },
-  ])
+  // const testimonials = ref([
+  //   {
+  //     name: '林小明',
+  //     title: '上班族',
+  //     avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+  //     quote: 'JiaNice 解決了我每天最大的困擾 - 不知道要吃什麼。現在我的飲食更均衡，也更有趣了！',
+  //   },
+  //   {
+  //     name: '王美玲',
+  //     title: '營養師',
+  //     avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+  //     quote: '作為營養師，我很推薦 JiaNice。它讓健康飲食變得簡單易懂，用戶更容易堅持。',
+  //   },
+  //   {
+  //     name: '張志偉',
+  //     title: '美食部落客',
+  //     avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
+  //     quote: '不只是找餐廳，還能記錄美好回憶。JiaNice 讓每一次用餐都成為值得珍藏的故事。',
+  //   },
+  // ])
 
   const socialLinks = ref([
     { name: 'facebook', icon: 'mdi-facebook' },

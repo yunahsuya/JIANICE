@@ -53,10 +53,10 @@
     <!-- 操作按鈕 -->
     <v-card-actions class="pa-4 pt-0">
       <v-btn
-        class="font-weight-medium"
+        class="font-weight-medium flex-1"
         color="primary"
         rounded="lg"
-        style="min-width: 120px;"
+        style="min-width: 160px;"
         variant="elevated"
         @click.stop="openGoogleMaps"
       >
@@ -65,10 +65,10 @@
       </v-btn>
 
       <v-btn
-        class="font-weight-medium"
+        cclass="font-weight-medium flex-1"
         color="success"
         rounded="lg"
-        style="min-width: 120px;"
+        style="min-width: 160px;"
         variant="outlined"
         @click.stop="showNutritionTips = true"
       >

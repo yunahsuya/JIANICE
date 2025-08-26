@@ -5,35 +5,31 @@
       class="h-screen"
       src="../assets/pexels-goumbik-349610.jpg"
     >
-      <div class="d-flex align-center h-100" style="color: #0E6200;">
-        <div class="mx-auto mx-md-10" style="max-width: 800px; color: white;">
-          <h1 class="text-h2 text-md-h1 font-weight-bold mb-4">
-            不只是選擇餐廳
-          </h1>
-          <h2 class="text-h4 text-md-h3 font-weight-regular mb-6">
-            解決選擇困難、營養缺口與回憶保存的飲食平台
-          </h2>
-          <p class="text-body-1 mb-8 opacity-90">
-            在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
-            我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。
-          </p>
-          <v-btn
-            class="text-white font-weight-bold"
-            color="orange-darken-2"
-            elevation="8"
-            rounded="pill"
-            size="x-large"
-            @click="scrollToInfo"
-          >
-            <v-icon start>mdi-arrow-down</v-icon>
-            探索更多功能
-          </v-btn>
-        </div>
+      <div class="d-flex flex-column h-screen justify-center" style="color: #0E6200;">
+        <!-- <div class="mx-auto mx-md-10" style="max-width: 800px; "> -->
+
+        <p style="font-size: 48px; font-weight: bold; padding-left: 90px;">不只是選擇餐廳</p>
+
+        <p style="font-size: 48px; padding-left: 90px; line-height: 45px; margin-bottom: 25px;">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
+
+        <p style="font-size: 24px; padding-left: 90px; line-height: 35px; font-weight:400"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
+          我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。</p>
+        <v-btn
+          class="text-white"
+          color="orange-darken-2"
+          rounded
+          style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;"
+          @click="scrollToInfo"
+        >
+          <v-icon start>mdi-arrow-down</v-icon>
+          探索更多功能
+        </v-btn>
+        <!-- </div> -->
       </div>
     </v-parallax>
 
     <!-- Features Section -->
-    <section id="info" class="bg-grey-lighten-5">
+    <section id="info" class="bg-grey-lighten-5 h-screen">
       <v-container class="py-16">
         <div class="text-center mb-12">
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
@@ -46,7 +42,7 @@
           </p>
         </div>
 
-        <v-row class="justify-center">
+        <v-row class="justify-center ga-6" style="flex-wrap: nowrap;">
           <v-col
             v-for="(feature, index) in features"
             :key="index"
@@ -55,30 +51,31 @@
             md="6"
           >
             <v-card
-              class="h-100 transition-swing"
+              class="h-100 transition-swing feature-card"
               :class="{ 'elevation-12': feature.hover }"
               elevation="4"
               rounded="xl"
+              @click="navigateToFeature(feature.route)"
               @mouseenter="feature.hover = true"
               @mouseleave="feature.hover = false"
             >
-              <div class="text-center pa-6">
-                <v-icon class="mb-4" color="orange-darken-2" :icon="feature.icon" size="48" />
+              <div class="text-center pt-6">
+                <v-icon color="orange-darken-2" :icon="feature.icon" size="48" />
                 <v-card-title class="text-h6 font-weight-bold text-grey-darken-3 text-center">
                   {{ feature.title }}
                 </v-card-title>
               </div>
-              <v-card-text class="pt-0 px-6 pb-6">
+              <v-card-text class="pt-0 px-6 pb-6  mt-3">
                 <v-list class="bg-transparent pa-0">
                   <v-list-item
                     v-for="(point, pointIndex) in feature.points"
                     :key="pointIndex"
-                    class="px-0 py-2"
+                    class="px-0 py-1 "
                   >
                     <template #prepend>
-                      <v-icon color="success" size="small">mdi-check</v-icon>
+                      <v-icon class="feature-check-icon" color="success" size="small">mdi-check</v-icon>
                     </template>
-                    <v-list-item-title class="text-body-2 text-grey-darken-1">
+                    <v-list-item-title class="text-body-2 text-grey-darken-1 feature-point-text">
                       {{ point }}
                     </v-list-item-title>
                   </v-list-item>
@@ -123,7 +120,7 @@
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card class="overflow-hidden" elevation="8" rounded="xl">
+            <v-card class="overflow-hidden mb-10" elevation="6" rounded="xl">
               <v-img
                 class="transition-swing"
                 cover
@@ -145,22 +142,22 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="text-white bg-orange-darken-2">
+    <section class="text-white" style="padding: 10rem 0; background-color: #FF9A1A;">
       <v-container class="py-16 text-center">
-        <h2 class="text-h3 text-md-h2 font-weight-bold mb-4">
+        <h2 class="text-h3 text-md-h2 font-weight-bold mb-8">
           準備開始您的健康飲食之旅了嗎？
         </h2>
         <p class="text-body-1 mb-8 opacity-90">
           加入我們，讓每一次用餐都成為美好的回憶
         </p>
-        <div class="d-flex justify-center flex-wrap ga-2">
+        <div class="d-flex justify-center flex-wrap ga-4">
           <v-btn
             class="text-orange-darken-2 font-weight-bold"
             color="white"
             elevation="8"
             rounded="pill"
             size="x-large"
-            @click="$router.push('/register')"
+            @click="router.push('/register')"
           >
             立即註冊
           </v-btn>
@@ -169,7 +166,7 @@
             rounded="pill"
             size="x-large"
             variant="outlined"
-            @click="$router.push('/login')"
+            @click="router.push('/login')"
           >
             登入帳號
           </v-btn>
@@ -211,10 +208,15 @@
 </template>
 
 <script setup>
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
+
   const features = ref([
     {
       icon: 'mdi-dice-multiple',
       title: '隨機抽餐廳',
+      route: '/restaurant',
       points: [
         '不再為「要吃什麼？」煩惱',
         '透過轉盤或拉霸的方式，讓選擇多一點驚喜',
@@ -225,6 +227,7 @@
     {
       icon: 'mdi-nutrition',
       title: '營養管理',
+      route: '/nutrition',
       points: [
         '系統會根據你的紀錄，提醒缺少的營養素',
         '自動推薦對應的食物與餐廳',
@@ -235,6 +238,7 @@
     {
       icon: 'mdi-newspaper',
       title: '健康新聞',
+      route: '/hpanews',
       points: [
         '即時抓取健康署發布的最新健康新聞',
         '內容可靠，避免不正確的飲食資訊',
@@ -245,6 +249,7 @@
     {
       icon: 'mdi-book-heart',
       title: '回憶保存',
+      route: '/diary',
       points: [
         '不只是記錄「吃了什麼」，還能記錄「和誰、在什麼心情下吃」',
         '支援加密保護，讓某些回憶只屬於你',
@@ -265,17 +270,39 @@
     const el = document.querySelector('#info')
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
+
+  // 修正：使用 useRouter() 來獲取路由實例
+  const navigateToFeature = route => {
+    router.push(route)
+  }
 </script>
 
 <style scoped>
-/* 只需要一個自定義樣式用於漸層背景 */
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+
+/* 新增：讓卡片具有可點擊的視覺效果 */
+.feature-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* 行高調整 */
-.line-height-1-7 {
-  line-height: 1.7;
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+/* 修復主要功能卡片文字截斷問題 */
+.feature-point-text {
+  white-space: normal !important;
+  line-height: 1.5 !important;
+}
+
+/* 讓勾勾圖示顏色更深 */
+.feature-check-icon {
+  opacity: 1 !important;
+}
+
+/* 確保卡片高度自適應 */
+.v-card {
+  min-width: 300px;
 }
 </style>
 

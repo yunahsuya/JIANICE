@@ -15,9 +15,11 @@
               <v-col cols="12" md="10">
                 <v-text-field
                   v-model="searchKeyword"
+                  class="rounded-lg"
                   clearable
                   label="搜尋關鍵字"
                   placeholder="例如：營養、健康、癌症、兒童"
+                  variant="outlined"
                   @keyup.enter="searchNews"
                 />
               </v-col>
@@ -44,7 +46,9 @@
                 color="primary"
                 filter
                 size="large"
+
                 text="全部"
+                variant="outlined"
                 @click="searchByTopic(topic)"
               >
                 {{ topic }}

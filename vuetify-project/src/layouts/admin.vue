@@ -27,7 +27,9 @@
   const navItems = [
     { title: '餐廳管理', to: '/admin/products', icon: 'mdi-silverware-fork-knife' },
     { title: '餐廳管理2', to: '/admin/restaurants', icon: 'mdi-silverware-fork-knife' },
-    { title: '使用者管理', to: '/admin/orders', icon: 'mdi-account-edit' },
+    { title: '使用者', to: '/admin/orders', icon: 'mdi-account-edit' },
+    { title: '使用者管理', to: '/admin/users', icon: 'mdi-account-edit' },
+
     { title: '前端首頁', to: '/', icon: 'mdi-home' },
   ]
 </script>
