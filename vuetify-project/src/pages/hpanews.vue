@@ -15,11 +15,9 @@
               <v-col cols="12" md="10">
                 <v-text-field
                   v-model="searchKeyword"
-                  class="rounded-lg"
                   clearable
                   label="搜尋關鍵字"
                   placeholder="例如：營養、健康、癌症、兒童"
-                  variant="outlined"
                   @keyup.enter="searchNews"
                 />
               </v-col>
@@ -38,22 +36,23 @@
             </v-row>
 
             <!-- 分類按鈕 -->
-            <v-chip-group class="mb-4">
-              <v-chip
-                v-for="topic in healthTopics"
-                :key="topic"
-                class="font-weight-medium"
-                color="primary"
-                filter
-                size="large"
-
-                text="全部"
-                variant="outlined"
-                @click="searchByTopic(topic)"
-              >
-                {{ topic }}
-              </v-chip>
-            </v-chip-group>
+            <div class="mb-6">
+              <div class="d-flex flex-wrap gap-3">
+                <v-chip
+                  v-for="topic in healthTopics"
+                  :key="topic"
+                  class="font-weight-medium transition-all hover-lift mt-2 mr-3"
+                  :color="selectedTopic === topic ? 'primary' : 'default'"
+                  :loading="loading && selectedTopic === topic"
+                  size="large"
+                  :variant="selectedTopic === topic ? 'elevated' : 'outlined'"
+                  @click="searchByTopic(topic)"
+                >
+                  <v-icon class="mr-2" :icon="getTopicIcon(topic)" />
+                  {{ topic }}
+                </v-chip>
+              </div>
+            </div>
 
             <!-- 載入中 -->
             <v-row v-if="loading">
@@ -253,6 +252,26 @@
     '補助',
     '檢查',
   ]
+
+  // 取得主題圖標
+  const getTopicIcon = topic => {
+    const iconMap = {
+      全部: 'mdi-newspaper-variant',
+      營養: 'mdi-food-apple',
+      健康: 'mdi-heart',
+      癌症: 'mdi-hospital',
+      糖尿病: 'mdi-spoon-sugar',
+      高血壓: 'mdi-heart-pulse',
+      肥胖: 'mdi-weight',
+      運動: 'mdi-run',
+      飲食: 'mdi-food-fork-drink',
+      兒童: 'mdi-baby-face',
+      戒菸: 'mdi-smoking-off',
+      補助: 'mdi-cash',
+      檢查: 'mdi-stethoscope',
+    }
+    return iconMap[topic] || 'mdi-newspaper-variant'
+  }
 
   // 搜尋新聞
   const searchNews = async () => {
