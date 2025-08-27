@@ -1,10 +1,14 @@
 <template>
   <v-container>
+
     <!-- 頁面標題區域 -->
     <v-row>
       <v-col cols="12">
-        <h1 class="text-h2 font-weight-bold text-success mb-2">回憶牆</h1>
+        <h1 class="mb-2">回憶牆</h1>
+
+        <v-divider class="mb-5 border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
         <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p>
+
       </v-col>
     </v-row>
 
@@ -175,7 +179,7 @@
   })
 
   // 分類選項
-  const categoryOptions = ['快樂', '難過', '生氣', '平靜']
+  const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
 
   // 計算屬性：篩選後的日記
   const filteredDiarys = computed(() => {

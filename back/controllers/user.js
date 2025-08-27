@@ -132,6 +132,226 @@ export const login = async (req, res) => {
   }
 }
 
+// ... existing code ...
+
+// 管理員功能：新增使用者
+export const createUserByAdmin = async (req, res) => {
+  try {
+    // 檢查是否為管理員
+    if (req.user.role !== 'admin') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: '權限不足'
+      })
+    }
+
+    // 建立新使用者
+    const user = await User.create({
+      account: req.body.account,
+      email: req.body.email,
+      password: req.body.password,
+      role: req.body.role || 'user'
+    })
+
+    // 回傳使用者資料（不包含密碼和 tokens）
+    const userResponse = user.toObject()
+    delete userResponse.password
+    delete userResponse.tokens
+
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: '使用者建立成功',
+      result: userResponse
+    })
+  } catch (error) {
+    console.log('controllers/user.js createUserByAdmin')
+    console.error(error)
+    if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: error.errors[key].message
+      })
+    } else if (error.name === 'MongoServerError' && error.code === 11000) {
+      res.status(StatusCodes.CONFLICT).json({
+        success: false,
+        message: '帳號或電子郵件已存在'
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '伺服器內部錯誤'
+      })
+    }
+  }
+}
+
+// 管理員功能：取得所有使用者列表
+export const getAllUsers = async (req, res) => {
+  try {
+    // 檢查是否為管理員
+    if (req.user.role !== 'admin') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: '權限不足'
+      })
+    }
+
+    // 取得所有使用者，但不包含密碼和 tokens
+    const users = await User.find({}, '-password -tokens')
+      .sort({ createdAt: -1 }) // 按建立時間排序
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '',
+      result: users
+    })
+  } catch (error) {
+    console.log('controllers/user.js getAllUsers')
+    console.error(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '伺服器內部錯誤'
+    })
+  }
+}
+
+// --------------------------------------------------------------------
+
+
+// 管理員功能：更新使用者資料
+export const updateUser = async (req, res) => {
+  try {
+    // 檢查是否為管理員
+    if (req.user.role !== 'admin') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: '權限不足'
+      })
+    }
+
+    // 驗證使用者 ID 格式
+    if (!validator.isMongoId(req.params.id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '使用者 ID 格式錯誤'
+      })
+    }
+
+    // 檢查是否要更新密碼
+    if (req.body.password) {
+      // 如果密碼長度不符合要求
+      if (req.body.password.length < 4 || req.body.password.length > 20) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: '密碼長度必須在 4 到 20 個字元之間'
+        })
+      }
+      // 加密新密碼
+      req.body.password = bcrypt.hashSync(req.body.password, 10)
+    }
+
+    // 更新使用者資料
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { 
+        new: true, // 回傳更新後的資料
+        runValidators: true // 執行 schema 驗證
+      }
+    ).select('-password -tokens')
+      .orFail(new Error('USER NOT FOUND'))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '使用者資料更新成功',
+      result: user
+    })
+  } catch (error) {
+    console.log('controllers/user.js updateUser')
+    console.error(error)
+    if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: error.errors[key].message
+      })
+    } else if (error.message === 'USER NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '使用者不存在'
+      })
+    } else if (error.name === 'MongoServerError' && error.code === 11000) {
+      res.status(StatusCodes.CONFLICT).json({
+        success: false,
+        message: '帳號或電子郵件已存在'
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '伺服器內部錯誤'
+      })
+    }
+  }
+}
+
+
+
+// 管理員功能：刪除使用者
+export const deleteUser = async (req, res) => {
+  try {
+    // 檢查是否為管理員
+    if (req.user.role !== 'admin') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: '權限不足'
+      })
+    }
+
+    // 驗證使用者 ID 格式
+    if (!validator.isMongoId(req.params.id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '使用者 ID 格式錯誤'
+      })
+    }
+
+    // 檢查是否要刪除自己
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '不能刪除自己的帳號'
+      })
+    }
+
+    // 刪除使用者
+    const user = await User.findByIdAndDelete(req.params.id)
+      .orFail(new Error('USER NOT FOUND'))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '使用者刪除成功',
+      result: { _id: user._id, account: user.account }
+    })
+  } catch (error) {
+    console.log('controllers/user.js deleteUser')
+    console.error(error)
+    if (error.message === 'USER NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '使用者不存在'
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '伺服器內部錯誤'
+      })
+    }
+  }
+}
+
+// --------------------------------------------------------------------
+
 // profile（取得個人資料）=> 查詢自己的資料
 // profile => 取得已存在的帳戶資料，就是當使用者登入後，要查詢自己帳戶資訊時用的功能，讓他知道自己的基本資料是什麼
 export const profile = (req, res) => {

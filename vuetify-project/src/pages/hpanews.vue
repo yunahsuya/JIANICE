@@ -41,7 +41,7 @@
                 <v-chip
                   v-for="topic in healthTopics"
                   :key="topic"
-                  class="font-weight-medium transition-all hover-lift mt-2 mr-3"
+                  class="font-weight-medium transition-all hover-lift mt-2 mr-2"
                   :color="selectedTopic === topic ? 'primary' : 'default'"
                   :loading="loading && selectedTopic === topic"
                   size="large"

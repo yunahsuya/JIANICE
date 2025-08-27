@@ -22,4 +22,18 @@ export default {
   getCart () {
     return apiService.apiAuth.get('/user/cart')
   },
+
+  // 管理員功能
+  createUser (data) {
+    return apiService.apiAuth.post('/user/admin', data)
+  },
+  getAllUsers () {
+    return apiService.apiAuth.get('/user/admin/all')
+  },
+  updateUser (id, data) {
+    return apiService.apiAuth.patch(`/user/admin/${id}`, data)
+  },
+  deleteUser (id) {
+    return apiService.apiAuth.delete(`/user/admin/${id}`)
+  }
 }

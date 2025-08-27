@@ -12,4 +12,10 @@ router.delete('/logout', auth.token, user.logout)
 router.patch('/cart', auth.token, user.cart)
 router.get('/cart', auth.token, user.getCart)
 
+// 管理員專用路由
+router.post('/admin', auth.token, user.createUserByAdmin)
+router.get('/admin/all', auth.token, user.getAllUsers)
+router.patch('/admin/:id', auth.token, user.updateUser)
+router.delete('/admin/:id', auth.token, user.deleteUser)
+
 export default router

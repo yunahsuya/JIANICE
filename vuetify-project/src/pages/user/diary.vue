@@ -314,7 +314,7 @@
     rawFileRecords.value = []
   }
 
-  const categoryOptions = ['快樂', '難過', '生氣', '平靜']
+  const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
 
   // handleSubmit => 當表單被送出時，負責觸發驗證並處理送出邏輯的函式
   // resetForm    => 把整個表單「重置」為初始值的方法

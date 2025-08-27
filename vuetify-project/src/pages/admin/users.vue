@@ -1,12 +1,12 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container class="pa-6" fluid>
     <!-- 頁面標題區域 -->
     <v-row class="mb-6">
       <v-col cols="12">
         <div class="d-flex align-center justify-space-between">
           <div>
             <h1 class="text-h4 font-weight-bold text-primary mb-2">
-              <v-icon size="32" class="me-3">mdi-account-group</v-icon>
+              <v-icon class="me-3" size="32">mdi-account-group</v-icon>
               使用者管理
             </h1>
             <p class="text-body-1 text-medium-emphasis">
@@ -14,12 +14,12 @@
             </p>
           </div>
           <v-btn
-            color="primary"
-            size="large"
-            prepend-icon="mdi-plus"
-            @click="openCreateDialog"
-            elevation="2"
             class="px-6"
+            color="primary"
+            elevation="2"
+            prepend-icon="mdi-plus"
+            size="large"
+            @click="openCreateDialog"
           >
             新增使用者
           </v-btn>
@@ -31,28 +31,28 @@
     <v-row class="mb-6">
       <v-col cols="12" md="3">
         <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="48" color="primary" class="mb-3">mdi-account-multiple</v-icon>
+          <v-icon class="mb-3" color="primary" size="48">mdi-account-multiple</v-icon>
           <h3 class="text-h4 font-weight-bold text-primary">{{ users.length }}</h3>
           <p class="text-body-2 text-medium-emphasis">總使用者數</p>
         </v-card>
       </v-col>
       <v-col cols="12" md="3">
         <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="48" color="success" class="mb-3">mdi-account</v-icon>
+          <v-icon class="mb-3" color="success" size="48">mdi-account</v-icon>
           <h3 class="text-h4 font-weight-bold text-success">{{ userCount }}</h3>
           <p class="text-body-2 text-medium-emphasis">一般使用者</p>
         </v-card>
       </v-col>
       <v-col cols="12" md="3">
         <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="48" color="error" class="mb-3">mdi-shield-crown</v-icon>
+          <v-icon class="mb-3" color="error" size="48">mdi-shield-crown</v-icon>
           <h3 class="text-h4 font-weight-bold text-error">{{ adminCount }}</h3>
           <p class="text-body-2 text-medium-emphasis">管理員</p>
         </v-card>
       </v-col>
       <v-col cols="12" md="3">
         <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="48" color="info" class="mb-3">mdi-calendar-today</v-icon>
+          <v-icon class="mb-3" color="info" size="48">mdi-calendar-today</v-icon>
           <h3 class="text-h4 font-weight-bold text-info">{{ todayCount }}</h3>
           <p class="text-body-2 text-medium-emphasis">今日新增</p>
         </v-card>
@@ -60,62 +60,61 @@
     </v-row>
 
     <!-- 搜尋和篩選區域 -->
-
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="search"
-                label="搜尋使用者"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                bg-color="surface"
-              />
-            </v-col>
-            <v-col cols="12" md="3">
-              <v-select
-                v-model="roleFilter"
-                label="角色篩選"
-                :items="roleOptions"
-                variant="outlined"
-                density="comfortable"
-                clearable
-                bg-color="surface"
-              />
-            </v-col>
-            <v-col cols="12" md="3" class="d-flex align-center">
-              <v-btn
-                color="primary"
-                variant="outlined"
-                prepend-icon="mdi-refresh"
-                @click="refreshUsers"
-                :loading="loading"
-                class="w-100"
-              >
-                重新整理
-              </v-btn>
-            </v-col>
-          </v-row>
-
+    <v-row>
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="search"
+          bg-color="surface"
+          clearable
+          density="comfortable"
+          label="搜尋使用者"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+        />
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-select
+          v-model="roleFilter"
+          bg-color="surface"
+          clearable
+          density="comfortable"
+          :items="roleOptions"
+          label="角色篩選"
+          variant="outlined"
+        />
+      </v-col>
+      <v-col class="d-flex align-center" cols="12" md="3">
+        <v-btn
+          class="w-100 mb-6"
+          color="primary"
+          height="45px"
+          :loading="loading"
+          prepend-icon="mdi-refresh"
+          variant="outlined"
+          @click="refreshUsers"
+        >
+          重新整理
+        </v-btn>
+      </v-col>
+    </v-row>
 
     <!-- 使用者列表 -->
     <v-row>
       <v-col cols="12">
         <v-card elevation="2">
           <v-data-table
+            class="elevation-0"
+            density="comfortable"
             :headers="headers"
+            hover
             :items="filteredUsers"
             :loading="loading"
             :search="search"
-            class="elevation-0"
-            density="comfortable"
-            hover
           >
             <!-- 帳號欄位 -->
-            <template v-slot:item.account="{ item }">
+            <template #item.account="{ item }">
               <div class="d-flex align-center">
-                <v-avatar size="32" color="primary" class="me-3">
+                <v-avatar class="me-3" color="primary" size="32">
                   <span class="text-white font-weight-bold">{{ item.account.charAt(0).toUpperCase() }}</span>
                 </v-avatar>
                 <div>
@@ -126,22 +125,35 @@
             </template>
 
             <!-- 電子郵件欄位 -->
-            <template v-slot:item.email="{ item }">
+            <template #item.email="{ item }">
               <div class="d-flex align-center">
-                <v-icon size="16" color="grey" class="me-2">mdi-email</v-icon>
+                <v-icon class="me-2" color="grey" size="16">mdi-email</v-icon>
                 {{ item.email }}
               </div>
             </template>
 
+            <!-- 密碼欄位 -->
+            <!-- <template #item.password="{ item }">
+              <div class="d-flex align-center">
+                <v-icon class="me-2" color="warning" size="16">mdi-lock</v-icon>
+                <div v-if="showPasswords" class="font-family-mono">
+                  {{ item.password || '未設定' }}
+                </div>
+                <div v-else class="text-medium-emphasis">
+                  ••••••••
+                </div>
+              </div>
+            </template> -->
+
             <!-- 角色欄位 -->
-            <template v-slot:item.role="{ item }">
+            <template #item.role="{ item }">
               <v-chip
+                class="font-weight-medium"
                 :color="item.role === 'admin' ? 'error' : 'success'"
                 size="small"
                 variant="elevated"
-                class="font-weight-medium"
               >
-                <v-icon size="16" class="me-1">
+                <v-icon class="me-1" size="16">
                   {{ item.role === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
                 </v-icon>
                 {{ item.role === 'admin' ? '管理員' : '一般使用者' }}
@@ -149,40 +161,41 @@
             </template>
 
             <!-- 建立時間欄位 -->
-            <template v-slot:item.createdAt="{ item }">
+            <template #item.createdAt="{ item }">
               <div class="d-flex align-center">
-                <v-icon size="16" color="grey" class="me-2">mdi-calendar</v-icon>
+                <v-icon class="me-2" color="grey" size="16">mdi-calendar</v-icon>
                 {{ formatDate(item.createdAt) }}
               </div>
             </template>
 
             <!-- 操作欄位 -->
-            <template v-slot:item.actions="{ item }">
+            <template #item.actions="{ item }">
               <div class="d-flex gap-2">
-                <v-btn
+                <!-- <v-btn
+                  color="info"
                   icon="mdi-eye"
                   size="small"
-                  color="info"
+                  title="查看詳細"
                   variant="tonal"
                   @click="viewUser(item)"
-                  title="查看詳細"
-                />
+                /> -->
                 <v-btn
+                  class="me-1"
+                  color="warning"
                   icon="mdi-pencil"
                   size="small"
-                  color="warning"
+                  title="編輯使用者"
                   variant="tonal"
                   @click="editUser(item)"
-                  title="編輯使用者"
                 />
                 <v-btn
+                  color="error"
+                  :disabled="item.role === 'admin'"
                   icon="mdi-delete"
                   size="small"
-                  color="error"
+                  title="刪除使用者"
                   variant="tonal"
                   @click="confirmDelete(item)"
-                  :disabled="item.role === 'admin'"
-                  title="刪除使用者"
                 />
               </div>
             </template>
@@ -195,7 +208,7 @@
     <v-dialog v-model="createDialog" max-width="500px" persistent>
       <v-card>
         <v-card-title class="text-h5 font-weight-bold pa-6 pb-4">
-          <v-icon size="28" color="primary" class="me-3">mdi-account-plus</v-icon>
+          <v-icon class="me-3" color="primary" size="28">mdi-account-plus</v-icon>
           新增使用者
         </v-card-title>
         <v-card-text class="pa-6 pt-0">
@@ -204,43 +217,52 @@
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="newUser.account"
-                  label="帳號 *"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required, rules.account]"
+                  label="帳號 *"
                   prepend-inner-icon="mdi-account"
+                  :rules="[rules.required, rules.account]"
+                  variant="outlined"
                 />
               </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="newUser.email"
-                  label="電子郵件 *"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required, rules.email]"
+                  label="電子郵件 *"
                   prepend-inner-icon="mdi-email"
+                  :rules="[rules.required, rules.email]"
+                  variant="outlined"
                 />
               </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="newUser.password"
-                  label="密碼 *"
-                  type="password"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required, rules.password]"
+                  label="密碼 *"
                   prepend-inner-icon="mdi-lock"
-                />
+                  :rules="[rules.required, rules.password]"
+                  :type="showCreatePassword ? 'text' : 'password'"
+                  variant="outlined"
+                >
+                  <template #append-inner>
+                    <v-btn
+                      icon="mdi-eye"
+                      size="small"
+                      variant="text"
+                      @click="showCreatePassword = !showCreatePassword"
+                    />
+                  </template>
+                </v-text-field>
               </v-col>
               <v-col cols="12" md="6">
                 <v-select
                   v-model="newUser.role"
-                  label="角色 *"
-                  :items="roleOptions"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required]"
+                  :items="roleOptions"
+                  label="角色 *"
                   prepend-inner-icon="mdi-shield"
+                  :rules="[rules.required]"
+                  variant="outlined"
                 />
               </v-col>
             </v-row>
@@ -249,19 +271,19 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn
+            class="px-6"
             color="grey"
             variant="outlined"
             @click="closeCreateDialog"
-            class="px-6"
           >
             取消
           </v-btn>
           <v-btn
-            color="primary"
-            @click="createUser"
-            :loading="creating"
-            :disabled="!createFormValid"
             class="px-6"
+            color="primary"
+            :disabled="!createFormValid"
+            :loading="creating"
+            @click="createUser"
           >
             新增
           </v-btn>
@@ -273,73 +295,85 @@
     <v-dialog v-model="editDialog" max-width="500px" persistent>
       <v-card>
         <v-card-title class="text-h5 font-weight-bold pa-6 pb-4">
-          <v-icon size="28" color="warning" class="me-3">mdi-account-edit</v-icon>
+          <v-icon class="me-3" color="warning" size="28">mdi-account-edit</v-icon>
           編輯使用者
         </v-card-title>
-        <v-card-text class="pa-6 pt-0" v-if="editingUser">
+        <v-card-text v-if="editingUser" class="pa-6 pt-0">
           <v-form ref="editForm" v-model="editFormValid">
             <v-row>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="editingUser.account"
-                  label="帳號"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required, rules.account]"
+                  label="帳號"
                   prepend-inner-icon="mdi-account"
+                  :rules="[rules.required, rules.account]"
+                  variant="outlined"
                 />
               </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="editingUser.email"
+                  density="comfortable"
                   label="電子郵件"
-                  variant="outlined"
-                  density="comfortable"
-                  :rules="[rules.required, rules.email]"
                   prepend-inner-icon="mdi-email"
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="editingUser.role"
-                  label="角色"
-                  :items="roleOptions"
+                  :rules="[rules.required, rules.email]"
                   variant="outlined"
-                  density="comfortable"
-                  :rules="[rules.required]"
-                  prepend-inner-icon="mdi-shield"
                 />
               </v-col>
+              <!-- 密碼 -->
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="editingUser.password"
-                  label="新密碼 (留空則不修改)"
-                  type="password"
-                  variant="outlined"
                   density="comfortable"
-                  :rules="[rules.password]"
+                  label="新密碼 (留空則不修改)"
                   prepend-inner-icon="mdi-lock"
+                  :rules="[rules.password]"
+                  :type="showEditPassword ? 'text' : 'password'"
+                  variant="outlined"
+                >
+                  <template #append-inner>
+                    <v-btn
+                      icon="mdi-eye"
+                      size="small"
+                      variant="text"
+                      @click="showEditPassword = !showEditPassword"
+                    />
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="editingUser.role"
+                  density="comfortable"
+                  :items="roleOptions"
+                  label="角色"
+                  prepend-inner-icon="mdi-shield"
+                  :rules="[rules.required]"
+                  variant="outlined"
                 />
               </v-col>
+
             </v-row>
           </v-form>
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn
+            class="px-6"
             color="grey"
             variant="outlined"
             @click="editDialog = false"
-            class="px-6"
           >
             取消
           </v-btn>
           <v-btn
-            color="primary"
-            @click="saveUser"
-            :loading="saving"
-            :disabled="!editFormValid"
             class="px-6"
+            color="primary"
+            :disabled="!editFormValid"
+            :loading="saving"
+            @click="saveUser"
           >
             儲存
           </v-btn>
@@ -351,7 +385,7 @@
     <v-dialog v-model="deleteDialog" max-width="400px" persistent>
       <v-card>
         <v-card-title class="text-h5 font-weight-bold pa-6 pb-4 text-center">
-          <v-icon size="32" color="error" class="me-3">mdi-alert-circle</v-icon>
+          <v-icon class="me-3" color="error" size="32">mdi-alert-circle</v-icon>
           確認刪除
         </v-card-title>
         <v-card-text class="pa-6 pt-0 text-center">
@@ -365,18 +399,18 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn
+            class="px-6"
             color="grey"
             variant="outlined"
             @click="deleteDialog = false"
-            class="px-6"
           >
             取消
           </v-btn>
           <v-btn
-            color="error"
-            @click="deleteUser"
-            :loading="deleting"
             class="px-6"
+            color="error"
+            :loading="deleting"
+            @click="deleteUser"
           >
             刪除
           </v-btn>
@@ -388,8 +422,8 @@
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
-      :timeout="3000"
       location="top"
+      :timeout="3000"
     >
       <div class="d-flex align-center">
         <v-icon class="me-3">
@@ -402,218 +436,224 @@
 </template>
 
 <script>
-import userService from '@/services/user'
+  import userService from '@/services/user'
 
-export default {
-  name: 'AdminUsers',
-  data () {
-    return {
-      users: [],
-      loading: false,
-      saving: false,
-      deleting: false,
-      creating: false,
-      search: '',
-      roleFilter: null,
-      editDialog: false,
-      deleteDialog: false,
-      createDialog: false,
-      editingUser: null,
-      userToDelete: null,
-      editFormValid: false,
-      createFormValid: false,
-      newUser: {
-        account: '',
-        email: '',
-        password: '',
-        role: 'user'
+  export default {
+    name: 'AdminUsers',
+    data () {
+      return {
+        users: [],
+        loading: false,
+        saving: false,
+        deleting: false,
+        creating: false,
+        search: '',
+        roleFilter: null,
+        editDialog: false,
+        deleteDialog: false,
+        createDialog: false,
+        editingUser: null,
+        userToDelete: null,
+        editFormValid: false,
+        createFormValid: false,
+        showPasswords: false, // 新增：控制表格中密碼顯示
+        showCreatePassword: false, // 新增：控制新增對話框中密碼顯示
+        showEditPassword: false, // 新增：控制編輯對話框中密碼顯示
+        newUser: {
+          account: '',
+          email: '',
+          password: '',
+          role: 'user',
+        },
+        snackbar: {
+          show: false,
+          message: '',
+          color: 'success',
+        },
+        headers: [
+          { title: '帳號', key: 'account', sortable: true },
+          { title: '電子郵件', key: 'email', sortable: true },
+          // { title: '密碼', key: 'password', sortable: false, width: '200px' }, // 新增密碼欄位
+          { title: '角色', key: 'role', sortable: true },
+          { title: '建立時間', key: 'createdAt', sortable: true },
+          { title: '操作', key: 'actions', sortable: false },
+        ],
+        roleOptions: [
+          { title: '一般使用者', value: 'user' },
+          { title: '管理員', value: 'admin' },
+        ],
+        rules: {
+          required: v => !!v || '此欄位為必填',
+          account: v => /^[a-zA-Z0-9]{4,20}$/.test(v) || '帳號只能包含英文字母和數字，長度4-20字元',
+          email: v => /.+@.+\..+/.test(v) || '請輸入有效的電子郵件地址',
+          password: v => !v || v.length >= 4 && v.length <= 20 || '密碼長度必須在4-20字元之間',
+        },
+      }
+    },
+    computed: {
+      filteredUsers () {
+        let filtered = this.users
+
+        // 角色篩選
+        if (this.roleFilter) {
+          filtered = filtered.filter(user => user.role === this.roleFilter)
+        }
+
+        return filtered
       },
-      snackbar: {
-        show: false,
-        message: '',
-        color: 'success'
+      userCount () {
+        return this.users.filter(user => user.role === 'user').length
       },
-      headers: [
-        { title: '帳號', key: 'account', sortable: true, width: '300px' },
-        { title: '電子郵件', key: 'email', sortable: true },
-        { title: '角色', key: 'role', sortable: true, width: '150px' },
-        { title: '建立時間', key: 'createdAt', sortable: true, width: '200px' },
-        { title: '操作', key: 'actions', sortable: false, width: '150px' }
-      ],
-      roleOptions: [
-        { title: '一般使用者', value: 'user' },
-        { title: '管理員', value: 'admin' }
-      ],
-      rules: {
-        required: v => !!v || '此欄位為必填',
-        account: v => /^[a-zA-Z0-9]{4,20}$/.test(v) || '帳號只能包含英文字母和數字，長度4-20字元',
-        email: v => /.+@.+\..+/.test(v) || '請輸入有效的電子郵件地址',
-        password: v => !v || v.length >= 4 && v.length <= 20 || '密碼長度必須在4-20字元之間'
-      }
-    }
-  },
-  computed: {
-    filteredUsers () {
-      let filtered = this.users
-
-      // 角色篩選
-      if (this.roleFilter) {
-        filtered = filtered.filter(user => user.role === this.roleFilter)
-      }
-
-      return filtered
+      adminCount () {
+        return this.users.filter(user => user.role === 'admin').length
+      },
+      todayCount () {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        return this.users.filter(user => {
+          const userDate = new Date(user.createdAt)
+          userDate.setHours(0, 0, 0, 0)
+          return userDate.getTime() === today.getTime()
+        }).length
+      },
     },
-    userCount () {
-      return this.users.filter(user => user.role === 'user').length
-    },
-    adminCount () {
-      return this.users.filter(user => user.role === 'admin').length
-    },
-    todayCount () {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      return this.users.filter(user => {
-        const userDate = new Date(user.createdAt)
-        userDate.setHours(0, 0, 0, 0)
-        return userDate.getTime() === today.getTime()
-      }).length
-    }
-  },
-  mounted () {
-    this.loadUsers()
-  },
-  methods: {
-    async loadUsers () {
-      this.loading = true
-      try {
-        const response = await userService.getAllUsers()
-        this.users = response.data.result
-      } catch (error) {
-        console.error('載入使用者失敗:', error)
-        this.showSnackbar('載入使用者失敗', 'error')
-      } finally {
-        this.loading = false
-      }
-    },
-    refreshUsers () {
+    mounted () {
       this.loadUsers()
     },
-    openCreateDialog () {
-      this.createDialog = true
-      this.resetNewUser()
-    },
-    closeCreateDialog () {
-      this.createDialog = false
-      this.resetNewUser()
-    },
-    resetNewUser () {
-      this.newUser = {
-        account: '',
-        email: '',
-        password: '',
-        role: 'user'
-      }
-      if (this.$refs.createForm) {
-        this.$refs.createForm.resetValidation()
-      }
-    },
-    async createUser () {
-      if (!this.$refs.createForm.validate()) return
-
-      this.creating = true
-      try {
-        const response = await userService.createUser(this.newUser)
-
-        // 新增到本地列表
-        this.users.unshift(response.data.result)
-
-        this.closeCreateDialog()
-        this.showSnackbar('使用者建立成功', 'success')
-      } catch (error) {
-        console.error('建立使用者失敗:', error)
-        this.showSnackbar(error.response?.data?.message || '建立使用者失敗', 'error')
-      } finally {
-        this.creating = false
-      }
-    },
-    editUser (user) {
-      this.editingUser = {
-        ...user,
-        password: '' // 清空密碼欄位
-      }
-      this.editDialog = true
-    },
-    async saveUser () {
-      if (!this.$refs.editForm.validate()) return
-
-      this.saving = true
-      try {
-        const updateData = { ...this.editingUser }
-
-        // 如果密碼為空，則不更新密碼
-        if (!updateData.password) {
-          delete updateData.password
+    methods: {
+      async loadUsers () {
+        this.loading = true
+        try {
+          const response = await userService.getAllUsers()
+          this.users = response.data.result
+        } catch (error) {
+          console.error('載入使用者失敗:', error)
+          this.showSnackbar('載入使用者失敗', 'error')
+        } finally {
+          this.loading = false
         }
+      },
+      refreshUsers () {
+        this.loadUsers()
+      },
+      openCreateDialog () {
+        this.createDialog = true
+        this.resetNewUser()
+      },
+      closeCreateDialog () {
+        this.createDialog = false
+        this.resetNewUser()
+        this.showCreatePassword = false // 重置密碼顯示狀態
+      },
+      resetNewUser () {
+        this.newUser = {
+          account: '',
+          email: '',
+          password: '',
+          role: 'user',
+        }
+        if (this.$refs.createForm) {
+          this.$refs.createForm.resetValidation()
+        }
+      },
+      async createUser () {
+        if (!this.$refs.createForm.validate()) return
 
-        await userService.updateUser(this.editingUser._id, updateData)
+        this.creating = true
+        try {
+          const response = await userService.createUser(this.newUser)
 
-        // 更新本地資料
-        const index = this.users.findIndex(u => u._id === this.editingUser._id)
-        if (index !== -1) {
-          this.users[index] = { ...this.editingUser }
-          if (updateData.password) {
-            delete this.users[index].password
+          // 新增到本地列表
+          this.users.unshift(response.data.result)
+
+          this.closeCreateDialog()
+          this.showSnackbar('使用者建立成功', 'success')
+        } catch (error) {
+          console.error('建立使用者失敗:', error)
+          this.showSnackbar(error.response?.data?.message || '建立使用者失敗', 'error')
+        } finally {
+          this.creating = false
+        }
+      },
+      editUser (user) {
+        this.editingUser = {
+          ...user,
+          password: '', // 清空密碼欄位
+        }
+        this.editDialog = true
+        this.showEditPassword = false // 重置密碼顯示狀態
+      },
+      async saveUser () {
+        if (!this.$refs.editForm.validate()) return
+
+        this.saving = true
+        try {
+          const updateData = { ...this.editingUser }
+
+          // 如果密碼為空，則不更新密碼
+          if (!updateData.password) {
+            delete updateData.password
           }
+
+          await userService.updateUser(this.editingUser._id, updateData)
+
+          // 更新本地資料
+          const index = this.users.findIndex(u => u._id === this.editingUser._id)
+          if (index !== -1) {
+            this.users[index] = { ...this.editingUser }
+            if (updateData.password) {
+              delete this.users[index].password
+            }
+          }
+
+          this.editDialog = false
+          this.showSnackbar('使用者資料更新成功', 'success')
+        } catch (error) {
+          console.error('更新使用者失敗:', error)
+          this.showSnackbar(error.response?.data?.message || '更新使用者失敗', 'error')
+        } finally {
+          this.saving = false
         }
+      },
+      confirmDelete (user) {
+        this.userToDelete = user
+        this.deleteDialog = true
+      },
+      async deleteUser () {
+        this.deleting = true
+        try {
+          await userService.deleteUser(this.userToDelete._id)
 
-        this.editDialog = false
-        this.showSnackbar('使用者資料更新成功', 'success')
-      } catch (error) {
-        console.error('更新使用者失敗:', error)
-        this.showSnackbar(error.response?.data?.message || '更新使用者失敗', 'error')
-      } finally {
-        this.saving = false
-      }
-    },
-    confirmDelete (user) {
-      this.userToDelete = user
-      this.deleteDialog = true
-    },
-    async deleteUser () {
-      this.deleting = true
-      try {
-        await userService.deleteUser(this.userToDelete._id)
+          // 從本地列表中移除
+          this.users = this.users.filter(u => u._id !== this.userToDelete._id)
 
-        // 從本地列表中移除
-        this.users = this.users.filter(u => u._id !== this.userToDelete._id)
-
-        this.deleteDialog = false
-        this.showSnackbar('使用者刪除成功', 'success')
-      } catch (error) {
-        console.error('刪除使用者失敗:', error)
-        this.showSnackbar(error.response?.data?.message || '刪除使用者失敗', 'error')
-      } finally {
-        this.deleting = false
-      }
+          this.deleteDialog = false
+          this.showSnackbar('使用者刪除成功', 'success')
+        } catch (error) {
+          console.error('刪除使用者失敗:', error)
+          this.showSnackbar(error.response?.data?.message || '刪除使用者失敗', 'error')
+        } finally {
+          this.deleting = false
+        }
+      },
+      formatDate (date) {
+        return new Date(date).toLocaleString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      },
+      showSnackbar (message, color = 'success') {
+        this.snackbar = {
+          show: true,
+          message,
+          color,
+        }
+      },
     },
-    formatDate (date) {
-      return new Date(date).toLocaleString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    },
-    showSnackbar (message, color = 'success') {
-      this.snackbar = {
-        show: true,
-        message,
-        color
-      }
-    }
   }
-}
 </script>
 
 <style scoped>
@@ -638,21 +678,21 @@ export default {
 } */
 
  /* 確保所有元素都使用米色背景 */
-:deep(.v-data-table) {
+/* :deep(.v-data-table) {
   background-color: #fffef5ff !important;
-}
+} */
 
-:deep(.v-data-table__wrapper) {
+/* :deep(.v-data-table__wrapper) {
   background-color: #fffef5ff !important;
-}
+} */
 
-:deep(.v-data-table__td) {
+/* :deep(.v-data-table__td) {
   background-color: #fffef5ff !important;
-}
+} */
 
-:deep(.v-data-table__th) {
+/* :deep(.v-data-table__th) {
   background-color: #fffef5ff !important;
-}
+} */
 
 :deep(.v-field) {
   background-color: #fffef5ff !important;
