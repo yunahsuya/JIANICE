@@ -93,11 +93,19 @@
             label="日期"
           /> -->
 
+          <!-- 分類 -->
           <v-select
             v-model="category.value.value"
             :error-messages="category.errorMessage.value"
             :items="categoryOptions"
             label="分類"
+          />
+
+          <!-- 標題 -->
+          <v-text-field
+            v-model="title.value.value"
+            :error-messages="title.errorMessage.value"
+            label="標題"
           />
 
           <v-textarea
@@ -171,14 +179,15 @@
       return ''
     } },
     { title: '圖片', key: 'image', sortable: false },
+    { title: '標題', key: 'title' },
     { title: '每日發生的三件好事', key: 'description' },
     { title: '分類', key: 'category' },
     { title: '顯示', key: 'sell' },
-    { title: '更新日期', key: 'updatedAt', value: item => new Date(item.updatedAt).toLocaleString() },
+    // { title: '更新日期', key: 'updatedAt', value: item => new Date(item.updatedAt).toLocaleString() },
     { title: '編輯', key: 'action', sortable: false },
   ]
 
-  const filterKeys = ['date', 'category', 'description', 'createdAt', 'updatedAt']
+  const filterKeys = ['date', 'title', 'category', 'description', 'createdAt', 'updatedAt']
 
   const getDiarys = async () => {
     try {
@@ -246,6 +255,7 @@
         const minutes = String(now.getMinutes()).padStart(2, '0')
         date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
       }
+      title.value.value = item.title
       description.value.value = item.description
       sell.value.value = item.sell
       category.value.value = item.category
@@ -275,6 +285,7 @@
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
+      title.value.value = ''
       description.value.value = '1. \n2. \n3. '
       category.value.value = '快樂'
       sell.value.value = false
@@ -319,6 +330,11 @@
         .max(20, '日期最多只能有 20 字元'),
       // .nullable(),
 
+      // 標題
+      title: yup
+        .string()
+        .max(20, '標題最多只能有 20 字元'),
+
       // 描述
       description: yup
         .string()
@@ -344,6 +360,7 @@
     initialValues: {
       // date: '',
       date: new Date().toISOString(), // 預設今天日期和時間 (包含完整時間)
+      title: '',
       description: '1.  \n2.  \n3.  ',
       category: '快樂',
       sell: false,
@@ -356,6 +373,7 @@
   // useForm 會幫整個表單套上「驗證日期必填」的規則 (useField('date') 是綁定「日期」欄位的值、錯誤訊息、狀態等等，方便你在模板用 v-model 或取得錯誤訊息。)
   // 當你送出表單時，handleSubmit 會用 validationSchema 驗證整個表單的欄位，像 date 有沒有填、格式正不正確
   const date = useField('date')
+  const title = useField('title')
   const description = useField('description')
   const category = useField('category')
   const sell = useField('sell')
@@ -403,8 +421,8 @@
         userDate.setSeconds(now.getSeconds())
         dateToSend = userDate.toISOString()
       }
-
       fd.append('date', dateToSend)
+      fd.append('title', values.title)
       fd.append('description', values.description)
       fd.append('sell', values.sell)
       fd.append('category', values.category)

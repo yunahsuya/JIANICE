@@ -10,6 +10,7 @@ export const create = async (req, res) => {
 
     await Diary.create({
       date: req.body.date,
+      title: req.body.title,
       description: req.body.description,
       image: imageUrls,
       sell: req.body.sell,

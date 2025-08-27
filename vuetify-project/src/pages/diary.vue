@@ -101,7 +101,8 @@
       <v-card v-if="detailDialog.diary">
         <v-card-title class="d-flex align-center justify-space-between">
           <div>
-            <span class="text-h5">{{ detailDialog.diary.category }}</span>
+            <!-- 標題 (左上角) 原本是分類 -->
+            <span class="text-h5">{{ detailDialog.diary.title }}</span>
             <v-chip
               v-if="detailDialog.diary.date"
               class="ml-2"

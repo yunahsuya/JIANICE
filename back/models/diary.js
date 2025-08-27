@@ -13,6 +13,12 @@ const schema = new Schema(
       required: false, // ✅ 不一定要有
     },
 
+    // 標題
+    title: {
+      type: String,
+      required: [true, '標題是必填的'],
+    },
+
     // 描述
     description: {
       type: String,
