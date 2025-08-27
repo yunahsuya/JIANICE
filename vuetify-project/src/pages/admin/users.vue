@@ -1,7 +1,7 @@
 <template>
-  <v-container class="pa-6" fluid>
+  <v-container class="pa-3" fluid>
     <!-- 頁面標題區域 -->
-    <v-row class="mb-6">
+    <v-row class="mb-1">
       <v-col cols="12">
         <div class="d-flex align-center justify-space-between">
           <div>
@@ -9,12 +9,12 @@
               <v-icon class="me-3" size="32">mdi-account-group</v-icon>
               使用者管理
             </h1>
-            <p class="text-body-1 text-medium-emphasis">
+            <p class="text-body-1 text-medium-emphasis mt-3">
               管理系統中的所有使用者帳號
             </p>
           </div>
           <v-btn
-            class="px-6"
+            class="px-6 mb-2"
             color="primary"
             elevation="2"
             prepend-icon="mdi-plus"
@@ -64,7 +64,6 @@
       <v-col cols="12" md="6">
         <v-text-field
           v-model="search"
-          bg-color="surface"
           clearable
           density="comfortable"
           label="搜尋使用者"
@@ -75,7 +74,6 @@
       <v-col cols="12" md="3">
         <v-select
           v-model="roleFilter"
-          bg-color="surface"
           clearable
           density="comfortable"
           :items="roleOptions"
@@ -101,10 +99,10 @@
     <!-- 使用者列表 -->
     <v-row>
       <v-col cols="12">
-        <v-card elevation="2">
+        <v-card elevation="2" >
           <v-data-table
             class="elevation-0"
-            density="comfortable"
+            density="default"
             :headers="headers"
             hover
             :items="filteredUsers"
@@ -656,60 +654,7 @@
   }
 </script>
 
-<style scoped>
-.v-data-table {
-  border-radius: 8px;
-}
 
-.v-card {
-  border-radius: 12px;
-}
-
-.v-btn {
-  border-radius: 8px;
-}
-
-/* .v-text-field, .v-select {
-  border-radius: 8px;
-} */
-
-/* .gap-2 {
-  gap: 8px;
-} */
-
- /* 確保所有元素都使用米色背景 */
-/* :deep(.v-data-table) {
-  background-color: #fffef5ff !important;
-} */
-
-/* :deep(.v-data-table__wrapper) {
-  background-color: #fffef5ff !important;
-} */
-
-/* :deep(.v-data-table__td) {
-  background-color: #fffef5ff !important;
-} */
-
-/* :deep(.v-data-table__th) {
-  background-color: #fffef5ff !important;
-} */
-
-:deep(.v-field) {
-  background-color: #fffef5ff !important;
-}
-
-:deep(.v-field__input) {
-  background-color: #fffef5ff !important;
-}
-
-:deep(.v-list) {
-  background-color: #fffef5ff !important;
-}
-
-:deep(.v-list-item) {
-  background-color: #fffef5ff !important;
-}
-</style>
 
 <route lang="yaml">
   meta:

@@ -1,283 +1,543 @@
 <template>
-  <v-container>
+  <v-container fluid class="pa-5">
+    <!-- 頁面標題區域 -->
+    <v-row class="mb-1">
+      <v-col cols="12">
+        <div class="d-flex align-center justify-space-between">
+          <div>
+            <h1 class="text-h4 font-weight-bold text-orange-darken-4 mb-1">
+              <v-icon icon="mdi-book-open-variant" class="mr-3 mb-1" size="large" />
+              我的回憶錄
+            </h1>
+            <p class="text-body-1 text-medium-emphasis">
+              記錄生活中的美好時刻，分享您的快樂回憶
+            </p>
+          </div>
+          <v-btn
+            color="orange-darken-4"
+            size="large"
+            prepend-icon="mdi-plus"
+            elevation="2"
+            @click="openDialog(null)"
+            class="text-none"
+          >
+            新增回憶
+          </v-btn>
+        </div>
+      </v-col>
+    </v-row>
+
+
+    <!-- 搜尋和篩選區域 -->
     <v-row>
       <v-col cols="12">
-        <h1 class="text-center">回憶錄管理</h1>
+        <div class="d-flex align-center gap-4 pa-1">
+          <v-text-field
+            v-model="search"
+            density="comfortable"
+            hide-details
+            placeholder="搜尋回憶標題、內容或分類..."
+            prepend-inner-icon="mdi-magnify"
+            variant="outlined"
+            class="flex-grow-1 mr-3"
+            clearable
+          />
+          <v-select
+            v-model="selectedCategory"
+            :items="categoryOptions"
+            label="分類篩選"
+            density="comfortable"
+            hide-details
+            variant="outlined"
+            class="flex-shrink-0"
+            style="min-width: 150px"
+            clearable
+          />
+        </div>
       </v-col>
-      <v-divider />
+    </v-row>
 
+
+    <!-- 數據表格 -->
+    <v-row>
       <v-col cols="12">
-        <v-data-table :filter-keys="filterKeys" :headers="headers" :items="diarys" :search="search">
-          <template #top>
-            <v-toolbar>
-              <div class="px-4">
-                <v-btn variant="outlined" @click="openDialog(null)">新增回憶</v-btn>
+        <v-card elevation="2" class="overflow-hidden">
+          <v-data-table
+            :headers="headers"
+            :items="filteredDiarys"
+            :search="search"
+            :loading="loading"
+            class="elevation-0"
+            hover
+            item-value="_id"
+            density="default"
+          >
+            <!-- 建立日期欄位 -->
+            <template #[`item.createdAt`]="{ item }">
+              <div class="d-flex flex-column">
+                <span class="text-body-2 font-weight-medium">
+                  {{ new Date(item.createdAt).toLocaleDateString('zh-TW') }}
+                </span>
+                <span class="text-caption text-medium-emphasis">
+                  {{ new Date(item.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) }}
+                </span>
               </div>
+            </template>
 
-              <v-spacer />
+            <!-- 日期欄位 -->
+            <template #[`item.date`]="{ item }">
+              <div class="d-flex flex-column">
+                <span class="text-body-2 font-weight-medium">
+                  {{ item.date ? new Date(item.date).toLocaleDateString('zh-TW') : '-' }}
+                </span>
+                <span class="text-caption text-medium-emphasis">
+                  {{ item.date ? new Date(item.date).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '-' }}
+                </span>
+              </div>
+            </template>
 
-              <div class="px-4">
-                <v-text-field
-                  v-model="search"
-                  density="compact"
-                  flat
-                  hide-details
-                  placeholder="搜尋回憶"
-                  prepend-inner-icon="mdi-magnify"
-                  variant="solo"
-                  width="400"
+            <!-- 圖片欄位 -->
+            <template #[`item.image`]="{ value }">
+              <div v-if="value && value.length > 0" class="d-flex flex-wrap gap-2">
+                <v-img
+                  v-for="(img, index) in value.slice(0, 3)"
+                  :key="index"
+                  :src="img"
+                  class="rounded"
+                  cover
+                  height="100"
+                  width="100"
+                />
+                <div
+                  v-if="value.length > 3"
+                  class="d-flex align-center justify-center rounded bg-grey-lighten-3"
+                  style="height: 60px; width: 60px;"
+                >
+                  <span class="text-caption text-medium-emphasis">+{{ value.length - 3 }}</span>
+                </div>
+              </div>
+              <span v-else class="text-grey text-caption">無圖片</span>
+            </template>
+
+
+            <!-- 標題欄位 -->
+            <template #[`item.title`]="{ value }">
+              <div class="text-body-2 font-weight-medium text-truncate" style="max-width: 200px;">
+                {{ value || '無標題' }}
+              </div>
+            </template>
+
+            <!-- 描述欄位 -->
+            <template #[`item.description`]="{ value }">
+              <div class="text-body-2" style="max-width: 150px; white-space: pre-wrap; word-wrap: break-word;">
+                {{ value || '無描述' }}
+              </div>
+            </template>
+
+            <!-- 分類欄位 -->
+            <template #[`item.category`]="{ value }">
+              <v-chip
+                :color="getCategoryColor(value)"
+                size="small"
+                variant="tonal"
+                class="text-none"
+              >
+                {{ value }}
+              </v-chip>
+            </template>
+
+           <!-- 顯示狀態欄位 -->
+           <template #[`item.sell`]="{ item, value }">
+              <v-chip
+                :color="value ? 'success' : 'grey'"
+                size="small"
+                variant="tonal"
+                class="text-none cursor-pointer"
+                @click="toggleVisibility(item)"
+                :loading="item.updating"
+              >
+                <v-icon
+                  :icon="value ? 'mdi-eye' : 'mdi-eye-off'"
+                  size="small"
+                  class="mr-1"
+                />
+                {{ value ? '公開' : '私人' }}
+              </v-chip>
+            </template>
+
+            <!-- 操作欄位 -->
+            <template #[`item.actions`]="{ item }">
+              <div class="d-flex gap-1">
+                <v-btn
+                  icon="mdi-pencil"
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  @click="openDialog(item)"
+                  class="text-none"
+                />
+                <v-btn
+                  icon="mdi-delete"
+                  size="small"
+                  variant="text"
+                  color="error"
+                  @click="confirmDelete(item)"
+                  class="text-none"
                 />
               </div>
-            </v-toolbar>
-          </template>
-
-          <!-- 圖片 -->
-          <template #[`item.image`]="{ value }">
-            <div v-if="value && value.length > 0" class="d-flex flex-wrap gap-2">
-              <v-img
-                v-for="img in value"
-                :key="img"
-                class="rounded"
-                cover
-                height="100"
-                :src="img"
-                width="100"
-              />
-            </div>
-            <span v-else class="text-grey">無圖片</span>
-          </template>
-
-          <!-- 上架 -->
-          <template #[`item.sell`]="{ value }">
-            <v-icon v-if="value" icon="mdi-check" />
-          </template>
-
-          <!-- 操作 -->
-          <template #[`item.action`]="{ item }">
-            <v-btn icon="mdi-pencil" variant="text" @click="openDialog(item)" />
-            <v-btn color="red" icon="mdi-delete" variant="text" @click="deleteDiary(item._id)" />
-          </template>
-
-        </v-data-table>
+            </template>
+          </v-data-table>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 
-  <v-dialog v-model="diaglog.open" persistent width="600">
+  <!-- 新增/編輯對話框 -->
+  <v-dialog v-model="dialog.open" persistent max-width="700" scrollable>
     <v-form :disabled="isSubmitting" @submit.prevent="submit">
       <v-card>
-        <v-card-title>{{ diaglog.id.length > 0 ? '編輯回憶' : "新增回憶" }}</v-card-title>
-
-        <v-card-text>
-
-          <v-text-field
-            v-model="date.value.value"
-            :error-messages="date.errorMessage.value"
-            label="日期和時間"
-            prepend-icon="mdi-calendar-clock"
-            type="datetime-local"
+        <!-- 對話框標題 -->
+        <v-card-title class="d-flex align-center justify-space-between pa-6 pb-4">
+          <div class="d-flex align-center">
+            <v-icon
+              :icon="dialog.id ? 'mdi-pencil' : 'mdi-plus'"
+              size="large"
+              :color="dialog.id ? 'warning' : 'primary'"
+              class="mr-3"
+            />
+            <span class="text-h5 font-weight-medium">
+              {{ dialog.id ? '編輯回憶' : '新增回憶' }}
+            </span>
+          </div>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            @click="closeDialog"
+            class="text-none"
           />
+        </v-card-title>
 
-          <!-- <v-date-picker
-            v-model="date.value.value"
-            class="pb-6"
-            color="pink-darken-1"
-            :error-messages="date.errorMessage.value"
-            label="日期"
-            show-adjacent-months
-          /> -->
+        <v-divider />
 
-          <!-- <v-text-field
-            v-model="date.value.value"
-            :error-messages="date.errorMessage.value"
-            label="日期"
-          /> -->
+        <v-card-text class="pa-6">
+          <v-row>
+            <!-- 日期和時間 -->
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="date.value.value"
+                :error-messages="date.errorMessage.value"
+                label="日期和時間"
+                prepend-inner-icon="mdi-calendar-clock"
+                type="datetime-local"
+                variant="outlined"
+                density="comfortable"
+              />
+            </v-col>
 
-          <!-- 分類 -->
-          <v-select
-            v-model="category.value.value"
-            :error-messages="category.errorMessage.value"
-            :items="categoryOptions"
-            label="分類"
-          />
+            <!-- 分類 -->
+            <v-col cols="12" md="6">
+              <v-select
+                v-model="category.value.value"
+                :error-messages="category.errorMessage.value"
+                :items="categoryOptions"
+                label="分類"
+                prepend-inner-icon="mdi-tag"
+                variant="outlined"
+                density="comfortable"
+              />
+            </v-col>
 
-          <!-- 標題 -->
-          <v-text-field
-            v-model="title.value.value"
-            :error-messages="title.errorMessage.value"
-            label="標題"
-          />
+            <!-- 標題 -->
+            <v-col cols="12">
+              <v-text-field
+                v-model="title.value.value"
+                :error-messages="title.errorMessage.value"
+                label="回憶標題"
+                prepend-inner-icon="mdi-format-title"
+                variant="outlined"
+                density="comfortable"
+                placeholder="為您的回憶取個標題..."
+              />
+            </v-col>
 
-          <v-textarea
-            v-model="description.value.value"
-            :error-messages="description.errorMessage.value"
-            label="每日發生的三件好事"
-          />
+            <!-- 描述 -->
+            <v-col cols="12">
+              <v-textarea
+                v-model="description.value.value"
+                :error-messages="description.errorMessage.value"
+                label="每日發生的三件好事"
+                prepend-inner-icon="mdi-text"
+                variant="outlined"
+                density="comfortable"
+                placeholder="記錄今天發生的三件好事..."
+                rows="4"
+                auto-grow
+              />
+            </v-col>
 
-          <VueFileAgent
-            ref="fileAgent"
-            v-model="fileRecords"
-            v-model:raw-model-value="rawFileRecords"
-            accept="image/jpeg,image/png"
-            deletable
-            :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
-            help-text="選擇或拖曳檔案"
-            :max-files="5"
-            max-size="1MB"
-            multiple
-            :url-resolver="(file) => file.url || file.data"
-          />
+            <!-- 圖片上傳 -->
+            <v-col cols="12">
+              <v-card variant="outlined" class="pa-4">
+                <div class="d-flex align-center mb-3">
+                  <v-icon icon="mdi-image" class="mr-2" color="primary" />
+                  <span class="text-subtitle-1 font-weight-medium">回憶圖片</span>
+                </div>
+                <VueFileAgent
+                  ref="fileAgent"
+                  v-model="fileRecords"
+                  v-model:raw-model-value="rawFileRecords"
+                  accept="image/jpeg,image/png"
+                  deletable
+                  :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
+                  help-text="選擇或拖曳圖片檔案到此處"
+                  :max-files="5"
+                  max-size="1MB"
+                  multiple
+                  :url-resolver="(file) => file.url || file.data"
+                />
+              </v-card>
+            </v-col>
 
-          <v-switch
-            v-model="sell.value.value"
-            color="success"
-            :error-messages="sell.errorMessage.value"
-            hide-details
-            label="是否顯示在回憶牆上"
-          />
-
+            <!-- 顯示設定 -->
+            <v-col cols="12">
+              <v-card variant="outlined" class="pa-4">
+                <v-switch
+                  v-model="sell.value.value"
+                  :error-messages="sell.errorMessage.value"
+                  color="success"
+                  hide-details
+                  label="公開分享到回憶牆"
+                  class="ma-0"
+                >
+                  <template #prepend>
+                    <v-icon icon="mdi-eye" color="success" class="mr-2" />
+                  </template>
+                </v-switch>
+                <p class="text-caption text-medium-emphasis mt-2 mb-0">
+                  開啟後，其他用戶可以在回憶牆上看到您的分享
+                </p>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card-text>
 
-        <v-card-actions>
-          <v-btn color="red" :disabled="isSubmitting" variant="tonal" @click="closeDialog">取消</v-btn>
-          <v-btn color="green" :loading="isSubmitting" type="submit" variant="tonal">
-            {{ diaglog.id.length > 0 ? '編輯' : '新增' }}
+        <v-divider />
+
+        <!-- 對話框按鈕 -->
+        <v-card-actions class="pa-6">
+          <v-spacer />
+          <v-btn
+            color="grey-darken-1"
+            variant="outlined"
+            :disabled="isSubmitting"
+            @click="closeDialog"
+            class="text-none"
+          >
+            取消
+          </v-btn>
+          <v-btn
+            :color="dialog.id ? 'warning' : 'primary'"
+            :loading="isSubmitting"
+            type="submit"
+            class="text-none"
+          >
+            <v-icon
+              :icon="dialog.id ? 'mdi-content-save' : 'mdi-plus'"
+              class="mr-2"
+            />
+            {{ dialog.id ? '儲存變更' : '新增回憶' }}
           </v-btn>
         </v-card-actions>
-
       </v-card>
     </v-form>
+  </v-dialog>
 
+  <!-- 刪除確認對話框 -->
+  <v-dialog v-model="deleteDialog.open" max-width="400">
+    <v-card>
+      <v-card-title class="d-flex align-center pa-6 pb-4">
+        <v-icon icon="mdi-alert" color="error" size="large" class="mr-3" />
+        <span class="text-h6">確認刪除</span>
+      </v-card-title>
+
+      <v-card-text class="pa-6 pt-0">
+        <p class="text-body-1">
+          您確定要刪除這則回憶嗎？此操作無法復原。
+        </p>
+        <p class="text-body-2 text-medium-emphasis mt-2">
+          標題：{{ deleteDialog.item?.title || '無標題' }}
+        </p>
+      </v-card-text>
+
+      <v-card-actions class="pa-6 pt-0">
+        <v-spacer />
+        <v-btn
+          color="grey-darken-1"
+          variant="outlined"
+          @click="deleteDialog.open = false"
+          class="text-none"
+        >
+          取消
+        </v-btn>
+        <v-btn
+          color="error"
+          :loading="deleteDialog.loading"
+          @click="deleteDiary(deleteDialog.item?._id)"
+          class="text-none"
+        >
+          <v-icon icon="mdi-delete" class="mr-2" />
+          確認刪除
+        </v-btn>
+      </v-card-actions>
+    </v-card>
   </v-dialog>
 </template>
 
-  <script setup>
-  import { useField, useForm } from 'vee-validate'
-  import { ref, useTemplateRef } from 'vue'
+<script setup>
+import { useField, useForm } from 'vee-validate'
+import { ref, computed } from 'vue'
+import { useSnackbar } from 'vuetify-use-dialog'
+import * as yup from 'yup'
+import diaryService from '../../services/diary'
 
-  import { useSnackbar } from 'vuetify-use-dialog'
+const createSnackbar = useSnackbar()
 
-  import * as yup from 'yup'
-  import diaryService from '../../services/diary'
+// 響應式數據
+const diarys = ref([])
+const search = ref('')
+const selectedCategory = ref(null)
+const loading = ref(false)
 
-  const createSnackbar = useSnackbar()
+// 表格標題
+const headers = [
+  {
+    title: '建立時間',
+    key: 'createdAt',
+    sortable: true,
+    width: '140px'
+  },
+  {
+    title: '回憶日期',
+    key: 'date',
+    sortable: true,
+    width: '140px'
+  },
+  {
+    title: '圖片',
+    key: 'image',
+    sortable: false,
+    width: '120px'
+  },
+  {
+    title: '標題',
+    key: 'title',
+    sortable: true,
+    width: '200px'
+  },
+  {
+    title: '內容',
+    key: 'description',
+    sortable: false,
+    width: '300px'
+  },
+  {
+    title: '分類',
+    key: 'category',
+    sortable: true,
+    width: '100px'
+  },
+  {
+    title: '狀態',
+    key: 'sell',
+    sortable: true,
+    width: '100px'
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    sortable: false,
+    width: '100px'
+  },
+]
 
-  const diarys = ref([])
-  const search = ref('')
+const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
 
-  // ************************
-  // *       表格顯示        *
-  // ************************
+// 篩選後的日記數據
+const filteredDiarys = computed(() => {
+  let filtered = diarys.value
 
-  const headers = [
-    { title: '建立日期', key: 'createdAt', value: item => new Date(item.createdAt).toLocaleString() },
-    { title: '日期', key: 'date', value: item => {
-      // 格式化日期，顯示完整的日期和時間，與建立日期和更新日期格式一致
-      if (item.date) {
-        return new Date(item.date).toLocaleString('zh-TW')
-      }
-      return ''
-    } },
-    { title: '圖片', key: 'image', sortable: false },
-    { title: '標題', key: 'title' },
-    { title: '每日發生的三件好事', key: 'description' },
-    { title: '分類', key: 'category' },
-    { title: '顯示', key: 'sell' },
-    // { title: '更新日期', key: 'updatedAt', value: item => new Date(item.updatedAt).toLocaleString() },
-    { title: '編輯', key: 'action', sortable: false },
-  ]
-
-  const filterKeys = ['date', 'title', 'category', 'description', 'createdAt', 'updatedAt']
-
-  const getDiarys = async () => {
-    try {
-      const { data } = await diaryService.getAll()
-      diarys.value = data.diarys
-    } catch (error) {
-      console.error('Error fetching diarys:', error)
-      createSnackbar({
-        text: '無法載入回憶資料',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-    }
+  if (selectedCategory.value) {
+    filtered = filtered.filter(diary => diary.category === selectedCategory.value)
   }
-  getDiarys()
 
-  // ************************
-  // *         表單          *
-  // ************************
-  const fileAgent = useTemplateRef('fileAgent')
+  return filtered
+})
 
-  const diaglog = ref({
-    open: false,
-    id: '',
-  })
+// 獲取分類顏色
+const getCategoryColor = (category) => {
+  const colors = {
+    '快樂': 'success',
+    '問題': 'warning',
+    '難過': 'info',
+    '生氣': 'error',
+    '平靜': 'grey'
+  }
+  return colors[category] || 'grey'
+}
 
-  /*
-    name = {
-    value: ref(''), // ← 真正存值的地方
-    errorMessage: ref(''), // 如果驗證失敗這裡會有訊息
-    // 還有其他東西例如 handleBlur, meta 之類的
-    }
+// 獲取日記數據
+const getDiarys = async () => {
+  loading.value = true
+  try {
+    const { data } = await diaryService.getAll()
+    diarys.value = data.diarys
+  } catch (error) {
+    console.error('Error fetching diarys:', error)
+    createSnackbar({
+      text: '無法載入回憶資料',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+  } finally {
+    loading.value = false
+  }
+}
 
-    ✅ 你要改 name 的值
-    👉 那你要先進入 name.value（因為 value 裡面才是真正的 ref）
+// 初始化
+getDiarys()
 
-    ✅ 然後再進入那個 ref 裡面真正的值
-    👉 所以變成 name.value.value
-  */
-  // item 不是每次都有值的，它是個「可選的參數」，所以才需要 if (item) 來判斷
-  // item => { ... } => 箭頭函式（匿名函式）
-  // 如果有物品（item），他會自動幫我把東西擺到對話框裡～ (沒有，就新增)
-  const openDialog = item => {
-    if (item) {
-      // 編輯模式：使用現有資料
-      diaglog.value.id = item._id
-      // 格式化日期為 YYYY-MM-DDTHH:MM 格式，適合 v-text-field type="datetime-local"
-      if (item.date) {
-        const dateObj = new Date(item.date)
-        // 使用本地時間，避免時區問題
-        const year = dateObj.getFullYear()
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-        const day = String(dateObj.getDate()).padStart(2, '0')
-        const hours = String(dateObj.getHours()).padStart(2, '0')
-        const minutes = String(dateObj.getMinutes()).padStart(2, '0')
-        date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
-      } else {
-        // 使用本地時間，避免時區問題
-        const now = new Date()
-        const year = now.getFullYear()
-        const month = String(now.getMonth() + 1).padStart(2, '0')
-        const day = String(now.getDate()).padStart(2, '0')
-        const hours = String(now.getHours()).padStart(2, '0')
-        const minutes = String(now.getMinutes()).padStart(2, '0')
-        date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
-      }
-      title.value.value = item.title
-      description.value.value = item.description
-      sell.value.value = item.sell
-      category.value.value = item.category
+// 對話框相關
+const dialog = ref({
+  open: false,
+  id: '',
+})
 
-      // 新增：載入現有圖片
-      if (item.image && item.image.length > 0) {
-        // 將現有圖片路徑轉換為 VueFileAgent 格式
-        const existingFiles = item.image.map((imageUrl, index) => ({
-          name: `existing-image-${index}.jpg`,
-          size: 0, // 現有圖片沒有檔案大小資訊
-          type: 'image/jpeg', // 預設類型
-          url: imageUrl, // 圖片 URL
-          isExisting: true, // 標記為現有圖片
-        }))
-        fileRecords.value = existingFiles
-      } else {
-        fileRecords.value = []
-      }
+const deleteDialog = ref({
+  open: false,
+  item: null,
+  loading: false
+})
+
+// 檔案上傳相關
+const fileAgent = ref(null)
+const fileRecords = ref([])
+const rawFileRecords = ref([])
+
+// 開啟對話框
+const openDialog = (item) => {
+  if (item) {
+    // 編輯模式
+    dialog.value.id = item._id
+    if (item.date) {
+      const dateObj = new Date(item.date)
+      const year = dateObj.getFullYear()
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const day = String(dateObj.getDate()).padStart(2, '0')
+      const hours = String(dateObj.getHours()).padStart(2, '0')
+      const minutes = String(dateObj.getMinutes()).padStart(2, '0')
+      date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
     } else {
-      // 新增模式：自動填入當前時間
-      diaglog.value.id = ''
-      // 使用本地時間，避免時區問題，新增時不包含秒數
       const now = new Date()
       const year = now.getFullYear()
       const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -285,216 +545,244 @@
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
-      title.value.value = ''
-      description.value.value = '1. \n2. \n3. '
-      category.value.value = '快樂'
-      sell.value.value = false
-      // 清空圖片記錄
-      fileRecords.value = []
-      rawFileRecords.value = []
     }
-    diaglog.value.open = true
-  }
+    title.value.value = item.title
+    description.value.value = item.description
+    sell.value.value = item.sell
+    category.value.value = item.category
 
-  // 關閉表單對話框
-  // 重置表單欄位
-  // 刪除圖片欄位的檔案
-  const closeDialog = () => {
-    // 把對話框的「開關」設定為 false，表示要「關閉視窗」
-    // dialog => ref() 定義的 reactive 物件（reactive，可以追蹤變化）
-    // .value 是因為 ref() 包的東西要用 .value 才能取到
-    diaglog.value.open = false
-    // 把目前操作的商品 ID 清空 (已經關掉表單，不管是新增還是編輯都結束了)
-    // 把「目前編輯的對象」重設為沒有東西（空字串）
-    diaglog.value.id = ''
-    // 重置整個表單的欄位值 (回到初始狀態)
-    resetForm()
-    // 清空圖片記錄
+    if (item.image && item.image.length > 0) {
+      const existingFiles = item.image.map((imageUrl, index) => ({
+        name: `existing-image-${index}.jpg`,
+        size: 0,
+        type: 'image/jpeg',
+        url: imageUrl,
+        isExisting: true,
+      }))
+      fileRecords.value = existingFiles
+    } else {
+      fileRecords.value = []
+    }
+  } else {
+    // 新增模式
+    dialog.value.id = ''
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    date.value.value = `${year}-${month}-${day}T${hours}:${minutes}`
+    title.value.value = ''
+    description.value.value = '1. \n2. \n3. '
+    category.value.value = '快樂'
+    sell.value.value = false
     fileRecords.value = []
     rawFileRecords.value = []
   }
+  dialog.value.open = true
+}
 
-  const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
+// 關閉對話框
+const closeDialog = () => {
+  dialog.value.open = false
+  dialog.value.id = ''
+  resetForm()
+  fileRecords.value = []
+  rawFileRecords.value = []
+}
 
-  // handleSubmit => 當表單被送出時，負責觸發驗證並處理送出邏輯的函式
-  // resetForm    => 把整個表單「重置」為初始值的方法
-  // isSubmitting => 一個布林值，表示「表單正在送出中」
-  // 建立一個表單，加上這些 驗證規則 (驗證規則，是用 yup.object() 來幫我們定義的)
-  // 搭配 const date = useField('date') 做使用 (表單提交時用 handleSubmit(onSubmit) 綁定)
-  const { handleSubmit, resetForm, isSubmitting } = useForm({
-    // validationSchema: yup.object({ => 這個屬性是 驗證規則的設定 (用 Yup 函式庫，來建立一個「驗證規則物件」)
-    validationSchema: yup.object({
-      // 日期 (驗證「日期」的欄位)
-      date: yup
-        .string()
-        .max(20, '日期最多只能有 20 字元'),
-      // .nullable(),
+// 確認刪除
+const confirmDelete = (item) => {
+  deleteDialog.value.item = item
+  deleteDialog.value.open = true
+}
 
-      // 標題
-      title: yup
-        .string()
-        .max(20, '標題最多只能有 20 字元'),
+// 表單驗證
+const { handleSubmit, resetForm, isSubmitting } = useForm({
+  validationSchema: yup.object({
+    date: yup.string().max(20, '日期最多只能有 20 字元'),
+    title: yup.string().max(50, '標題最多只能有 50 字元'),
+    description: yup.string().max(1000, '最多只能有 1000 字元'),
+    category: yup
+      .string()
+      .required('分類是必填的')
+      .oneOf(categoryOptions, '請選擇有效的分類'),
+    sell: yup.boolean().required('是否顯示在回憶牆上，是必填的'),
+  }),
+  initialValues: {
+    date: new Date().toISOString(),
+    title: '',
+    description: '1.  \n2.  \n3.  ',
+    category: '快樂',
+    sell: false,
+  },
+})
 
-      // 描述
-      description: yup
-        .string()
-        .max(1000, '最多只能有 1000 字元'),
+const date = useField('date')
+const title = useField('title')
+const description = useField('description')
+const category = useField('category')
+const sell = useField('sell')
 
-      // 分類
-      category: yup
-        .string()
-        .required('分類是必填的')
-        .oneOf(categoryOptions, '請選擇有效的分類'),
-
-      // 是否顯示在回憶牆上
-      sell: yup
-        .boolean()
-        .required('是否顯示在回憶牆上，是必填的'),
-    }),
-
-    // 控制定義「一開始表單欄位的值」
-    // 表單的起始樣子 (告訴整個表單系統：「欄位有哪些？」、「預設值要是什麼？」)
-    // 「打開對話框時，欄位會自動是空的」
-    // 「初始化」欄位值
-    // 初始化，先寫
-    initialValues: {
-      // date: '',
-      date: new Date().toISOString(), // 預設今天日期和時間 (包含完整時間)
-      title: '',
-      description: '1.  \n2.  \n3.  ',
-      category: '快樂',
-      sell: false,
-    },
-  })
-
-  // useField => 綁定欄位、操作資料、追蹤狀態
-  // 「操作」那些欄位
-  // useField 後寫
-  // useForm 會幫整個表單套上「驗證日期必填」的規則 (useField('date') 是綁定「日期」欄位的值、錯誤訊息、狀態等等，方便你在模板用 v-model 或取得錯誤訊息。)
-  // 當你送出表單時，handleSubmit 會用 validationSchema 驗證整個表單的欄位，像 date 有沒有填、格式正不正確
-  const date = useField('date')
-  const title = useField('title')
-  const description = useField('description')
-  const category = useField('category')
-  const sell = useField('sell')
-  const fileRecords = ref([])
-  const rawFileRecords = ref([])
-
-  // 宣告一個叫 submit 的函式，它是透過 handleSubmit 這個方法建立的。
-  // handleSubmit 是從 useForm() 來的，它會幫你先幫表單驗證成功，才會執行裡面的函式。
-  // 裡面 async values => { ... } 是一個非同步函式，values 就是表單裡所有欄位填寫的資料。
-  // 當你送出表單時，會先用 handleSubmit 來檢查，然後才執行裡面這個函式。
-  // 當使用者送出表單時，先檢查他上傳的第一個圖片檔案有沒有錯誤，如果有錯誤，就跳出紅色錯誤提示，然後不繼續送出表單。
-  const submit = handleSubmit(async values => {
-    // 檢查是否有任何圖片檔案有錯誤
-    if (fileRecords.value.some(file => file.error)) {
-      createSnackbar ({
-        text: '請選擇有效的圖片檔案',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-      // 避免錯誤的圖片被送出
-      return
-    }
-    //
-    if (diaglog.value.id.length === 0 && fileRecords.value.length === 0) {
-      createSnackbar({
-        text: '請上傳回憶錄圖片',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-      return
-    }
-
-    //
-    try {
-      const fd = new FormData()
-
-      // 處理日期：如果是新增模式，自動加上秒數
-      let dateToSend = values.date
-      if (diaglog.value.id.length === 0) {
-        // 新增模式：將用戶選擇的日期時間加上當前秒數
-        const userDate = new Date(values.date)
-        const now = new Date()
-        userDate.setSeconds(now.getSeconds())
-        dateToSend = userDate.toISOString()
-      }
-      fd.append('date', dateToSend)
-      fd.append('title', values.title)
-      fd.append('description', values.description)
-      fd.append('sell', values.sell)
-      fd.append('category', values.category)
-
-      // 🔥 修改：正確處理圖片上傳邏輯
-      const newFiles = fileRecords.value.filter(file => file.file) // 只上傳新檔案
-      const existingFiles = fileRecords.value.filter(file => file.isExisting) // 保留現有檔案
-
-      // 將新選取的圖片檔案都加入到 FormData
-      if (newFiles.length > 0) {
-        for (const fileRecord of newFiles) {
-          fd.append('image', fileRecord.file)
-        }
-      }
-
-      // 如果是編輯模式且有現有圖片，將現有圖片 URL 也傳送
-      if (diaglog.value.id.length > 0 && existingFiles.length > 0) {
-        const existingUrls = existingFiles.map(file => file.url)
-        fd.append('existingImages', JSON.stringify(existingUrls))
-      }
-
-      await (diaglog.value.id.length === 0 ? diaryService.create(fd) : diaryService.update(diaglog.value.id, fd))
-
-      createSnackbar({
-        text: '操作成功',
-        snackbarProps: {
-          color: 'green',
-        },
-      })
-
-      closeDialog()
-
-      getDiarys()
-    } catch (error) {
-      console.error(error)
-      createSnackbar({
-        text: error?.response?.data?.message || '操作失敗，請稍後嘗試',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-    }
-  })
-
-  const deleteDiary = async id => {
-    try {
-      await diaryService.delete(id)
-      createSnackbar({
-        text: '刪除成功',
-        snackbarProps: {
-          color: 'green',
-        },
-      })
-      getDiarys()
-    } catch (error) {
-      console.error(error)
-      createSnackbar({
-        text: error?.response?.data?.message || '刪除失敗，請稍後嘗試',
-        snackbarProps: {
-          color: 'red',
-        },
-      })
-    }
+// 提交表單
+const submit = handleSubmit(async (values) => {
+  if (fileRecords.value.some(file => file.error)) {
+    createSnackbar({
+      text: '請選擇有效的圖片檔案',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+    return
   }
-  </script>
 
-  <route lang="yaml">
-    meta:
-      layout: "user"
+  if (dialog.value.id.length === 0 && fileRecords.value.length === 0) {
+    createSnackbar({
+      text: '請上傳回憶錄圖片',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+    return
+  }
 
-      title: "回憶錄管理"
 
-      login: "login-only"
 
-  </route>
+  try {
+    const fd = new FormData()
+
+    let dateToSend = values.date
+    if (dialog.value.id.length === 0) {
+      const userDate = new Date(values.date)
+      const now = new Date()
+      userDate.setSeconds(now.getSeconds())
+      dateToSend = userDate.toISOString()
+    }
+
+    fd.append('date', dateToSend)
+    fd.append('title', values.title)
+    fd.append('description', values.description)
+    fd.append('sell', values.sell)
+    fd.append('category', values.category)
+
+    const newFiles = fileRecords.value.filter(file => file.file)
+    const existingFiles = fileRecords.value.filter(file => file.isExisting)
+
+    if (newFiles.length > 0) {
+      for (const fileRecord of newFiles) {
+        fd.append('image', fileRecord.file)
+      }
+    }
+
+    if (dialog.value.id.length > 0 && existingFiles.length > 0) {
+      const existingUrls = existingFiles.map(file => file.url)
+      fd.append('existingImages', JSON.stringify(existingUrls))
+    }
+
+    await (dialog.value.id.length === 0
+      ? diaryService.create(fd)
+      : diaryService.update(dialog.value.id, fd)
+    )
+
+    createSnackbar({
+      text: dialog.value.id ? '回憶更新成功' : '回憶新增成功',
+      snackbarProps: {
+        color: 'success',
+      },
+    })
+
+    closeDialog()
+    getDiarys()
+  } catch (error) {
+    console.error(error)
+    createSnackbar({
+      text: error?.response?.data?.message || '操作失敗，請稍後嘗試',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+  }
+})
+
+
+
+// 刪除日記
+const deleteDiary = async (id) => {
+  deleteDialog.value.loading = true
+  try {
+    await diaryService.delete(id)
+    createSnackbar({
+      text: '回憶刪除成功',
+      snackbarProps: {
+        color: 'success',
+      },
+    })
+    deleteDialog.value.open = false
+    getDiarys()
+  } catch (error) {
+    console.error(error)
+    createSnackbar({
+      text: error?.response?.data?.message || '刪除失敗，請稍後嘗試',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+  } finally {
+    deleteDialog.value.loading = false
+  }
+}
+
+// 切換公開/私人狀態
+const toggleVisibility = async (item) => {
+  // 防止重複點擊
+  if (item.updating) return
+
+  // 設置更新狀態
+  item.updating = true
+
+  try {
+    const fd = new FormData()
+    fd.append('date', item.date)
+    fd.append('title', item.title)
+    fd.append('description', item.description)
+    fd.append('sell', !item.sell) // 切換狀態
+    fd.append('category', item.category)
+
+    // 如果有現有圖片，保留它們
+    if (item.image && item.image.length > 0) {
+      fd.append('existingImages', JSON.stringify(item.image))
+    }
+
+    await diaryService.update(item._id, fd)
+
+    // 更新本地狀態
+    item.sell = !item.sell
+
+    createSnackbar({
+      text: item.sell ? '已設為公開' : '已設為私人',
+      snackbarProps: {
+        color: 'success',
+      },
+    })
+  } catch (error) {
+    console.error(error)
+    createSnackbar({
+      text: error?.response?.data?.message || '狀態更新失敗',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+  } finally {
+    item.updating = false
+  }
+}
+</script>
+
+
+<route lang="yaml">
+meta:
+  layout: "user"
+  title: "我的回憶錄"
+  login: "login-only"
+</route>
