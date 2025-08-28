@@ -111,8 +111,8 @@
 
     { title: '關於JIANICE', to: '/about', icon: 'mdi-account-box-outline', show: true },
 
-    { title: '註冊', to: '/register', icon: 'mdi-account-plus', show: !user.isLoggedIn },
-    { title: '登入', to: '/login', icon: 'mdi-login', show: !user.isLoggedIn },
+    // { title: '註冊', to: '/register', icon: 'mdi-account-plus', show: !user.isLoggedIn },
+    { title: '註冊/登入', to: '/login', icon: 'mdi-login', show: !user.isLoggedIn },
     // { title: '購物車', to: '/cart', icon: 'mdi-cart', show: user.isLoggedIn },
     // { title: '訂單', to: '/orders', icon: 'mdi-invoice-list-outline', show: user.isLoggedIn },
     { title: '管理者後台', to: '/admin', icon: 'mdi-cog', show: user.isLoggedIn && user.isAdmin },

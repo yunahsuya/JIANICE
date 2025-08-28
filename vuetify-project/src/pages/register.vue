@@ -1,55 +1,116 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12">
-        <h1 class="text-center">註冊</h1>
-      </v-col>
-      <v-divider />
-      <v-col class="mt-5" cols="6">
-        <v-form :disabled="form.isSubmitting.value" @submit.prevent="submit">
-          <v-text-field
-            v-model="account.value.value"
-            counter
-            :error-messages="account.errorMessage.value"
-            label="帳號"
-            maxlength="20"
-            minlength="4"
-            required
-          />
-          <v-text-field
-            v-model="email.value.value"
-            :error-messages="email.errorMessage.value"
-            label="信箱"
-            required
-          />
-          <v-text-field
-            v-model="password.value.value"
-            counter
-            :error-messages="password.errorMessage.value"
-            label="密碼"
-            maxlength="20"
-            minlength="4"
-            required
-            type="password"
-          />
-          <v-text-field
-            v-model="confirmPassword.value.value"
-            counter
-            :error-messages="confirmPassword.errorMessage.value"
-            label="確認密碼"
-            maxlength="20"
-            minlength="4"
-            required
-            type="password"
-          />
-          <v-btn :loading="form.isSubmitting.value" type="submit">註冊</v-btn>
-        </v-form>
+  <v-container fluid class="register-container">
+    <v-row justify="center" align="center" >
+      <v-col cols="12" sm="8" md="6" lg="4">
+        <v-card class="register-card" elevation="12">
+          <v-card-text class="text-center pa-8">
+            <!-- Logo/標題區域 -->
+            <div class="mb-8">
+              <v-icon size="64" color="primary" >
+                mdi-account-plus
+              </v-icon>
+              <h1 class="text-h4 font-weight-bold text-primary">
+                建立帳戶
+              </h1>
+              <!-- <p class="text-body-2 text-medium-emphasis">
+                填寫以下資訊完成註冊
+              </p> -->
+            </div>
+
+            <!-- 註冊表單 -->
+            <v-form :disabled="form.isSubmitting.value" @submit.prevent="submit">
+              <v-text-field
+                v-model="account.value.value"
+                counter
+                :error-messages="account.errorMessage.value"
+                label="帳號"
+                maxlength="20"
+                minlength="4"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                color="primary"
+                required
+              />
+
+              <v-text-field
+                v-model="email.value.value"
+                :error-messages="email.errorMessage.value"
+                label="信箱"
+                prepend-inner-icon="mdi-email"
+                variant="outlined"
+                color="primary"
+                required
+              />
+
+              <v-text-field
+                v-model="password.value.value"
+                counter
+                :error-messages="password.errorMessage.value"
+                label="密碼"
+                maxlength="20"
+                minlength="4"
+                prepend-inner-icon="mdi-lock"
+                append-inner-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="passwordVisible = !passwordVisible"
+                :type="passwordVisible ? 'text' : 'password'"
+                variant="outlined"
+                color="primary"
+                required
+              />
+
+              <v-text-field
+                v-model="confirmPassword.value.value"
+                counter
+                :error-messages="confirmPassword.errorMessage.value"
+                label="確認密碼"
+                maxlength="20"
+                minlength="4"
+                prepend-inner-icon="mdi-lock-check"
+                append-inner-icon="confirmPasswordVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="confirmPasswordVisible = !confirmPasswordVisible"
+                :type="confirmPasswordVisible ? 'text' : 'password'"
+                variant="outlined"
+                color="primary"
+                required
+              />
+
+              <v-btn
+                :loading="form.isSubmitting.value"
+                type="submit"
+                color="primary"
+                size="large"
+                block
+                class="mb-8"
+                elevation="2"
+              >
+                <v-icon left>mdi-account-plus</v-icon>
+                註冊
+              </v-btn>
+            </v-form>
+
+            <!-- 登入連結 -->
+            <div class="text-center">
+              <span class="text-body-2 text-medium-emphasis mb-16">
+                已有帳戶？
+              </span>
+              <v-btn
+                variant="text"
+                color="primary"
+                class="ml-4"
+                @click="$router.push('/login')"
+              >
+                立即登入
+              </v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script setup>
+  import { ref } from 'vue'
   import validator from 'validator'
   import { useField, useForm } from 'vee-validate'
   import { useRouter } from 'vue-router'
@@ -57,15 +118,10 @@
   import * as yup from 'yup'
   import userService from '@/services/user'
 
-  // https://uvr.esm.is/guide/extending-routes.html#definepage
-  // definePage({
-  //   meta: {
-  //     title: '註冊',
-  //   },
-  // })
-
   const createSnackbar = useSnackbar()
   const router = useRouter()
+  const passwordVisible = ref(false)
+  const confirmPasswordVisible = ref(false)
 
   // 建立 vee-validate 的表單
   const form = useForm({
@@ -140,7 +196,20 @@
   })
 </script>
 
-<!-- https://uvr.esm.is/guide/extending-routes.html#sfc-route-custom-block -->
+<style scoped>
+
+
+.register-card {
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+</style>
+
 <route lang="yaml">
   meta:
     # 標題
@@ -150,15 +219,3 @@
     # 不是管理員也能看
     admin: false
 </route>
-
-<!--
-<route>
-{
-  "meta": {
-    "title": "註冊",
-    "login": "no-login-only",
-    "admin": false
-  }
-}
-</route>
--->

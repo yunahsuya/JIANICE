@@ -1,31 +1,82 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12">
-        <h1 class="text-center">登入</h1>
-      </v-col>
-      <v-divider />
-      <!--  -->
-      <v-col class="mt-5" cols="6">
-        <v-form :disabled="form.isSubmitting.value" @submit.prevent="submit">
-          <v-text-field
-            v-model="account.value.value"
-            :error-messages="account.errorMessage.value"
-            label="帳號或信箱"
-            required
-          />
-          <v-text-field
-            v-model="password.value.value"
-            counter
-            :error-messages="password.errorMessage.value"
-            label="密碼"
-            maxlength="20"
-            minlength="4"
-            required
-            type="password"
-          />
-          <v-btn :loading="form.isSubmitting.value" type="submit">登入</v-btn>
-        </v-form>
+  <v-container class="login-container" fluid>
+    <v-row align="center" class="mt-10" justify="center">
+      <v-col cols="12" lg="4" md="6" sm="8">
+        <v-card class="login-card" elevation="12">
+          <v-card-text class="text-center pa-8">
+            <!-- Logo/標題區域 -->
+            <div class="mb-8">
+              <v-icon class="mb-2" color="primary" size="64">
+                mdi-account-circle
+              </v-icon>
+              <h1 class="text-h4 font-weight-bold text-primary mb-2">
+                歡迎回來
+              </h1>
+              <!-- <p class="text-body-2 text-medium-emphasis">
+                請登入您的帳戶以繼續
+              </p> -->
+            </div>
+
+            <!-- 登入表單 -->
+            <v-form :disabled="form.isSubmitting.value" @submit.prevent="submit">
+              <v-text-field
+                v-model="account.value.value"
+                class="mb-4"
+                color="primary"
+                :error-messages="account.errorMessage.value"
+                label="帳號或信箱"
+                prepend-inner-icon="mdi-account"
+                required
+                variant="outlined"
+              />
+
+              <v-text-field
+                v-model="password.value.value"
+                append-inner-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                counter
+                color="primary"
+                :error-messages="password.errorMessage.value"
+                label="密碼"
+                maxlength="20"
+                class="mb-6"
+                minlength="4"
+                prepend-inner-icon="mdi-lock"
+                required
+                :type="passwordVisible ? 'text' : 'password'"
+                variant="outlined"
+                @click:append-inner="passwordVisible = !passwordVisible"
+              />
+
+              <v-btn
+                block
+                class="mb-4"
+                color="primary"
+                elevation="2"
+                :loading="form.isSubmitting.value"
+                size="large"
+                type="submit"
+              >
+                <v-icon left>mdi-login</v-icon>
+                登入
+              </v-btn>
+            </v-form>
+
+            <!-- 註冊連結 -->
+            <div class="text-center">
+              <span class="text-body-2 text-medium-emphasis">
+                還沒有帳戶？
+              </span>
+              <v-btn
+                class="ml-2"
+                color="primary"
+                variant="text"
+                @click="$router.push('/register')"
+              >
+                立即註冊
+              </v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -33,6 +84,7 @@
 
 <script setup>
   import { useField, useForm } from 'vee-validate'
+  import { ref } from 'vue'
   import { useRouter } from 'vue-router'
   import { useSnackbar } from 'vuetify-use-dialog'
   import * as yup from 'yup'
@@ -42,6 +94,7 @@
   const createSnackbar = useSnackbar()
   const router = useRouter()
   const user = useUserStore()
+  const passwordVisible = ref(false)
 
   // 建立 vee-validate 的表單
   const form = useForm({
@@ -94,6 +147,19 @@
     }
   })
 </script>
+
+<style scoped>
+
+.login-card {
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+</style>
 
 <route lang="yaml">
   meta:
