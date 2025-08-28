@@ -60,6 +60,7 @@
               @mouseleave="feature.hover = false"
             >
               <div class="text-center pt-6">
+                <v-img size="10" :src="feature.image" width="50px" />
                 <v-icon color="orange-darken-2" :icon="feature.icon" size="48" />
                 <v-card-title class="text-h6 font-weight-bold text-grey-darken-3 text-center">
                   {{ feature.title }}
@@ -142,7 +143,7 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="text-white" style="padding: 10rem 0; background-color: #FF9A1A;">
+    <section v-if="!userStore.isLoggedIn" class="text-white" style="padding: 10rem 0; background-color: #FF9A1A;">
       <v-container class="py-16 text-center">
         <h2 class="text-h3 text-md-h2 font-weight-bold mb-8">
           準備開始您的健康飲食之旅了嗎？
@@ -210,10 +211,14 @@
 <script setup>
   import { useRouter } from 'vue-router'
 
+  import { useUserStore } from '../stores/user'
+  const userStore = useUserStore()
+
   const router = useRouter()
 
   const features = ref([
     {
+      image: 'https://cdn-icons-gif.flaticon.com/8617/8617217.gif',
       icon: 'mdi-dice-multiple',
       title: '隨機抽餐廳',
       route: '/restaurant',
@@ -225,6 +230,9 @@
       hover: false,
     },
     {
+      image: 'https://cdn-icons-gif.flaticon.com/15578/15578646.gif',
+      image: 'https://cdn-icons-gif.flaticon.com/11779/11779519.gif',
+
       icon: 'mdi-nutrition',
       title: '營養管理',
       route: '/nutrition',
@@ -236,6 +244,7 @@
       hover: false,
     },
     {
+      image: 'https://cdn-icons-gif.flaticon.com/15747/15747266.gif',
       icon: 'mdi-newspaper',
       title: '健康新聞',
       route: '/hpanews',
@@ -247,6 +256,7 @@
       hover: false,
     },
     {
+      image: 'https://cdn-icons-gif.flaticon.com/12743/12743782.gif',
       icon: 'mdi-book-heart',
       title: '回憶保存',
       route: '/diary',

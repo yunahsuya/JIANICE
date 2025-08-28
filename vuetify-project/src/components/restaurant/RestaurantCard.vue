@@ -1,12 +1,12 @@
 <template>
   <v-card
-    class="h-100 transition-all duration-300 hover-lift cursor-pointer"
+    class="restaurant-card d-flex flex-column"
     elevation="4"
     rounded="lg"
     @click="handleCardClick"
   >
-    <!-- 餐廳圖片 -->
-    <div class="position-relative">
+     <!-- 餐廳圖片 -->
+     <div class="position-relative">
       <v-img
         class="rounded-t-lg"
         cover
@@ -25,33 +25,33 @@
       </div>
     </div>
 
-    <!-- 餐廳資訊 -->
-    <v-card-text class="pa-5">
-      <h3 class="text-h6 font-weight-semibold text-grey-darken-1 mb-4">{{ name }}</h3>
+     <!-- 餐廳資訊 -->
+     <v-card-text class="pa-5 flex-grow-1 d-flex flex-column">
+      <h3 class="text-h6 font-weight-semibold text-grey-darken-1 mb-4 text-truncate">{{ name }}</h3>
 
       <div class="d-flex align-start mb-3">
-        <v-icon class="mr-2" color="primary" icon="mdi-map-marker" size="small" />
-        <span class="text-body-2 text-grey-darken-2">{{ address }}</span>
+        <v-icon class="mr-2 flex-shrink-0" color="primary" icon="mdi-map-marker" size="small" />
+        <span class="text-body-2 text-grey-darken-2 text-truncate">{{ address }}</span>
       </div>
 
       <div v-if="phone" class="d-flex align-start mb-3">
-        <v-icon class="mr-2 " color="primary" icon="mdi-phone" size="small" />
-        <span class="text-body-2 text-grey-darken-2">{{ phone }}</span>
+        <v-icon class="mr-2 flex-shrink-0" color="primary" icon="mdi-phone" size="small" />
+        <span class="text-body-2 text-grey-darken-2 text-truncate">{{ phone }}</span>
       </div>
 
       <div v-if="mobile" class="d-flex align-start mb-3">
-        <v-icon class="mr-2" color="primary" icon="mdi-cellphone" size="small" />
-        <span class="text-body-2 text-grey-darken-2">{{ mobile }}</span>
+        <v-icon class="mr-2 flex-shrink-0" color="primary" icon="mdi-cellphone" size="small" />
+        <span class="text-body-2 text-grey-darken-2 text-truncate">{{ mobile }}</span>
       </div>
 
       <div class="d-flex align-start mb-3">
-        <v-icon class="mr-2" color="primary" icon="mdi-city" size="small" />
-        <span class="text-body-2 text-grey-darken-2">{{ city }}</span>
+        <v-icon class="mr-2 flex-shrink-0" color="primary" icon="mdi-city" size="small" />
+        <span class="text-body-2 text-grey-darken-2 text-truncate">{{ city }}</span>
       </div>
     </v-card-text>
 
-    <!-- 操作按鈕 -->
-    <v-card-actions class="pa-4 pt-0">
+     <!-- 操作按鈕 -->
+     <v-card-actions class="pa-4 pt-0 mt-auto ">
       <v-btn
         class="font-weight-medium flex-1"
         color="primary"
@@ -65,7 +65,7 @@
       </v-btn>
 
       <v-btn
-        cclass="font-weight-medium flex-1"
+        class="font-weight-medium flex-1"
         color="success"
         rounded="lg"
         style="min-width: 160px;"
@@ -119,7 +119,7 @@
             </div>
           </div>
 
-          <div class="d-flex align-start mb-5">
+          <div class="d-flex align-start">
             <v-icon class="mr-3 mt-1" color="primary" icon="mdi-city" />
             <div class="text-body-1 text-grey-darken-2">
               <strong>縣市：</strong>{{ city }}
@@ -548,3 +548,14 @@
     ]
   }
 </script>
+
+<style scoped>
+.restaurant-card {
+  height: 470px; /* 固定高度，跟日記卡片一樣 */
+}
+
+.restaurant-card:hover {
+  transform: translateY(-8px);
+  transition: all 0.3s ease;
+}
+</style>
