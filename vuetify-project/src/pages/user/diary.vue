@@ -198,7 +198,7 @@
           <div class="d-flex align-center">
             <v-icon
               class="mr-3"
-              :color="dialog.id ? 'warning' : 'primary'"
+              :color="dialog.id ? 'warning' : 'orange-darken-4'"
               :icon="dialog.id ? 'mdi-pencil' : 'mdi-plus'"
               size="large"
             />
@@ -276,7 +276,7 @@
             <v-col cols="12">
               <v-card class="pa-4" variant="outlined">
                 <div class="d-flex align-center mb-3">
-                  <v-icon class="mr-2" color="primary" icon="mdi-image" />
+                  <v-icon class="mr-2" color="orange-darken-4" icon="mdi-image" />
                   <span class="text-subtitle-1 font-weight-medium">回憶圖片</span>
                 </div>
                 <VueFileAgent
@@ -311,7 +311,7 @@
                   </template>
                 </v-switch>
                 <p class="text-caption text-medium-emphasis mt-2 mb-0">
-                  開啟後，其他用戶可以在回憶牆上看到您的分享
+                  開啟後，可以在回憶牆上看到您的回憶
                 </p>
               </v-card>
             </v-col>
@@ -334,9 +334,12 @@
           </v-btn>
           <v-btn
             class="text-none"
-            :color="dialog.id ? 'warning' : 'primary'"
+            :color="dialog.id ? 'warning' : 'orange-darken-4'"
             :loading="isSubmitting"
             type="submit"
+            variant="flat"
+
+
           >
             <v-icon
               class="mr-2"
@@ -381,6 +384,7 @@
           color="error"
           :loading="deleteDialog.loading"
           @click="deleteDiary(deleteDialog.item?._id)"
+          variant="flat"
         >
           <v-icon class="mr-2" icon="mdi-delete" />
           確認刪除
@@ -457,7 +461,7 @@
     },
   ]
 
-  const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
+  const categoryOptions = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
 
   // 篩選後的日記數據
   const filteredDiarys = computed(() => {

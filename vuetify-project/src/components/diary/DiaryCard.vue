@@ -18,6 +18,7 @@
         <div class="image-overlay">
           <!-- 分類標籤 -->
           <div class="category-badge">
+
             <v-chip
               class="text-white font-weight-medium"
               :color="getCategoryColor(diary.category)"
@@ -25,10 +26,10 @@
               size="small"
               variant="flat"
             >
-              <v-icon class="mr-1" size="16" start>
+              <v-icon class="" size="25" >
                 {{ getCategoryIcon(diary.category) }}
               </v-icon>
-              {{ diary.category }}
+              <!-- {{ diary.category }} -->
             </v-chip>
           </div>
 
@@ -228,11 +229,11 @@
   padding: 16px;
 }
 
-.category-badge {
+/* .category-badge {
   position: absolute;
   top: 16px;
   left: 16px;
-}
+} */
 
 .date-badge {
   position: absolute;
