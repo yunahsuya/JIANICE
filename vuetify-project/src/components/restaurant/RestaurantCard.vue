@@ -1,12 +1,12 @@
 <template>
   <v-card
-    class="restaurant-card d-flex flex-column"
+    class="d-flex flex-column h-100"
     elevation="4"
     rounded="lg"
     @click="handleCardClick"
   >
-     <!-- 餐廳圖片 -->
-     <div class="position-relative">
+    <!-- 餐廳圖片 -->
+    <div class="position-relative">
       <v-img
         class="rounded-t-lg"
         cover
@@ -25,8 +25,8 @@
       </div>
     </div>
 
-     <!-- 餐廳資訊 -->
-     <v-card-text class="pa-5 flex-grow-1 d-flex flex-column">
+    <!-- 餐廳資訊 -->
+    <v-card-text class="pa-5 flex-grow-1 d-flex flex-column">
       <h3 class="text-h6 font-weight-semibold text-grey-darken-1 mb-4 text-truncate">{{ name }}</h3>
 
       <div class="d-flex align-start mb-3">
@@ -50,31 +50,34 @@
       </div>
     </v-card-text>
 
-     <!-- 操作按鈕 -->
-     <v-card-actions class="pa-4 pt-0 mt-auto ">
-      <v-btn
-        class="font-weight-medium flex-1"
-        color="primary"
-        rounded="lg"
-        style="min-width: 160px;"
-        variant="elevated"
-        @click.stop="openGoogleMaps"
-      >
-        <v-icon class="mr-2" icon="mdi-map-marker" />
-        詳情
-      </v-btn>
+    <!-- 操作按鈕 -->
+    <v-card-actions class="pa-4 pt-0 mt-auto">
+      <div class="d-flex flex-column flex-md-row w-100  ">
+        <v-btn
+          class="font-weight-medium flex-1 mb-3 mr-md-2  "
+          color="primary"
+          rounded="lg"
+          style="min-width: 160px;"
+          variant="elevated"
+          @click.stop="openGoogleMaps"
+        >
+          <v-icon class="mr-2" icon="mdi-map-marker" />
+          詳情
+        </v-btn>
 
-      <v-btn
-        class="font-weight-medium flex-1"
-        color="success"
-        rounded="lg"
-        style="min-width: 160px;"
-        variant="outlined"
-        @click.stop="showNutritionTips = true"
-      >
-        <v-icon class="mr-2" icon="mdi-food-apple" />
-        營養提示
-      </v-btn>
+        <v-btn
+          class="font-weight-medium flex-1"
+          color="success"
+          rounded="lg"
+          style="min-width: 160px;"
+          variant="outlined"
+          @click.stop="showNutritionTips = true"
+        >
+          <v-icon class="mr-2" icon="mdi-food-apple" />
+          營養提示
+        </v-btn>
+
+      </div>
 
       <!-- <v-btn
         class="font-weight-medium"
@@ -550,9 +553,6 @@
 </script>
 
 <style scoped>
-.restaurant-card {
-  height: 470px; /* 固定高度，跟日記卡片一樣 */
-}
 
 .restaurant-card:hover {
   transform: translateY(-8px);

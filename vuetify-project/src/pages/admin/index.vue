@@ -2,21 +2,34 @@
   <v-container class="h-100">
     <v-row align="center" class="h-100" justify="center">
       <v-col class="text-center" cols="12">
-        <v-icon size="x-large">mdi-cog</v-icon>
-        <h1>管理首頁</h1>
-        <p>歡迎來到管理後台！</p>
+        <v-progress-circular
+          indeterminate
+          color="orange-darken-2"
+          size="64"
+        />
+        <p class="mt-4">正在載入...</p>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
+<script setup>
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+onMounted(() => {
+  // 自動重定向到基本資訊管理頁面
+  router.replace('/admin/users')
+})
+</script>
+
 <route lang="yaml">
   meta:
-    layout: 'admin'
+    layout: 'user'
     # 標題
-    title: '管理首頁'
+    title: '管理者後台'
     # 只能在登入的情況下看
     login: 'login-only'
-    # 只有管理員能看
-    admin: true
 </route>

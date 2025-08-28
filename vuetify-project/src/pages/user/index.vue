@@ -2,14 +2,28 @@
   <v-container class="h-100">
     <v-row align="center" class="h-100" justify="center">
       <v-col class="text-center" cols="12">
-        <v-icon size="x-large">mdi-heart-cog-outline</v-icon>
-        <h1>健康天地</h1>
-        <p>💚歡迎來到 JIANOCE 健康天地！💚</p>
-        <p>這裡，是你照顧自己的開始 💫</p>
+        <v-progress-circular
+          indeterminate
+          color="orange-darken-2"
+          size="64"
+        />
+        <p class="mt-4">正在載入...</p>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
+<script setup>
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+onMounted(() => {
+  // 自動重定向到基本資訊管理頁面
+  router.replace('/user/info')
+})
+</script>
 
 <route lang="yaml">
   meta:

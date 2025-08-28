@@ -363,8 +363,14 @@ export const profile = (req, res) => {
       // 這邊不用 try/catch 因為它不涉及資料庫查詢，只是回傳存在 req.user 的資料
       // 這裡 req.user 是先經過身份認證中間件，拿到的使用者物件
       account: req.user.account,
+      email: req.user.email,
       role: req.user.role,
       cartTotal: req.user.cartTotal,
+      height: req.user.height,
+      weight: req.user.weight,
+      disease: req.user.disease || [],
+      state: req.user.state || [],
+      favoriteRestaurants: req.user.favoriteRestaurants || []
     },
   })
 }
@@ -395,6 +401,52 @@ export const refresh = async (req, res) => {
       success: false,
       message: '伺服器內部錯誤',
     })
+  }
+}
+
+// 更新個人資料
+export const updateProfile = async (req, res) => {
+  try {
+    // 只允許更新特定欄位
+    const allowedFields = ['height', 'weight', 'disease', 'state']
+    const updateData = {}
+    
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field]
+      }
+    })
+
+    // 更新使用者資料
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { 
+        new: true, // 回傳更新後的資料
+        runValidators: true // 執行 schema 驗證
+      }
+    ).select('-password -tokens')
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '個人資料更新成功',
+      result: user
+    })
+  } catch (error) {
+    console.log('controllers/user.js updateProfile')
+    console.error(error)
+    if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: error.errors[key].message
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '伺服器內部錯誤'
+      })
+    }
   }
 }
 

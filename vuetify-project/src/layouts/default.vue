@@ -117,7 +117,7 @@
     // { title: '訂單', to: '/orders', icon: 'mdi-invoice-list-outline', show: user.isLoggedIn },
     { title: '管理者後台', to: '/admin', icon: 'mdi-cog', show: user.isLoggedIn && user.isAdmin },
 
-    { title: '健康天地', to: '/user', icon: 'mdi-heart-cog-outline', show: user.isLoggedIn && user.isAdmin },
+    { title: '健康天地', to: '/user', icon: 'mdi-heart-cog-outline', show: user.isLoggedIn },
 
   ])
 
