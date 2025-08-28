@@ -90,7 +90,7 @@
         <v-card-title class="d-flex align-center justify-space-between">
           <div>
             <!-- 標題 (左上角) 原本是分類 -->
-            <span class="text-h5">{{ detailDialog.diary.title }}</span>
+            <span class="text-h5 text-primary-darken-1 font-weight-bold">{{ detailDialog.diary.title }}</span>
             <v-chip
               v-if="detailDialog.diary.date"
               class="ml-2"
@@ -128,7 +128,12 @@
           <!-- 描述內容 -->
           <div class="text-body-1">
             <h4 class="text-h6 mb-2">今日三件好事：</h4>
-            <p class="text-body-1 description-content">{{ detailDialog.diary.description }}</p>
+            <p
+              class="text-body-1"
+              style="white-space: pre-wrap !important; word-wrap: break-word !important; word-break: break-all !important; overflow-wrap: break-word !important; max-width: 100% !important; line-height: 1.6 !important; display: block !important; width: 100% !important; box-sizing: border-box !important;"
+            >
+              {{ detailDialog.diary.description }}
+            </p>
           </div>
 
           <!-- 建立時間 -->

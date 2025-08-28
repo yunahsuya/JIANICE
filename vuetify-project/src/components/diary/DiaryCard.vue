@@ -56,11 +56,15 @@
       </p>
 
       <!-- 底部資訊 -->
-      <div class="card-footer mt-4">
+      <div class="card-footer mt-8">
         <!-- 圖片數量指示器 -->
-        <div v-if="diary.image && diary.image.length > 1" class="image-count">
-          <v-icon color="grey-lighten-1" size="18">mdi-image-multiple</v-icon>
-          <span class="text-caption text-grey-lighten-1 ml-1">{{ diary.image.length }} 張照片</span>
+        <div v-if="diary.image && diary.image.length > 0" class="image-count">
+          <v-icon color="grey-lighten-1" size="18">
+            {{ diary.image.length > 1 ? 'mdi-image-multiple' : 'mdi-image' }}
+          </v-icon>
+          <span class="text-caption text-grey-lighten-1 ml-1">
+            {{ diary.image.length }} 張照片
+          </span>
         </div>
 
         <!-- 查看按鈕 -->
@@ -68,7 +72,6 @@
           class="view-btn"
           color="primary"
           rounded="pill"
-          size="small"
           variant="tonal"
           @click.stop="$emit('click')"
         >
@@ -172,13 +175,21 @@
 
 <style scoped>
 .diary-card {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  height: 100%;
+  height: 500px; /* 固定高度 */
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+}
+
+.v-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.description-text {
+  flex: 1;
+  min-height: 48px;
+  max-height: 120px; /* 限制最大高度 */
 }
 
 .diary-card:hover {
@@ -263,6 +274,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 
 .card-footer {
   display: flex;
