@@ -35,8 +35,8 @@
           <!-- 日期標籤 -->
           <div class="date-badge">
             <div class="date-content">
-              <div class="date-day">{{ formatDay(diary.date) }}</div>
               <div class="date-month">{{ formatMonth(diary.date) }}</div>
+              <div class="date-day">{{ formatDay(diary.date) }}</div>
             </div>
           </div>
         </div>

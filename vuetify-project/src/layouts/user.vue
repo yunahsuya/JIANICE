@@ -111,11 +111,11 @@
     </v-navigation-drawer>
 
     <!-- 主要內容區域 -->
-    <v-main class="bg-grey-lighten-4 min-vh-100">
-      <v-container fluid class="pa-6">
-        <router-view />
-      </v-container>
-    </v-main>
+    <v-main class="bg-grey-lighten-4">
+  <v-container fluid class="pa-6">
+    <router-view />
+  </v-container>
+</v-main>
   </v-app>
 </template>
 
@@ -142,11 +142,11 @@ const handleLogout = async () => {
 }
 
 const navItems = [
-  // {
-  //   title: '基本資訊管理',
-  //   to: '/user/info',
-  //   icon: 'mdi-account-edit'
-  // },
+  {
+    title: '基本資訊管理',
+    to: '/user/info',
+    icon: 'mdi-account-edit'
+  },
   // {
   //   title: '餐廳收藏查詢',
   //   to: '/user/collect',

@@ -4,10 +4,10 @@
     <!-- 頁面標題區域 -->
     <v-row>
       <v-col cols="12">
-        <h1 class="mb-2">回憶牆</h1>
+        <h1 class="">回憶牆</h1>
 
-        <v-divider class="mb-5 border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
-        <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p>
+        <v-divider class=" border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
+        <!-- <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p> -->
 
       </v-col>
     </v-row>
@@ -16,50 +16,34 @@
     <v-row class="mb-4">
 
       <!-- 搜尋回憶 -->
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-text-field
           v-model="searchQuery"
           clearable
           hide-details
           label="搜尋回憶"
-          prepend-icon="mdi-magnify"
         />
       </v-col>
 
-      <!-- 選擇分類 -->
-      <v-chip-group
-        v-model="selectedCategory"
-        class="d-flex align-center ml-10"
-        clearable
-        cols="12"
-        hide-details
-        md="6"
-      >
-
-        <!-- 全部 -->
-        <v-chip
-          class="mr-3"
-          color="primary"
-          filter
-          size="x-large"
-          text="全部"
-          :value="''"
-        />
-
-        <!-- 分類細項 (開心、難過...) -->
-        <v-chip
-          v-for="option in categoryOptions"
-          :key="option"
-          class="mr-3"
-          color="primary"
-          filter
-          size="x-large"
-          :text="option"
-          :value="option"
-        />
-      </v-chip-group>
-
     </v-row>
+
+    <!-- 分類按鈕 -->
+    <div class="mb-8">
+      <div class="d-flex flex-wrap gap-3">
+        <v-chip
+          v-for="category in categoryOptions"
+          :key="category"
+          class="font-weight-medium transition-all hover-lift  mr-2"
+          :color="selectedCategory === category ? 'primary' : 'default'"
+          size="large"
+          :variant="selectedCategory === category ? 'elevated' : 'outlined'"
+          @click="selectCategory(category)"
+        >
+          <v-icon class="mr-2" :icon="getCategoryIcon(category)" />
+          {{ category }}
+        </v-chip>
+      </div>
+    </div>
 
     <!-- 載入中狀態 -->
     <v-row v-if="loading">
@@ -170,7 +154,7 @@
   const diarys = ref([])
   const loading = ref(true)
   const searchQuery = ref('')
-  const selectedCategory = ref('')
+  const selectedCategory = ref('全部')
 
   // 詳情對話框
   const detailDialog = ref({
@@ -179,14 +163,33 @@
   })
 
   // 分類選項
-  const categoryOptions = ['快樂', '問題', '難過', '生氣', '平靜']
+  const categoryOptions = ['全部', '快樂',  '難過', '生氣', '平靜','問題','職訓局']
+
+  // 取得分類圖標
+  const getCategoryIcon = category => {
+    const iconMap = {
+      全部: 'mdi-book-heart',
+      快樂: 'mdi-emoticon-happy',
+      難過: 'mdi-emoticon-sad',
+      生氣: 'mdi-emoticon-angry',
+      平靜: 'mdi-emoticon-neutral',
+      問題: 'mdi-help-circle',
+      職訓局: 'mdi-school',
+    }
+    return iconMap[category] || 'mdi-book-heart'
+  }
+
+  // 選擇分類
+  const selectCategory = category => {
+    selectedCategory.value = category
+  }
 
   // 計算屬性：篩選後的日記
   const filteredDiarys = computed(() => {
     let filtered = diarys.value
 
     // 按分類篩選
-    if (selectedCategory.value) {
+    if (selectedCategory.value && selectedCategory.value !== '全部') {
       filtered = filtered.filter(diary => diary.category === selectedCategory.value)
     }
 
@@ -249,19 +252,7 @@
   })
 </script>
 
-<style scoped>
-.v-carousel {
-  border-radius: 8px;
-  overflow: hidden;
-}
 
-/* 新增：讓詳情頁面的描述內容可以換行 */
-.description-content {
-  white-space: pre-line;
-  word-wrap: break-word;
-  line-height: 1.8;
-}
-</style>
 
 <route lang="yaml">
   meta:
