@@ -54,9 +54,9 @@
     </v-row>
 
     <!-- 日記卡片網格 -->
-    <v-row v-else-if="filteredDiarys.length > 0">
+    <v-row v-else-if="currentPageDiarys.length > 0">
       <v-col
-        v-for="diary in filteredDiarys"
+        v-for="diary in currentPageDiarys"
         :key="diary._id"
         cols="12"
         lg="4"
@@ -83,6 +83,16 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <!-- 分頁 -->
+    <div v-if="totalPages > 1 && !loading" class="d-flex justify-center mt-10">
+      <v-pagination
+        v-model="page"
+        :length="totalPages"
+        rounded="circle"
+        :total-visible="7"
+      />
+    </div>
 
     <!-- 日記詳情對話框 -->
     <v-dialog v-model="detailDialog.open" max-width="800">
@@ -148,7 +158,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from 'vue'
+  import { computed, onMounted, ref, watch } from 'vue'
   import DiaryCard from '@/components/diary/DiaryCard.vue'
   import diaryService from '@/services/diary'
   import { useUserStore } from '@/stores/user'
@@ -160,6 +170,7 @@
   const loading = ref(true)
   const searchQuery = ref('')
   const selectedCategory = ref('全部')
+  const page = ref(1)
 
   // 詳情對話框
   const detailDialog = ref({
@@ -187,6 +198,7 @@
   // 選擇分類
   const selectCategory = category => {
     selectedCategory.value = category
+    page.value = 1 // 重置分頁到第一頁
   }
 
   // 計算屬性：篩選後的日記
@@ -208,6 +220,18 @@
     }
 
     return filtered
+  })
+
+  // 分頁相關計算屬性
+  const ITEMS_PER_PAGE = 12
+  const totalPages = computed(() => {
+    return Math.ceil(filteredDiarys.value.length / ITEMS_PER_PAGE)
+  })
+
+  const currentPageDiarys = computed(() => {
+    const start = (page.value - 1) * ITEMS_PER_PAGE
+    const end = start + ITEMS_PER_PAGE
+    return filteredDiarys.value.slice(start, end)
   })
 
   // 取得日記資料
@@ -251,6 +275,11 @@
     return new Date(dateString).toLocaleString('zh-TW')
   }
 
+  // 監聽搜尋變化，重置分頁
+  watch(searchQuery, () => {
+    page.value = 1
+  })
+
   // 頁面載入時取得資料
   onMounted(() => {
     getDiarys()
@@ -259,9 +288,12 @@
 
 
 
+
+
+
 <route lang="yaml">
   meta:
     title: '日記牆'
-    login: ''
+    login: 'login-only'  # 修改：需要登入
     admin: false
 </route>

@@ -35,6 +35,8 @@
           <h3 class="text-h4 font-weight-bold text-primary">{{ users.length }}</h3>
           <p class="text-body-2 text-medium-emphasis">總使用者數</p>
         </v-card>
+
+
       </v-col>
       <v-col cols="12" md="3">
         <v-card class="text-center pa-4" elevation="2">
@@ -143,20 +145,23 @@
               </div>
             </template> -->
 
-            <!-- 角色欄位 -->
-            <template #item.role="{ item }">
-              <v-chip
-                class="font-weight-medium"
-                :color="item.role === 'admin' ? 'error' : 'success'"
-                size="small"
-                variant="elevated"
-              >
-                <v-icon class="me-1" size="16">
-                  {{ item.role === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}
-                </v-icon>
-                {{ item.role === 'admin' ? '管理員' : '一般使用者' }}
-              </v-chip>
-            </template>
+            <!-- // 修改角色顯示模板 -->
+<template #item.role="{ item }">
+  <v-chip
+    class="font-weight-medium"
+    :color="getRoleColor(item.role)"
+    size="small"
+    variant="elevated"
+  >
+    <v-icon class="me-1" size="16">
+      {{ getRoleIcon(item.role) }}
+    </v-icon>
+    {{ getRoleText(item.role) }}
+  </v-chip>
+</template>
+
+
+
 
             <!-- 建立時間欄位 -->
             <template #item.createdAt="{ item }">
@@ -167,36 +172,29 @@
             </template>
 
             <!-- 操作欄位 -->
-            <template #item.actions="{ item }">
-              <div class="d-flex gap-2">
-                <!-- <v-btn
-                  color="info"
-                  icon="mdi-eye"
-                  size="small"
-                  title="查看詳細"
-                  variant="tonal"
-                  @click="viewUser(item)"
-                /> -->
-                <v-btn
-                  class="me-1"
-                  color="warning"
-                  icon="mdi-pencil"
-                  size="small"
-                  title="編輯使用者"
-                  variant="tonal"
-                  @click="editUser(item)"
-                />
-                <v-btn
-                  color="error"
-                  :disabled="item.role === 'admin'"
-                  icon="mdi-delete"
-                  size="small"
-                  title="刪除使用者"
-                  variant="tonal"
-                  @click="confirmDelete(item)"
-                />
-              </div>
-            </template>
+<template #item.actions="{ item }">
+  <div class="d-flex gap-2">
+    <v-btn
+      class="me-1"
+      color="warning"
+      icon="mdi-pencil"
+      size="small"
+      title="編輯使用者"
+      variant="tonal"
+      :disabled="!canEditUser(item)"
+      @click="editUser(item)"
+    />
+    <v-btn
+      color="error"
+      icon="mdi-delete"
+      size="small"
+      title="刪除使用者"
+      variant="tonal"
+      :disabled="!canDeleteUser(item)"
+      @click="confirmDelete(item)"
+    />
+  </div>
+</template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -253,16 +251,16 @@
                 </v-text-field>
               </v-col>
               <v-col cols="12" md="6">
-                <v-select
-                  v-model="newUser.role"
-                  density="comfortable"
-                  :items="roleOptions"
-                  label="角色 *"
-                  prepend-inner-icon="mdi-shield"
-                  :rules="[rules.required]"
-                  variant="outlined"
-                />
-              </v-col>
+  <v-select
+    v-model="newUser.role"
+    density="comfortable"
+    :items="availableRoleOptions"
+    label="角色 *"
+    prepend-inner-icon="mdi-shield"
+    :rules="[rules.required]"
+    variant="outlined"
+  />
+</v-col>
             </v-row>
           </v-form>
         </v-card-text>
@@ -435,6 +433,7 @@
 
 <script>
   import userService from '@/services/user'
+  import { useUserStore } from '@/stores/user'  // 添加這行導入
 
   export default {
     name: 'AdminUsers',
@@ -479,6 +478,7 @@
         roleOptions: [
           { title: '一般使用者', value: 'user' },
           { title: '管理員', value: 'admin' },
+          { title: '系統管理員', value: 'root' },
         ],
         rules: {
           required: v => !!v || '此欄位為必填',
@@ -489,6 +489,23 @@
       }
     },
     computed: {
+      // 根據當前使用者權限顯示可選的角色選項
+      availableRoleOptions() {
+    const userStore = useUserStore()
+    if (userStore.role === 'root') {
+      return this.roleOptions // 系統管理員可以創建所有角色
+    } else if (userStore.role === 'admin') {
+      // 一般管理員可以創建一般使用者和管理員，但不能創建系統管理員
+      return this.roleOptions.filter(role => role.value !== 'root')
+    }
+    return []
+  },
+
+      // 在 computed 中添加 root 統計
+      rootCount() {
+        return this.users.filter(user => user.role === 'root').length
+      },
+
       filteredUsers () {
         let filtered = this.users
 
@@ -531,6 +548,55 @@
           this.loading = false
         }
       },
+
+       // 檢查是否可以編輯使用者
+canEditUser(user) {
+  const userStore = useUserStore()
+  if (userStore.role === 'root') {
+    return true // 系統管理員可以編輯所有使用者
+  } else if (userStore.role === 'admin') {
+    return user.role !== 'root' // 一般管理員可以編輯一般使用者和管理員，但不能編輯系統管理員
+  }
+  return false
+},
+
+
+      // 檢查是否可以刪除使用者
+canDeleteUser(user) {
+  const userStore = useUserStore()
+  if (userStore.role === 'root') {
+    return user.role !== 'root' // 系統管理員不能刪除自己
+  } else if (userStore.role === 'admin') {
+    return user.role !== 'root' // 一般管理員可以刪除一般使用者和管理員，但不能刪除系統管理員
+  }
+  return false
+},
+
+
+      // 在 methods 中添加角色相關方法
+getRoleColor(role) {
+  switch (role) {
+    case 'root': return 'purple'
+    case 'admin': return 'error'
+    default: return 'success'
+  }
+},
+
+getRoleIcon(role) {
+  switch (role) {
+    case 'root': return 'mdi-shield-crown'
+    case 'admin': return 'mdi-shield'
+    default: return 'mdi-account'
+  }
+},
+
+getRoleText(role) {
+  switch (role) {
+    case 'root': return '系統管理員'
+    case 'admin': return '管理員'
+    default: return '一般使用者'
+  }
+},
       refreshUsers () {
         this.loadUsers()
       },
@@ -554,33 +620,47 @@
           this.$refs.createForm.resetValidation()
         }
       },
+      // 在 methods 中修改 createUser 方法
       async createUser () {
-        if (!this.$refs.createForm.validate()) return
+  if (!this.$refs.createForm.validate()) return
 
-        this.creating = true
-        try {
-          const response = await userService.createUser(this.newUser)
+  // 檢查權限
+  const userStore = useUserStore()
+  if (userStore.role === 'admin' && this.newUser.role === 'root') {
+    this.showSnackbar('一般管理員不能建立系統管理員', 'error')
+    return
+  }
 
-          // 新增到本地列表
-          this.users.unshift(response.data.result)
 
-          this.closeCreateDialog()
-          this.showSnackbar('使用者建立成功', 'success')
-        } catch (error) {
-          console.error('建立使用者失敗:', error)
-          this.showSnackbar(error.response?.data?.message || '建立使用者失敗', 'error')
-        } finally {
-          this.creating = false
-        }
-      },
+  this.creating = true
+  try {
+    const response = await userService.createUser(this.newUser)
+    this.users.unshift(response.data.result)
+    this.closeCreateDialog()
+    this.showSnackbar('使用者建立成功', 'success')
+  } catch (error) {
+    console.error('建立使用者失敗:', error)
+    this.showSnackbar(error.response?.data?.message || '建立使用者失敗', 'error')
+  } finally {
+    this.creating = false
+  }
+},
+      // 修改 editUser 方法
       editUser (user) {
+        // 檢查權限
+        if (!this.canEditUser(user)) {
+          this.showSnackbar('您沒有權限編輯此使用者', 'error')
+          return
+        }
+
         this.editingUser = {
           ...user,
           password: '', // 清空密碼欄位
         }
         this.editDialog = true
-        this.showEditPassword = false // 重置密碼顯示狀態
+        this.showEditPassword = false
       },
+
       async saveUser () {
         if (!this.$refs.editForm.validate()) return
 
@@ -613,7 +693,14 @@
           this.saving = false
         }
       },
+      // 修改 confirmDelete 方法
       confirmDelete (user) {
+        // 檢查權限
+        if (!this.canDeleteUser(user)) {
+          this.showSnackbar('您沒有權限刪除此使用者', 'error')
+          return
+        }
+
         this.userToDelete = user
         this.deleteDialog = true
       },

@@ -9,7 +9,8 @@ export const useUserStore = defineStore('user', () => {
   const token = ref('')
 
   const isLoggedIn = computed(() => token.value.length > 0)
-  const isAdmin = computed(() => role.value === 'admin')
+  const isAdmin = computed(() => role.value === 'admin' || role.value === 'root')
+  const isRoot = computed(() => role.value === 'root')
 
   const login = data => {
     account.value = data.account
@@ -37,6 +38,7 @@ export const useUserStore = defineStore('user', () => {
     token,
     isLoggedIn,
     isAdmin,
+    isRoot,
     login,
     logout,
   }

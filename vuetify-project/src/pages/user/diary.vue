@@ -280,18 +280,24 @@
                   <span class="text-subtitle-1 font-weight-medium">回憶圖片</span>
                 </div>
                 <VueFileAgent
-                  ref="fileAgent"
-                  v-model="fileRecords"
-                  v-model:raw-model-value="rawFileRecords"
-                  accept="image/jpeg,image/png"
-                  deletable
-                  :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
-                  help-text="選擇或拖曳圖片檔案到此處"
-                  :max-files="5"
-                  max-size="1MB"
-                  multiple
-                  :url-resolver="(file) => file.url || file.data"
-                />
+  ref="fileAgent"
+  v-model="fileRecords"
+  v-model:raw-model-value="rawFileRecords"
+  accept="image/jpeg,image/png"
+  deletable
+  :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
+  help-text="選擇或拖曳圖片檔案到此處"
+  :max-files="5"
+  max-size="1MB"
+  multiple
+  theme="grid"
+  :url-resolver="(file) => {
+    if (file.url) return file.url
+    if (file.data) return file.data
+    if (file.preview) return file.preview
+    return null
+  }"
+/>
               </v-card>
             </v-col>
 
@@ -552,18 +558,32 @@
       sell.value.value = item.sell
       category.value.value = item.category
 
-      if (item.image && item.image.length > 0) {
-        const existingFiles = item.image.map((imageUrl, index) => ({
-          name: `existing-image-${index}.jpg`,
-          size: 0,
-          type: 'image/jpeg',
-          url: imageUrl,
-          isExisting: true,
-        }))
-        fileRecords.value = existingFiles
-      } else {
-        fileRecords.value = []
-      }
+     // ... existing code ...
+// 在 openDialog 函數中修改現有圖片的處理邏輯
+if (item.image && item.image.length > 0) {
+  const existingFiles = item.image.map((imageUrl, index) => ({
+    name: `existing-image-${index}.jpg`,
+    size: 0,
+    type: 'image/jpeg',
+    url: imageUrl,
+    data: imageUrl,
+    isExisting: true,
+    preview: imageUrl,
+    hasPreview: true,
+    // 添加更多必要的屬性
+    error: false,
+    // 確保 VueFileAgent 能正確識別這是現有檔案
+    file: null,
+    blob: null,
+  }))
+  fileRecords.value = existingFiles
+  // 同時更新 rawFileRecords
+  rawFileRecords.value = existingFiles
+} else {
+  fileRecords.value = []
+  rawFileRecords.value = []
+}
+// ... existing code ...
     } else {
       // 新增模式
       dialog.value.id = ''

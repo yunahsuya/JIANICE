@@ -12,14 +12,14 @@ export default {
     return apiService.apiAuth.get('/diary/all')
   },
 
-  // 取得目前使用者的日記列表
+  // 取得目前使用者的日記列表（回憶牆）
   get () {
-    return apiService.api.get('/diary')
+    return apiService.apiAuth.get('/diary')  // 修改：使用 apiAuth
   },
 
   // 取得某一篇特定的日記
   getId (id) {
-    return apiService.api.get('/diary/' + id)
+    return apiService.apiAuth.get('/diary/' + id)  // 修改：使用 apiAuth
   },
 
   // 更新某篇日記

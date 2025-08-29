@@ -218,7 +218,7 @@
 
   const features = ref([
     {
-      image: 'https://cdn-icons-gif.flaticon.com/8617/8617217.gif',
+      image: 'https://cdn-icons-gif.flaticon.com/11686/11686496.gif',
       icon: 'mdi-dice-multiple',
       title: '隨機抽餐廳',
       route: '/restaurant',

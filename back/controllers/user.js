@@ -13,6 +13,9 @@ import jwt from 'jsonwebtoken'
 // 引入 validator 套件，裡面有很多常用的驗證函式，像是檢查 email 格式、ID 格式等等
 import validator from 'validator'
 
+// 引入 bcrypt 套件，用來加密密碼
+import bcrypt from 'bcrypt'
+
 // 引入產品（Product）的資料模型，可以在操作使用者的購物車時，驗證產品是否存在
 import Product from '../models/product.js'
 
@@ -137,20 +140,29 @@ export const login = async (req, res) => {
 // 管理員功能：新增使用者
 export const createUserByAdmin = async (req, res) => {
   try {
-    // 檢查是否為管理員
-    if (req.user.role !== 'admin') {
+    // 檢查是否為管理員或系統管理員
+    if (req.user.role !== 'admin' && req.user.role !== 'root') {
       return res.status(StatusCodes.FORBIDDEN).json({
         success: false,
         message: '權限不足'
       })
     }
 
-    // 建立新使用者
-    const user = await User.create({
+     // 系統管理員可以建立任何角色，一般管理員可以建立一般使用者和管理員，但不能建立系統管理員
+     let allowedRole = req.body.role || 'user'
+     if (req.user.role === 'admin' && allowedRole === 'root') {
+       return res.status(StatusCodes.FORBIDDEN).json({
+         success: false,
+         message: '一般管理員不能建立系統管理員'
+       })
+     }
+
+     // 建立新使用者
+     const user = await User.create({
       account: req.body.account,
       email: req.body.email,
       password: req.body.password,
-      role: req.body.role || 'user'
+      role: allowedRole
     })
 
     // 回傳使用者資料（不包含密碼和 tokens）
@@ -189,23 +201,23 @@ export const createUserByAdmin = async (req, res) => {
 // 管理員功能：取得所有使用者列表
 export const getAllUsers = async (req, res) => {
   try {
-    // 檢查是否為管理員
-    if (req.user.role !== 'admin') {
+    // 檢查是否為管理員或系統管理員
+    if (req.user.role !== 'admin' && req.user.role !== 'root') {
       return res.status(StatusCodes.FORBIDDEN).json({
         success: false,
         message: '權限不足'
       })
     }
 
-    // 取得所有使用者，但不包含密碼和 tokens
-    const users = await User.find({}, '-password -tokens')
+     // 取得所有使用者，但不包含密碼和 tokens
+     const users = await User.find({}, '-password -tokens')
       .sort({ createdAt: -1 }) // 按建立時間排序
 
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: '',
-      result: users
-    })
+      res.status(StatusCodes.OK).json({
+          success: true,
+          message: '',
+          result: users
+        })
   } catch (error) {
     console.log('controllers/user.js getAllUsers')
     console.error(error)
@@ -222,11 +234,30 @@ export const getAllUsers = async (req, res) => {
 // 管理員功能：更新使用者資料
 export const updateUser = async (req, res) => {
   try {
-    // 檢查是否為管理員
-    if (req.user.role !== 'admin') {
+    // 檢查是否為管理員或系統管理員
+    if (req.user.role !== 'admin' && req.user.role !== 'root') {
       return res.status(StatusCodes.FORBIDDEN).json({
         success: false,
         message: '權限不足'
+      })
+    }
+
+    // 一般管理員不能修改系統管理員的資料
+    if (req.user.role === 'admin') {
+      const targetUser = await User.findById(req.params.id)
+      if (targetUser && targetUser.role === 'root') {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: '一般管理員不能修改系統管理員的資料'
+        })
+      }
+    }
+
+    // 一般管理員不能將使用者升級為系統管理員
+    if (req.user.role === 'admin' && req.body.role === 'root') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: '一般管理員不能將使用者升級為系統管理員'
       })
     }
 
@@ -300,12 +331,23 @@ export const updateUser = async (req, res) => {
 // 管理員功能：刪除使用者
 export const deleteUser = async (req, res) => {
   try {
-    // 檢查是否為管理員
-    if (req.user.role !== 'admin') {
+    // 檢查是否為管理員或系統管理員
+    if (req.user.role !== 'admin' && req.user.role !== 'root') {
       return res.status(StatusCodes.FORBIDDEN).json({
         success: false,
         message: '權限不足'
       })
+    }
+
+     // 一般管理員不能刪除系統管理員
+    if (req.user.role === 'admin') {
+      const targetUser = await User.findById(req.params.id)
+      if (targetUser && targetUser.role === 'root') {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: '一般管理員不能刪除系統管理員'
+        })
+      }
     }
 
     // 驗證使用者 ID 格式
