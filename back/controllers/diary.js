@@ -1,6 +1,42 @@
 import User from '../models/user.js'  // 改為引入 User 模型
 import { StatusCodes } from 'http-status-codes'
 import validator from 'validator'
+import { v2 as cloudinary } from 'cloudinary'
+
+// 從 Cloudinary URL 提取 public_id 的輔助函數
+const extractPublicIdFromUrl = (url) => {
+  try {
+    // Cloudinary URL 格式: https://res.cloudinary.com/[cloud_name]/image/upload/[version]/[public_id].[format]
+    const urlParts = url.split('/')
+    const lastPart = urlParts[urlParts.length - 1]
+    // 移除副檔名
+    const publicId = lastPart.split('.')[0]
+    return publicId
+  } catch (error) {
+    console.error('提取 public_id 失敗:', error)
+    return null
+  }
+}
+
+// 從 Cloudinary 刪除圖片的輔助函數
+const deleteCloudinaryImages = async (imageUrls) => {
+  if (!imageUrls || imageUrls.length === 0) return
+
+  const deletionPromises = imageUrls.map(async (url) => {
+    try {
+      const publicId = extractPublicIdFromUrl(url)
+      if (publicId) {
+        const result = await cloudinary.uploader.destroy(publicId)
+        console.log(`刪除 Cloudinary 圖片 ${publicId}:`, result)
+        return result
+      }
+    } catch (error) {
+      console.error(`刪除 Cloudinary 圖片失敗 ${url}:`, error)
+    }
+  })
+
+  await Promise.allSettled(deletionPromises)
+}
 
 // 新增日記
 export const create = async (req, res) => {
@@ -152,12 +188,24 @@ export const update = async (req, res) => {
 
     // 處理圖片更新邏輯
     let finalImages = []
+    let imagesToDelete = []
 
-    // 如果有現有圖片，解析並加入
+    // 取得現有的日記資料以獲取舊圖片
+    const user = await User.findById(req.user._id)
+    const existingDiary = user.diary.find(diary => diary._id.toString() === req.params.id)
+    
+    if (existingDiary && existingDiary.image) {
+      // 如果有現有圖片，預設要刪除它們（除非在 existingImages 中保留）
+      imagesToDelete = [...existingDiary.image]
+    }
+
+    // 如果有現有圖片要保留，解析並加入
     if (req.body.existingImages) {
       try {
         const existingImages = JSON.parse(req.body.existingImages)
         finalImages = [...existingImages]
+        // 從要刪除的列表中移除保留的圖片
+        imagesToDelete = imagesToDelete.filter(img => !existingImages.includes(img))
       } catch (error) {
         console.error('解析現有圖片失敗:', error)
       }
@@ -168,9 +216,9 @@ export const update = async (req, res) => {
       finalImages = [...finalImages, ...imageUrls]
     }
 
-    // 只有在有圖片時才更新 image 欄位
-    if (finalImages.length > 0) {
-      updateData.image = finalImages
+    // 刪除不再使用的 Cloudinary 圖片
+    if (imagesToDelete.length > 0) {
+      await deleteCloudinaryImages(imagesToDelete)
     }
 
     // 使用 $set 操作符來更新特定的日記項目，避免觸發整個陣列的驗證
@@ -220,8 +268,8 @@ export const update = async (req, res) => {
     }
 
     // 取得更新後的日記資料
-    const user = await User.findById(req.user._id)
-    const updatedDiary = user.diary.find(diary => diary._id.toString() === req.params.id)
+    const updatedUser = await User.findById(req.user._id)
+    const updatedDiary = updatedUser.diary.find(diary => diary._id.toString() === req.params.id)
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -280,6 +328,28 @@ export const deleteDiary = async (req, res) => {
   try {
     if (!validator.isMongoId(req.params.id)) {
       throw new Error('DIARY ID')
+    }
+
+    // 先取得要刪除的日記資料以獲取圖片 URLs
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '用戶不存在',
+      })
+    }
+
+    const diaryToDelete = user.diary.find(diary => diary._id.toString() === req.params.id)
+    if (!diaryToDelete) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '日記不存在',
+      })
+    }
+
+    // 從 Cloudinary 刪除圖片
+    if (diaryToDelete.image && diaryToDelete.image.length > 0) {
+      await deleteCloudinaryImages(diaryToDelete.image)
     }
 
     // 使用 updateOne 和 $pull 來刪除日記 - 這是最安全的方法

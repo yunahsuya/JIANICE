@@ -370,26 +370,91 @@
         </v-card-title>
 
         <v-card-text>
-          <!-- 圖片輪播 -->
-          <v-carousel
-            v-if="detailDialog.diary.image && detailDialog.diary.image.length > 0"
-            class="mb-4"
-            height="400"
-            hide-delimiter-background
-            show-arrows="hover"
-          >
-            <v-carousel-item
-              v-for="(image, index) in detailDialog.diary.image"
-              :key="index"
+          <!-- 圖片顯示/編輯 -->
+          <div v-if="!editMode">
+            <!-- 瀏覽模式：圖片輪播 -->
+            <v-carousel
+              v-if="detailDialog.diary.image && detailDialog.diary.image.length > 0"
+              class="mb-4"
+              height="400"
+              hide-delimiter-background
+              show-arrows="hover"
             >
-              <v-img
-                class="rounded"
-                cover
-                height="100%"
-                :src="image"
+              <v-carousel-item
+                v-for="(image, index) in detailDialog.diary.image"
+                :key="index"
+              >
+                <v-img
+                  class="rounded"
+                  cover
+                  height="100%"
+                  :src="image"
+                />
+              </v-carousel-item>
+            </v-carousel>
+          </div>
+
+          <!-- 編輯模式：圖片管理 -->
+          <div v-if="editMode" class="mb-4">
+            <v-label class="text-body-2 font-weight-medium mb-2">圖片管理</v-label>
+
+            <!-- 現有圖片 -->
+            <div v-if="editForm.existingImages && editForm.existingImages.length > 0" class="mb-4">
+              <p class="text-caption text-medium-emphasis mb-2">目前的圖片（點擊刪除鈕移除）</p>
+              <div class="d-flex flex-wrap gap-2">
+                <div
+                  v-for="(image, index) in editForm.existingImages"
+                  :key="index"
+                  class="position-relative"
+                  style="width: 120px; height: 120px;"
+                >
+                  <v-img
+                    :src="image"
+                    class="rounded"
+                    cover
+                    height="100%"
+                    width="100%"
+                  />
+                  <v-btn
+                    class="position-absolute"
+                    color="error"
+                    icon="mdi-close"
+                    size="x-small"
+                    style="top: 4px; right: 4px;"
+                    variant="flat"
+                    @click="removeExistingImage(index)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 新增圖片上傳 -->
+            <v-card class="pa-4" variant="outlined">
+              <div class="d-flex align-center mb-3">
+                <v-icon class="mr-2" color="success" icon="mdi-image" />
+                <span class="text-subtitle-1 font-weight-medium">新增圖片</span>
+              </div>
+              <VueFileAgent
+                ref="editFileAgent"
+                v-model="editFileRecords"
+                v-model:raw-model-value="editRawFileRecords"
+                accept="image/jpeg,image/png"
+                deletable
+                :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
+                help-text="選擇或拖曳圖片檔案到此處"
+                :max-files="5"
+                max-size="1MB"
+                multiple
+                theme="grid"
+                :url-resolver="(file) => {
+                  if (file.url) return file.url
+                  if (file.data) return file.data
+                  if (file.preview) return file.preview
+                  return null
+                }"
               />
-            </v-carousel-item>
-          </v-carousel>
+            </v-card>
+          </div>
 
           <!-- 日期編輯 -->
           <div v-if="editMode" class="mb-4">
@@ -500,6 +565,10 @@
   const fileRecords = ref([])
   const rawFileRecords = ref([])
 
+  // 編輯模式的文件上傳
+  const editFileAgent = ref(null)
+  const editFileRecords = ref([])
+  const editRawFileRecords = ref([])
 
   // 詳情對話框
   const detailDialog = ref({
@@ -516,6 +585,7 @@
     category: '',
     date: '',
     sell: true,
+    existingImages: [], // 新增：現有圖片列表
   })
 
   // 分類選項
@@ -607,6 +677,11 @@
     editMode.value = false
   }
 
+  // 移除現有圖片
+  const removeExistingImage = (index) => {
+    editForm.value.existingImages.splice(index, 1)
+  }
+
   // 開始編輯
   const startEdit = () => {
     if (!detailDialog.value.diary) return
@@ -618,7 +693,13 @@
       category: diary.category || '快樂',
       date: diary.date ? formatDateForInput(diary.date) : '',
       sell: diary.sell !== undefined ? diary.sell : true,
+      existingImages: diary.image ? [...diary.image] : [], // 複製現有圖片列表
     }
+
+    // 重置編輯模式的文件上傳
+    editFileRecords.value = []
+    editRawFileRecords.value = []
+
     editMode.value = true
   }
 
@@ -631,7 +712,11 @@
       category: '',
       date: '',
       sell: true,
+      existingImages: [],
     }
+    // 重置編輯模式的文件上傳
+    editFileRecords.value = []
+    editRawFileRecords.value = []
   }
 
   // 保存編輯
@@ -647,9 +732,17 @@
       fd.append('date', editForm.value.date)
       fd.append('sell', editForm.value.sell)
 
-      // 保留現有圖片
-      if (detailDialog.value.diary.image && detailDialog.value.diary.image.length > 0) {
-        fd.append('existingImages', JSON.stringify(detailDialog.value.diary.image))
+      // 保留的現有圖片
+      if (editForm.value.existingImages && editForm.value.existingImages.length > 0) {
+        fd.append('existingImages', JSON.stringify(editForm.value.existingImages))
+      }
+
+      // 新上傳的圖片
+      const newFiles = editFileRecords.value.filter(file => file.file)
+      if (newFiles.length > 0) {
+        for (const fileRecord of newFiles) {
+          fd.append('image', fileRecord.file)
+        }
       }
 
       await diaryService.update(detailDialog.value.diary._id, fd)
@@ -657,16 +750,14 @@
       // 更新本地資料
       const diaryIndex = diarys.value.findIndex(d => d._id === detailDialog.value.diary._id)
       if (diaryIndex !== -1) {
-        diarys.value[diaryIndex] = {
-          ...diarys.value[diaryIndex],
-          title: editForm.value.title,
-          description: editForm.value.description,
-          category: editForm.value.category,
-          date: editForm.value.date,
-          sell: editForm.value.sell,
+        // 重新取得資料以確保圖片 URL 是最新的
+        await getDiarys()
+
+        // 找到更新後的日記
+        const updatedDiary = diarys.value.find(d => d._id === detailDialog.value.diary._id)
+        if (updatedDiary) {
+          detailDialog.value.diary = updatedDiary
         }
-        // 更新對話框中的日記資料
-        detailDialog.value.diary = diarys.value[diaryIndex]
       }
 
       createSnackbar({
@@ -689,9 +780,8 @@
       saving.value = false
     }
   }
-
-  // 格式化日期供輸入框使用
-  const formatDateForInput = dateString => {
+// 格式化日期供輸入框使用
+const formatDateForInput = dateString => {
     if (!dateString) return ''
     const date = new Date(dateString)
     const year = date.getFullYear()
