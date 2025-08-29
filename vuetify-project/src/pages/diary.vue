@@ -14,34 +14,51 @@
       </v-col>
     </v-row>
 
-   <!-- 篩選和搜尋區域 -->
+ <!-- 篩選和搜尋區域 -->
 <v-row class="mb-4">
   <!-- 搜尋回憶 -->
-  <v-col cols="12" lg="10" md="8">
+  <v-col cols="12" lg="8" md="6">
     <v-text-field
       v-model="searchQuery"
       clearable
       hide-details
       label="搜尋回憶"
+      variant="outlined"
+
     />
   </v-col>
 
- <!-- 新增回憶按鈕 -->
- <v-col cols="12" lg="2" md="4" class="d-flex align-center">
-        <v-btn
-          v-if="user.isLoggedIn"
-          block
-          class="text-none"
-          color="success"
-          elevation="2"
-          prepend-icon="mdi-plus"
-          size="large"
-          @click="openNewMemoryDialog"
-        >
-          新增回憶
-        </v-btn>
-      </v-col>
-    </v-row>
+  <!-- 排序選項 -->
+  <v-col cols="12" lg="2" md="2" class="d-flex align-center">
+    <v-select
+      v-model="sortBy"
+      clearable
+      density="comfortable"
+      hide-details
+      :items="sortOptions"
+      label="排序方式"
+      prepend-inner-icon="mdi-sort"
+      variant="outlined"
+    />
+  </v-col>
+
+  <!-- 新增回憶按鈕 -->
+  <v-col cols="12" lg="2" md="4" class="d-flex align-center">
+    <v-btn
+      v-if="user.isLoggedIn"
+      block
+      class="text-none"
+      color="success"
+      elevation="2"
+      prepend-icon="mdi-plus"
+      size="large"
+      @click="openNewMemoryDialog"
+    >
+      新增回憶
+    </v-btn>
+  </v-col>
+</v-row>
+
 
      <!-- 新增：新增回憶對話框 -->
      <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
@@ -560,6 +577,9 @@
   const selectedCategory = ref('全部')
   const page = ref(1)
 
+  // 新增：排序相關
+  const sortBy = ref('newest')
+
   // 新增：文件上傳相關
   const fileAgent = ref(null)
   const fileRecords = ref([])
@@ -592,9 +612,46 @@
   const categoryOptions = ['全部', '快樂',  '難過', '生氣', '平靜','問題','職訓局']
   const categoryOptionsForEdit = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
 
-  // 計算屬性：檢查是否可編輯（只有登入用戶才能編輯）
-  const canEdit = computed(() => {
-    return user.isLoggedIn
+ // 新增：排序選項
+ const sortOptions = [
+    { title: '最新', value: 'newest' },
+    { title: '最舊', value: 'oldest' }
+  ]
+
+  // 修改：計算屬性：篩選後的日記
+  const filteredDiarys = computed(() => {
+    let filtered = diarys.value
+
+    // 按分類篩選
+    if (selectedCategory.value && selectedCategory.value !== '全部') {
+      filtered = filtered.filter(diary => diary.category === selectedCategory.value)
+    }
+
+    // 按搜尋關鍵字篩選
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      filtered = filtered.filter(diary =>
+        diary.description.toLowerCase().includes(query)
+        || diary.category.toLowerCase().includes(query),
+      )
+    }
+
+     // 新增：排序
+     if (sortBy.value) {
+      filtered = [...filtered].sort((a, b) => {
+        const dateA = new Date(a.date || a.createdAt)
+        const dateB = new Date(b.date || b.createdAt)
+
+        if (sortBy.value === 'newest') {
+          return dateB - dateA // 最新的在前面
+        } else if (sortBy.value === 'oldest') {
+          return dateA - dateB // 最舊的在前面
+        }
+        return 0
+      })
+    }
+
+    return filtered
   })
 
   // 取得分類圖標
@@ -617,26 +674,7 @@
     page.value = 1 // 重置分頁到第一頁
   }
 
-  // 計算屬性：篩選後的日記
-  const filteredDiarys = computed(() => {
-    let filtered = diarys.value
 
-    // 按分類篩選
-    if (selectedCategory.value && selectedCategory.value !== '全部') {
-      filtered = filtered.filter(diary => diary.category === selectedCategory.value)
-    }
-
-    // 按搜尋關鍵字篩選
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(diary =>
-        diary.description.toLowerCase().includes(query)
-        || diary.category.toLowerCase().includes(query),
-      )
-    }
-
-    return filtered
-  })
 
   // 分頁相關計算屬性
   const ITEMS_PER_PAGE = 12
@@ -808,8 +846,8 @@ const formatDateForInput = dateString => {
     return new Date(dateString).toLocaleString('zh-TW')
   }
 
-  // 監聽搜尋變化，重置分頁
-  watch(searchQuery, () => {
+  // 新增：監聽排序變化，重置分頁
+   watch(sortBy, () => {
     page.value = 1
   })
 

@@ -12,17 +12,42 @@
             <v-divider class="mb-5 border-opacity-50" color="orange-darken-2" length="150" :thickness="5" />
 
             <!-- 搜尋控制項 -->
-            <v-row>
-              <v-col cols="12" md="10">
+            <v-row class="align-center mb-1">
+              <v-col cols="12" md="8" class="pa-2">
                 <v-text-field
                   v-model="searchKeyword"
                   clearable
                   label="搜尋關鍵字"
                   placeholder="例如：營養、健康、癌症、兒童"
                   @keyup.enter="searchNews"
+                  variant="outlined"
+                  hide-details
                 />
               </v-col>
-              <v-col class="pa-4" cols="12" md="2">
+              <v-col cols="12" md="2" class="pa-3">
+                <v-select
+                  v-model="sortOrder"
+                  :items="sortOptions"
+                  label="排序方式"
+                  variant="outlined"
+                  hide-details
+                  @update:model-value="applySorting"
+                >
+                  <template #prepend-inner>
+                    <v-icon>mdi-sort</v-icon>
+                  </template>
+                </v-select>
+              </v-col>
+
+               <!-- 統計資訊 -->
+               <v-col cols="12" md="2" class="pa-2">
+                <span class="text-body-2 text-grey-darken-1">
+                  共找到 {{ newsData.length }} 篇新聞
+                </span>
+              </v-col>
+
+              <!-- 可以不用多次發請求 -->
+              <!-- <v-col cols="12" md="2" class="pa-2">
                 <v-btn
                   block
                   class="text-body-1 font-weight-bold"
@@ -33,8 +58,10 @@
                 >
                   搜尋
                 </v-btn>
-              </v-col>
+              </v-col> -->
             </v-row>
+
+
 
             <!-- 分類按鈕 -->
             <div class="mb-6">
@@ -88,10 +115,9 @@
               >
                 <v-card
                   v-lazy
-                  class="h-100 mb-3"
+                  class="h-100 mb-3 cursor-pointer"
                   elevation="2"
                   hover
-                  style="cursor: pointer;"
                   @click="openNewsLink(news.連結網址)"
                 >
                   <v-card-title class="text-h6">
@@ -101,7 +127,8 @@
                   <v-card-text class="pb-2">
                     <!-- 使用v-html來渲染HTML內容 -->
                     <div
-                      class="text-body-2 news-content"
+                      class="text-body-2 text-truncate-3"
+                      style="line-height: 1.6; max-height: 120px; overflow: hidden;"
                       v-html="truncateContent(news.內容, 130)"
                     />
 
@@ -163,7 +190,7 @@
       </v-container>
 
       <!-- 頁尾 -->
-      <v-footer class="text-center d-flex flex-column ga-2 mt-7 " color="indigo-lighten-1">
+      <v-footer class="text-center d-flex flex-column ga-2 mt-7" color="indigo-lighten-1">
         <div class="d-flex ga-3">
           <v-btn
             v-for="icon in icons"
@@ -210,27 +237,76 @@
   ]
 
   // 響應式資料
-  const newsData = ref([])
+  const allNewsData = ref([]) // 儲存所有新聞資料
   const loading = ref(false)
   const error = ref('')
   const searchKeyword = ref('')
   const selectedMonth = ref(null)
   const selectedTopic = ref('全部')
   const page = ref(1)
+  const sortOrder = ref('newest') // 新增排序狀態
+
+  // 排序選項
+  const sortOptions = [
+    { title: '最新發布', value: 'newest' },
+    { title: '最舊發布', value: 'oldest' },
+    { title: '最近更新', value: 'recently_updated' },
+  ]
 
   // 分頁設定
   const ITEMS_PER_PAGE = 12
 
+  // 計算屬性 - 過濾和排序後的新聞資料
+  const filteredAndSortedNewsData = computed(() => {
+    let filtered = [...allNewsData.value]
+
+    // 按搜尋關鍵字過濾
+    if (searchKeyword.value && searchKeyword.value.trim() !== '') {
+      const query = searchKeyword.value.toLowerCase()
+      filtered = filtered.filter(news =>
+        news.標題?.toLowerCase().includes(query) ||
+        news.內容?.toLowerCase().includes(query)
+      )
+    }
+
+    // 排序
+    switch (sortOrder.value) {
+      case 'newest':
+        return filtered.sort((a, b) => {
+          const dateA = new Date(a.發布日期 || 0)
+          const dateB = new Date(b.發布日期 || 0)
+          return dateB - dateA // 最新的在前
+        })
+      case 'oldest':
+        return filtered.sort((a, b) => {
+          const dateA = new Date(a.發布日期 || 0)
+          const dateB = new Date(b.發布日期 || 0)
+          return dateA - dateB // 最舊的在前
+        })
+      case 'recently_updated':
+        return filtered.sort((a, b) => {
+          const dateA = new Date(a.修改日期 || a.發布日期 || 0)
+          const dateB = new Date(b.修改日期 || b.發布日期 || 0)
+          return dateB - dateA // 最近更新的在前
+        })
+      default:
+        return filtered
+    }
+  })
+
   // 計算屬性
   const totalPages = computed(() => {
-    return Math.ceil(newsData.value.length / ITEMS_PER_PAGE)
+    return Math.ceil(filteredAndSortedNewsData.value.length / ITEMS_PER_PAGE)
   })
 
   const currentPageNews = computed(() => {
     const start = (page.value - 1) * ITEMS_PER_PAGE
     const end = start + ITEMS_PER_PAGE
-    return newsData.value.slice(start, end)
+    return filteredAndSortedNewsData.value.slice(start, end)
   })
+
+  // 顯示的新聞數量（用於統計資訊）
+  const newsData = computed(() => filteredAndSortedNewsData.value)
 
   // 快取鍵值
   const CACHE_KEYS = {
@@ -275,35 +351,46 @@
     return iconMap[topic] || 'mdi-newspaper-variant'
   }
 
-  // 搜尋新聞
+  // 應用排序
+  const applySorting = () => {
+    page.value = 1 // 重置分頁到第一頁
+  }
+
+  // 搜尋新聞（現在用於載入資料到快取）
   const searchNews = async () => {
+    if (!searchKeyword.value || searchKeyword.value.trim() === '') {
+      return
+    }
+
     loading.value = true
     error.value = ''
-    page.value = 1 // 重置分頁
 
     try {
       // 檢查搜尋快取
       const searchCacheKey = `${CACHE_KEYS.SEARCH_PREFIX}${searchKeyword.value}`
       const cachedData = cacheService.get(searchCacheKey)
 
-      if (searchKeyword.value && cachedData) {
-        newsData.value = cachedData
-        loading.value = false
+      if (cachedData) {
+        // 將搜尋結果合併到所有資料中（避免重複）
+        const existingTitles = new Set(allNewsData.value.map(item => item.標題))
+        const newItems = cachedData.filter(item => !existingTitles.has(item.標題))
+        allNewsData.value = [...allNewsData.value, ...newItems]
         return
       }
 
       const response = await hpaNewsService.searchThisYear(searchKeyword.value)
       const data = response.data.data || []
-      newsData.value = data
+
+      // 將搜尋結果合併到所有資料中（避免重複）
+      const existingTitles = new Set(allNewsData.value.map(item => item.標題))
+      const newItems = data.filter(item => !existingTitles.has(item.標題))
+      allNewsData.value = [...allNewsData.value, ...newItems]
 
       // 儲存搜尋結果到快取
-      if (searchKeyword.value) {
-        cacheService.set(searchCacheKey, data)
-      }
+      cacheService.set(searchCacheKey, data)
     } catch (error_) {
       console.error('搜尋新聞失敗:', error_)
       error.value = '載入新聞時發生錯誤，請稍後再試'
-      newsData.value = []
     } finally {
       loading.value = false
     }
@@ -371,27 +458,32 @@
       const cachedData = cacheService.get(CACHE_KEYS.LATEST_NEWS)
 
       if (cachedData) {
-        newsData.value = cachedData
+        allNewsData.value = cachedData
         loading.value = false
         return
       }
 
       const response = await hpaNewsService.getLatestThisYear()
       const data = response.data.data || []
-      newsData.value = data
+      allNewsData.value = data
 
       // 儲存到快取
       cacheService.set(CACHE_KEYS.LATEST_NEWS, data)
     } catch (error_) {
       console.error('載入最新新聞失敗:', error_)
       error.value = '載入最新新聞時發生錯誤，請稍後再試'
-      newsData.value = []
+      allNewsData.value = []
     } finally {
       loading.value = false
     }
   }
 
-  // 監聽搜尋變化，重置分頁
+  // 監聽排序變化，重置分頁
+  watch(sortOrder, () => {
+    page.value = 1
+  })
+
+  // 監聽搜尋關鍵字變化，重置分頁
   watch(searchKeyword, () => {
     page.value = 1
   })
@@ -402,14 +494,12 @@
   })
 
   // 當組件被重新啟用時（從其他頁面返回）
-  // 優化的頁面重新啟用邏輯
-  // 極簡化的頁面重新啟用邏輯
   onActivated(() => {
     // 只在沒有資料時才載入，避免不必要的檢查
-    if (newsData.value.length === 0) {
+    if (allNewsData.value.length === 0) {
       const cachedData = cacheService.get(CACHE_KEYS.LATEST_NEWS)
       if (cachedData) {
-        newsData.value = cachedData
+        allNewsData.value = cachedData
       } else {
         loadLatestNews()
       }
@@ -417,22 +507,6 @@
   })
 
 </script>
-
-<style scoped>
-.news-content {
-  line-height: 1.6;
-  max-height: 120px;
-  overflow: hidden;
-}
-
-.news-content :deep(p) {
-  margin-bottom: 0.5rem;
-}
-
-.news-content :deep(strong) {
-  font-weight: bold;
-}
-</style>
 
 <route lang="yaml">
   meta:
