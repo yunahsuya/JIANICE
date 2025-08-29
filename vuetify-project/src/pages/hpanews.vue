@@ -154,6 +154,7 @@
                 v-model="page"
                 :length="totalPages"
                 rounded="circle"
+                show-first-last-page
                 :total-visible="7"
               />
             </div>

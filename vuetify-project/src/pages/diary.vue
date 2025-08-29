@@ -9,23 +9,214 @@
         <v-divider class=" border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
         <!-- <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p> -->
 
+
+
       </v-col>
     </v-row>
 
-    <!-- 篩選和搜尋區域 -->
-    <v-row class="mb-4">
+   <!-- 篩選和搜尋區域 -->
+<v-row class="mb-4">
+  <!-- 搜尋回憶 -->
+  <v-col cols="12" lg="10" md="8">
+    <v-text-field
+      v-model="searchQuery"
+      clearable
+      hide-details
+      label="搜尋回憶"
+    />
+  </v-col>
 
-      <!-- 搜尋回憶 -->
-      <v-col cols="12">
-        <v-text-field
-          v-model="searchQuery"
-          clearable
-          hide-details
-          label="搜尋回憶"
-        />
+ <!-- 新增回憶按鈕 -->
+ <v-col cols="12" lg="2" md="4" class="d-flex align-center">
+        <v-btn
+          v-if="user.isLoggedIn"
+          block
+          class="text-none"
+          color="success"
+          elevation="2"
+          prepend-icon="mdi-plus"
+          size="large"
+          @click="openNewMemoryDialog"
+        >
+          新增回憶
+        </v-btn>
       </v-col>
-
     </v-row>
+
+     <!-- 新增：新增回憶對話框 -->
+     <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
+      <v-form @submit.prevent="submitNewMemory">
+        <v-card>
+          <v-card-title class="d-flex align-center justify-space-between pa-6">
+            <div class="d-flex align-center">
+              <v-icon
+                class="mr-3"
+                color="success"
+                icon="mdi-plus"
+                size="large"
+              />
+              <span class="text-h5 font-weight-medium">新增回憶</span>
+            </div>
+            <v-btn
+              class="text-none"
+              icon="mdi-close"
+              variant="text"
+              @click="closeNewMemoryDialog"
+            />
+          </v-card-title>
+
+          <v-divider />
+
+          <v-card-text class="pa-6">
+            <v-row>
+              <!-- 日期和時間 -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="newMemoryForm.date"
+                  density="comfortable"
+                  :error-messages="newMemoryErrors.date"
+                  label="日期和時間"
+                  prepend-inner-icon="mdi-calendar-clock"
+                  type="datetime-local"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <!-- 分類 -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="newMemoryForm.category"
+                  density="comfortable"
+                  :error-messages="newMemoryErrors.category"
+                  :items="categoryOptionsForEdit"
+                  label="分類"
+                  prepend-inner-icon="mdi-tag"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <!-- 標題 -->
+              <v-col cols="12">
+                <v-text-field
+                  v-model="newMemoryForm.title"
+                  density="comfortable"
+                  :error-messages="newMemoryErrors.title"
+                  label="回憶標題"
+                  placeholder="為您的回憶取個標題..."
+                  prepend-inner-icon="mdi-format-title"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <!-- 描述 -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="newMemoryForm.description"
+                  auto-grow
+                  density="comfortable"
+                  :error-messages="newMemoryErrors.description"
+                  label="每日發生的三件好事"
+                  placeholder="記錄今天發生的三件好事..."
+                  prepend-inner-icon="mdi-text"
+                  rows="4"
+                  variant="outlined"
+                />
+              </v-col>
+
+                            <!-- 圖片上傳 -->
+                            <v-col cols="12">
+                <v-card class="pa-4" variant="outlined">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon class="mr-2" color="success" icon="mdi-image" />
+                    <span class="text-subtitle-1 font-weight-medium">回憶圖片</span>
+                  </div>
+                  <VueFileAgent
+                    ref="fileAgent"
+                    v-model="fileRecords"
+                    v-model:raw-model-value="rawFileRecords"
+                    accept="image/jpeg,image/png"
+                    deletable
+                    :error-text="{ type: '檔案格式不正確', size: '檔案大小不得超過 1MB' }"
+                    help-text="選擇或拖曳圖片檔案到此處"
+                    :max-files="5"
+                    max-size="1MB"
+                    multiple
+                    theme="grid"
+                    :url-resolver="(file) => {
+                      if (file.url) return file.url
+                      if (file.data) return file.data
+                      if (file.preview) return file.preview
+                      return null
+                    }"
+                  />
+                </v-card>
+              </v-col>
+
+              <!-- 顯示設定 -->
+              <v-col cols="12">
+                <v-card class="pa-4" variant="outlined">
+                  <v-switch
+                    v-model="newMemoryForm.sell"
+                    class="ma-0"
+                    color="success"
+                    :error-messages="newMemoryErrors.sell"
+                    hide-details
+                    label="公開分享到回憶牆"
+                  >
+                    <template #prepend>
+                      <v-icon class="mr-2" color="success" icon="mdi-eye" />
+                    </template>
+                  </v-switch>
+                  <p class="text-caption text-medium-emphasis mt-2 mb-0">
+                    開啟後，可以在回憶牆上看到您的回憶
+                  </p>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-divider />
+
+          <!-- 對話框按鈕 -->
+          <v-card-actions class="pa-6">
+            <v-spacer />
+            <v-btn
+              class="text-none"
+              color="grey-darken-1"
+              :disabled="newMemoryDialog.submitting"
+              variant="outlined"
+              @click="closeNewMemoryDialog"
+            >
+              取消
+            </v-btn>
+            <v-btn
+              class="text-none"
+              color="success"
+              :loading="newMemoryDialog.submitting"
+              type="submit"
+              variant="flat"
+            >
+              <v-icon  icon="mdi-plus" />
+              新增回憶
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+
+    <!-- 浮動操作按鈕 -->
+    <v-fab
+      v-if="user.isLoggedIn"
+      app
+      color="success"
+      icon="mdi-plus"
+      location="bottom end"
+      size="large"
+      @click="openNewMemoryDialog"
+    />
+
+
+
 
     <!-- 分類按鈕 -->
     <div class="mb-8">
@@ -91,6 +282,7 @@
         :length="totalPages"
         rounded="circle"
         :total-visible="7"
+        show-first-last-page
       />
     </div>
 
@@ -302,6 +494,12 @@
   const searchQuery = ref('')
   const selectedCategory = ref('全部')
   const page = ref(1)
+
+  // 新增：文件上傳相關
+  const fileAgent = ref(null)
+  const fileRecords = ref([])
+  const rawFileRecords = ref([])
+
 
   // 詳情對話框
   const detailDialog = ref({
@@ -524,6 +722,186 @@
   watch(searchQuery, () => {
     page.value = 1
   })
+
+  // 新增：新增回憶對話框
+  const newMemoryDialog = ref({
+    open: false,
+    submitting: false
+  })
+
+  // 修改：新增回憶表單（移除 images 屬性）
+  const newMemoryForm = ref({
+    date: '',
+    title: '',
+    description: '1. \n2. \n3. ',
+    category: '快樂',
+    sell: true
+  })
+
+  // 修改：表單錯誤訊息（移除 images 錯誤）
+  const newMemoryErrors = ref({
+    date: [],
+    title: [],
+    description: [],
+    category: [],
+    sell: []
+  })
+
+  // 修改：開啟新增回憶對話框
+  const openNewMemoryDialog = () => {
+    // 重置表單
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+
+    newMemoryForm.value = {
+      date: `${year}-${month}-${day}T${hours}:${minutes}`,
+      title: '',
+      description: '1. \n2. \n3. ',
+      category: '快樂',
+      sell: true
+    }
+
+    // 清除錯誤訊息
+    newMemoryErrors.value = {
+      date: [],
+      title: [],
+      description: [],
+      category: [],
+      sell: []
+    }
+
+    // 重置文件上傳
+    fileRecords.value = []
+    rawFileRecords.value = []
+
+    newMemoryDialog.value.open = true
+  }
+
+  // 修改：關閉新增回憶對話框
+  const closeNewMemoryDialog = () => {
+    newMemoryDialog.value.open = false
+    newMemoryDialog.value.submitting = false
+    // 重置文件上傳
+    fileRecords.value = []
+    rawFileRecords.value = []
+  }
+
+  // 修改：驗證表單
+  const validateNewMemoryForm = () => {
+    newMemoryErrors.value = {
+      date: [],
+      title: [],
+      description: [],
+      category: [],
+      sell: []
+    }
+
+    let isValid = true
+
+    // 驗證標題
+    if (newMemoryForm.value.title.length > 50) {
+      newMemoryErrors.value.title.push('標題最多只能有 50 字元')
+      isValid = false
+    }
+
+    // 驗證描述
+    if (!newMemoryForm.value.description.trim()) {
+      newMemoryErrors.value.description.push('請輸入回憶內容')
+      isValid = false
+    } else if (newMemoryForm.value.description.length > 1000) {
+      newMemoryErrors.value.description.push('內容最多只能有 1000 字元')
+      isValid = false
+    }
+
+    // 驗證分類
+    if (!categoryOptionsForEdit.includes(newMemoryForm.value.category)) {
+      newMemoryErrors.value.category.push('請選擇有效的分類')
+      isValid = false
+    }
+
+    // 驗證圖片（使用 VueFileAgent）
+    if (fileRecords.value.some(file => file.error)) {
+      createSnackbar({
+        text: '請選擇有效的圖片檔案',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+      isValid = false
+    }
+
+    if (fileRecords.value.length === 0) {
+      createSnackbar({
+        text: '請上傳回憶圖片',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+      isValid = false
+    }
+
+    return isValid
+  }
+
+  // 修改：提交新增回憶
+  const submitNewMemory = async () => {
+    if (!validateNewMemoryForm()) {
+      return
+    }
+
+    newMemoryDialog.value.submitting = true
+
+    try {
+      const fd = new FormData()
+
+      // 處理日期
+      const userDate = new Date(newMemoryForm.value.date)
+      const now = new Date()
+      userDate.setSeconds(now.getSeconds())
+
+      fd.append('date', userDate.toISOString())
+      fd.append('title', newMemoryForm.value.title)
+      fd.append('description', newMemoryForm.value.description)
+      fd.append('category', newMemoryForm.value.category)
+      fd.append('sell', newMemoryForm.value.sell)
+
+      // 添加圖片檔案（使用 VueFileAgent）
+      const newFiles = fileRecords.value.filter(file => file.file)
+      if (newFiles.length > 0) {
+        for (const fileRecord of newFiles) {
+          fd.append('image', fileRecord.file)
+        }
+      }
+
+      await diaryService.create(fd)
+
+      createSnackbar({
+        text: '回憶新增成功！',
+        snackbarProps: {
+          color: 'success',
+        },
+      })
+
+      closeNewMemoryDialog()
+      getDiarys() // 重新載入回憶列表
+    } catch (error) {
+      console.error('新增回憶失敗:', error)
+      createSnackbar({
+        text: error?.response?.data?.message || '新增失敗，請稍後再試',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+    } finally {
+      newMemoryDialog.value.submitting = false
+    }
+  }
+
+
 
   // 頁面載入時取得資料
   onMounted(() => {

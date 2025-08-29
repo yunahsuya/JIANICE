@@ -99,6 +99,7 @@
             :length="totalPages"
             rounded="circle"
             :total-visible="7"
+            show-first-last-page
           />
         </div>
       </div>
