@@ -74,7 +74,7 @@
         <h3 class="text-h5 text-grey-darken-1 mb-2">還沒有回憶</h3>
         <p class="text-body-1 text-grey">開始記錄您的美好時刻吧！</p>
         <v-btn
-          v-if="user.isLogin"
+          v-if="user.isLoggedIn"
           class="mt-4"
           color="success"
           @click="$router.push('/user/diary')"
@@ -98,19 +98,83 @@
     <v-dialog v-model="detailDialog.open" max-width="800">
       <v-card v-if="detailDialog.diary">
         <v-card-title class="d-flex align-center justify-space-between">
-          <div>
-            <!-- 標題 (左上角) 原本是分類 -->
-            <span class="text-h5 text-primary-darken-1 font-weight-bold">{{ detailDialog.diary.title }}</span>
-            <v-chip
-              v-if="detailDialog.diary.date"
-              class="ml-2"
-              color="success"
-              size="small"
-            >
-              {{ formatDate(detailDialog.diary.date) }}
-            </v-chip>
+          <div class="d-flex align-center mr-3" style="flex: 1; min-width: 0;">
+            <!-- 標題 -->
+            <div v-if="!editMode" class="d-flex align-center gap-3">
+              <span class="text-h5 text-primary-darken-1 font-weight-bold">
+                {{ detailDialog.diary.title || '無標題' }}
+              </span>
+              <!-- 日期標籤 -->
+              <v-chip
+                v-if="detailDialog.diary.date"
+                color="success"
+                size="small"
+                class="ml-2"
+
+              >
+                {{ formatDate(detailDialog.diary.date) }}
+              </v-chip>
+            </div>
+            <!-- 編輯模式的標題輸入框 -->
+            <div v-else class="d-flex align-center gap-3" style="flex: 1;">
+              <v-text-field
+                 v-model="editForm.title"
+                 class="title-input"
+                 density="compact"
+                 hide-details
+                 placeholder="輸入標題"
+                 variant="outlined"
+                 :style="{
+                   width: Math.max(200, Math.min(400, (editForm.title?.length || 0) * 12 + 100)) + 'px',
+                   maxWidth: '400px',
+                   minWidth: '100px'
+                 }"
+
+              />
+              <!-- 編輯模式下的日期標籤 -->
+              <v-chip
+                v-if="detailDialog.diary.date"
+                color="success"
+                size="small"
+                class="ml-2"
+              >
+                {{ formatDate(detailDialog.diary.date) }}
+              </v-chip>
+            </div>
           </div>
-          <v-btn icon="mdi-close" variant="text" @click="closeDiaryDetail" />
+          <div class="d-flex align-center gap-2 ml-4">
+            <!-- 編輯按鈕 -->
+            <v-btn
+              v-if="!editMode && canEdit"
+              icon="mdi-pencil"
+              size="small"
+              variant="text"
+              @click="startEdit"
+            />
+            <!-- 保存和取消按鈕 -->
+            <v-btn
+              v-if="editMode"
+              :disabled="saving"
+              icon="mdi-check"
+              size="small"
+              variant="text"
+              @click="saveEdit"
+            />
+            <v-btn
+              v-if="editMode"
+              icon="mdi-close"
+              size="small"
+              variant="text"
+              @click="cancelEdit"
+            />
+            <!-- 關閉按鈕 -->
+            <v-btn
+              v-if="!editMode"
+              icon="mdi-close"
+              variant="text"
+              @click="closeDiaryDetail"
+            />
+          </div>
         </v-card-title>
 
         <v-card-text>
@@ -135,15 +199,59 @@
             </v-carousel-item>
           </v-carousel>
 
+          <!-- 日期編輯 -->
+          <div v-if="editMode" class="mb-4">
+            <v-label class="text-body-2 font-weight-medium mb-2">回憶日期</v-label>
+            <v-text-field
+              v-model="editForm.date"
+              density="compact"
+              hide-details
+              type="datetime-local"
+              variant="outlined"
+            />
+          </div>
+
+          <!-- 分類編輯 -->
+          <div v-if="editMode" class="mb-4">
+            <v-label class="text-body-2 font-weight-medium mb-2">分類</v-label>
+            <v-select
+              v-model="editForm.category"
+              density="compact"
+              hide-details
+              :items="categoryOptionsForEdit"
+              variant="outlined"
+            />
+          </div>
+
           <!-- 描述內容 -->
           <div class="text-body-1">
             <h4 class="text-h6 mb-2">今日三件好事：</h4>
+            <v-textarea
+              v-if="editMode"
+              v-model="editForm.description"
+              hide-details
+              placeholder="輸入您的回憶內容..."
+              rows="6"
+              variant="outlined"
+            />
             <p
+              v-else
               class="text-body-1"
               style="white-space: pre-wrap !important; word-wrap: break-word !important; word-break: break-all !important; overflow-wrap: break-word !important; max-width: 100% !important; line-height: 1.6 !important; display: block !important; width: 100% !important; box-sizing: border-box !important;"
             >
               {{ detailDialog.diary.description }}
             </p>
+          </div>
+
+          <!-- 公開/私人狀態編輯 -->
+          <div v-if="editMode" class="mt-4">
+            <v-label class="text-body-2 font-weight-medium mb-2">顯示狀態</v-label>
+            <v-switch
+              v-model="editForm.sell"
+              color="success"
+              hide-details
+              :label="editForm.sell ? '公開' : '私人'"
+            />
           </div>
 
           <!-- 建立時間 -->
@@ -152,6 +260,27 @@
             建立於：{{ formatDateTime(detailDialog.diary.createdAt) }}
           </div>
         </v-card-text>
+
+        <!-- 保存按鈕區域 -->
+        <v-card-actions v-if="editMode" class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn
+            color="grey-darken-1"
+            variant="outlined"
+            @click="cancelEdit"
+          >
+            取消
+          </v-btn>
+          <v-btn
+            class="ml-3"
+            color="success"
+            :loading="saving"
+            variant="flat"
+            @click="saveEdit"
+          >
+            保存變更
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-container>
@@ -162,8 +291,10 @@
   import DiaryCard from '@/components/diary/DiaryCard.vue'
   import diaryService from '@/services/diary'
   import { useUserStore } from '@/stores/user'
+  import { useSnackbar } from 'vuetify-use-dialog'
 
   const user = useUserStore()
+  const createSnackbar = useSnackbar()
 
   // 響應式資料
   const diarys = ref([])
@@ -178,8 +309,25 @@
     diary: null,
   })
 
+  // 編輯模式相關
+  const editMode = ref(false)
+  const saving = ref(false)
+  const editForm = ref({
+    title: '',
+    description: '',
+    category: '',
+    date: '',
+    sell: true,
+  })
+
   // 分類選項
   const categoryOptions = ['全部', '快樂',  '難過', '生氣', '平靜','問題','職訓局']
+  const categoryOptionsForEdit = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+
+  // 計算屬性：檢查是否可編輯（只有登入用戶才能編輯）
+  const canEdit = computed(() => {
+    return user.isLoggedIn
+  })
 
   // 取得分類圖標
   const getCategoryIcon = category => {
@@ -251,12 +399,109 @@
   const openDiaryDetail = diary => {
     detailDialog.value.diary = diary
     detailDialog.value.open = true
+    editMode.value = false
   }
 
   // 關閉日記詳情
   const closeDiaryDetail = () => {
     detailDialog.value.open = false
     detailDialog.value.diary = null
+    editMode.value = false
+  }
+
+  // 開始編輯
+  const startEdit = () => {
+    if (!detailDialog.value.diary) return
+
+    const diary = detailDialog.value.diary
+    editForm.value = {
+      title: diary.title || '',
+      description: diary.description || '',
+      category: diary.category || '快樂',
+      date: diary.date ? formatDateForInput(diary.date) : '',
+      sell: diary.sell !== undefined ? diary.sell : true,
+    }
+    editMode.value = true
+  }
+
+  // 取消編輯
+  const cancelEdit = () => {
+    editMode.value = false
+    editForm.value = {
+      title: '',
+      description: '',
+      category: '',
+      date: '',
+      sell: true,
+    }
+  }
+
+  // 保存編輯
+  const saveEdit = async () => {
+    if (!detailDialog.value.diary) return
+
+    saving.value = true
+    try {
+      const fd = new FormData()
+      fd.append('title', editForm.value.title)
+      fd.append('description', editForm.value.description)
+      fd.append('category', editForm.value.category)
+      fd.append('date', editForm.value.date)
+      fd.append('sell', editForm.value.sell)
+
+      // 保留現有圖片
+      if (detailDialog.value.diary.image && detailDialog.value.diary.image.length > 0) {
+        fd.append('existingImages', JSON.stringify(detailDialog.value.diary.image))
+      }
+
+      await diaryService.update(detailDialog.value.diary._id, fd)
+
+      // 更新本地資料
+      const diaryIndex = diarys.value.findIndex(d => d._id === detailDialog.value.diary._id)
+      if (diaryIndex !== -1) {
+        diarys.value[diaryIndex] = {
+          ...diarys.value[diaryIndex],
+          title: editForm.value.title,
+          description: editForm.value.description,
+          category: editForm.value.category,
+          date: editForm.value.date,
+          sell: editForm.value.sell,
+        }
+        // 更新對話框中的日記資料
+        detailDialog.value.diary = diarys.value[diaryIndex]
+      }
+
+      createSnackbar({
+        text: '回憶更新成功',
+        snackbarProps: {
+          color: 'success',
+        },
+      })
+
+      editMode.value = false
+    } catch (error) {
+      console.error('更新回憶失敗:', error)
+      createSnackbar({
+        text: error?.response?.data?.message || '更新失敗，請稍後再試',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+    } finally {
+      saving.value = false
+    }
+  }
+
+  // 格式化日期供輸入框使用
+  const formatDateForInput = dateString => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
   }
 
   // 格式化日期
@@ -285,11 +530,6 @@
     getDiarys()
   })
 </script>
-
-
-
-
-
 
 <route lang="yaml">
   meta:

@@ -597,7 +597,7 @@ if (item.image && item.image.length > 0) {
       title.value.value = ''
       description.value.value = '1. \n2. \n3. '
       category.value.value = '快樂'
-      sell.value.value = false
+      sell.value.value = true
       fileRecords.value = []
       rawFileRecords.value = []
     }
