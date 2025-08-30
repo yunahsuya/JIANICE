@@ -9,59 +9,55 @@
         <v-divider class=" border-opacity-50" color="orange-darken-2" length="100" :thickness="5" />
         <!-- <p class="text-body-1 text-medium-emphasis mt-3">記錄生活中的美好時刻，分享您的快樂回憶</p> -->
 
-
-
       </v-col>
     </v-row>
 
- <!-- 篩選和搜尋區域 -->
-<v-row class="mb-4">
-  <!-- 搜尋回憶 -->
-  <v-col cols="12" lg="8" md="6">
-    <v-text-field
-      v-model="searchQuery"
-      clearable
-      hide-details
-      label="搜尋回憶"
-      variant="outlined"
+    <!-- 篩選和搜尋區域 -->
+    <v-row class="mb-4">
+      <!-- 搜尋回憶 -->
+      <v-col cols="12" lg="8" md="6">
+        <v-text-field
+          v-model="searchQuery"
+          clearable
+          hide-details
+          label="搜尋回憶"
+          variant="outlined"
+        />
+      </v-col>
 
-    />
-  </v-col>
+      <!-- 排序選項 -->
+      <v-col class="d-flex align-center" cols="12" lg="2" md="2">
+        <v-select
+          v-model="sortBy"
+          clearable
+          density="comfortable"
+          hide-details
+          :items="sortOptions"
+          label="排序方式"
+          prepend-inner-icon="mdi-sort"
+          variant="outlined"
+        />
+      </v-col>
 
-  <!-- 排序選項 -->
-  <v-col cols="12" lg="2" md="2" class="d-flex align-center">
-    <v-select
-      v-model="sortBy"
-      clearable
-      density="comfortable"
-      hide-details
-      :items="sortOptions"
-      label="排序方式"
-      prepend-inner-icon="mdi-sort"
-      variant="outlined"
-    />
-  </v-col>
+      <!-- 新增回憶按鈕 -->
+      <v-col class="d-flex align-center" cols="12" lg="2" md="4">
+        <v-btn
+          v-if="user.isLoggedIn"
+          block
+          class="text-none"
+          color="success"
+          elevation="2"
+          prepend-icon="mdi-plus"
+          size="large"
+          @click="openNewMemoryDialog"
+        >
+          新增回憶
+        </v-btn>
+      </v-col>
+    </v-row>
 
-  <!-- 新增回憶按鈕 -->
-  <v-col cols="12" lg="2" md="4" class="d-flex align-center">
-    <v-btn
-      v-if="user.isLoggedIn"
-      block
-      class="text-none"
-      color="success"
-      elevation="2"
-      prepend-icon="mdi-plus"
-      size="large"
-      @click="openNewMemoryDialog"
-    >
-      新增回憶
-    </v-btn>
-  </v-col>
-</v-row>
-
-
-     <!-- 新增：新增回憶對話框 -->
-     <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
+    <!-- 新增：新增回憶對話框 -->
+    <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
       <v-form @submit.prevent="submitNewMemory">
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between pa-6">
@@ -140,8 +136,8 @@
                 />
               </v-col>
 
-                            <!-- 圖片上傳 -->
-                            <v-col cols="12">
+              <!-- 圖片上傳 -->
+              <v-col cols="12">
                 <v-card class="pa-4" variant="outlined">
                   <div class="d-flex align-center mb-3">
                     <v-icon class="mr-2" color="success" icon="mdi-image" />
@@ -213,7 +209,7 @@
               type="submit"
               variant="flat"
             >
-              <v-icon  icon="mdi-plus" />
+              <v-icon icon="mdi-plus" />
               新增回憶
             </v-btn>
           </v-card-actions>
@@ -231,9 +227,6 @@
       size="large"
       @click="openNewMemoryDialog"
     />
-
-
-
 
     <!-- 分類按鈕 -->
     <div class="mb-8">
@@ -298,8 +291,8 @@
         v-model="page"
         :length="totalPages"
         rounded="circle"
-        :total-visible="7"
         show-first-last-page
+        :total-visible="7"
       />
     </div>
 
@@ -316,10 +309,9 @@
               <!-- 日期標籤 -->
               <v-chip
                 v-if="detailDialog.diary.date"
+                class="ml-2"
                 color="success"
                 size="small"
-                class="ml-2"
-
               >
                 {{ formatDate(detailDialog.diary.date) }}
               </v-chip>
@@ -327,25 +319,24 @@
             <!-- 編輯模式的標題輸入框 -->
             <div v-else class="d-flex align-center gap-3" style="flex: 1;">
               <v-text-field
-                 v-model="editForm.title"
-                 class="title-input"
-                 density="compact"
-                 hide-details
-                 placeholder="輸入標題"
-                 variant="outlined"
-                 :style="{
-                   width: Math.max(200, Math.min(400, (editForm.title?.length || 0) * 12 + 100)) + 'px',
-                   maxWidth: '400px',
-                   minWidth: '100px'
-                 }"
-
+                v-model="editForm.title"
+                class="title-input"
+                density="compact"
+                hide-details
+                placeholder="輸入標題"
+                :style="{
+                  width: Math.max(200, Math.min(400, (editForm.title?.length || 0) * 12 + 100)) + 'px',
+                  maxWidth: '400px',
+                  minWidth: '100px'
+                }"
+                variant="outlined"
               />
               <!-- 編輯模式下的日期標籤 -->
               <v-chip
                 v-if="detailDialog.diary.date"
+                class="ml-2"
                 color="success"
                 size="small"
-                class="ml-2"
               >
                 {{ formatDate(detailDialog.diary.date) }}
               </v-chip>
@@ -355,6 +346,8 @@
             <!-- 編輯按鈕 -->
             <v-btn
               v-if="!editMode && canEdit"
+              :loading="editLoading"
+              :disabled="editLoading"
               icon="mdi-pencil"
               size="small"
               variant="text"
@@ -426,10 +419,10 @@
                   style="width: 120px; height: 120px;"
                 >
                   <v-img
-                    :src="image"
                     class="rounded"
                     cover
                     height="100%"
+                    :src="image"
                     width="100%"
                   />
                   <v-btn
@@ -562,10 +555,10 @@
 
 <script setup>
   import { computed, onMounted, ref, watch } from 'vue'
+  import { useSnackbar } from 'vuetify-use-dialog'
   import DiaryCard from '@/components/diary/DiaryCard.vue'
   import diaryService from '@/services/diary'
   import { useUserStore } from '@/stores/user'
-  import { useSnackbar } from 'vuetify-use-dialog'
 
   const user = useUserStore()
   const createSnackbar = useSnackbar()
@@ -609,13 +602,13 @@
   })
 
   // 分類選項
-  const categoryOptions = ['全部', '快樂',  '難過', '生氣', '平靜','問題','職訓局']
-  const categoryOptionsForEdit = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+  const categoryOptions = ['全部', '快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+  const categoryOptionsForEdit = new Set(['快樂', '難過', '生氣', '平靜', '問題', '職訓局'])
 
- // 新增：排序選項
- const sortOptions = [
+  // 新增：排序選項
+  const sortOptions = [
     { title: '最新', value: 'newest' },
-    { title: '最舊', value: 'oldest' }
+    { title: '最舊', value: 'oldest' },
   ]
 
   // 修改：計算屬性：篩選後的日記
@@ -636,8 +629,8 @@
       )
     }
 
-     // 新增：排序
-     if (sortBy.value) {
+    // 新增：排序
+    if (sortBy.value) {
       filtered = [...filtered].sort((a, b) => {
         const dateA = new Date(a.date || a.createdAt)
         const dateB = new Date(b.date || b.createdAt)
@@ -673,8 +666,6 @@
     selectedCategory.value = category
     page.value = 1 // 重置分頁到第一頁
   }
-
-
 
   // 分頁相關計算屬性
   const ITEMS_PER_PAGE = 12
@@ -716,21 +707,24 @@
   }
 
   // 移除現有圖片
-  const removeExistingImage = (index) => {
+  const removeExistingImage = index => {
     editForm.value.existingImages.splice(index, 1)
   }
 
   // 開始編輯
-  const startEdit = () => {
-    if (!detailDialog.value.diary) return
+  // 修改 startEdit 函數
+const startEdit = async () => {
+  if (!detailDialog.value.diary) return
 
+  editLoading.value = true
+  try {
     const diary = detailDialog.value.diary
     editForm.value = {
       title: diary.title || '',
       description: diary.description || '',
       category: diary.category || '快樂',
       date: diary.date ? formatDateForInput(diary.date) : '',
-      sell: diary.sell !== undefined ? diary.sell : true,
+      sell: diary.sell === undefined ? true : diary.sell,
       existingImages: diary.image ? [...diary.image] : [], // 複製現有圖片列表
     }
 
@@ -739,7 +733,19 @@
     editRawFileRecords.value = []
 
     editMode.value = true
+  } catch (error) {
+    console.error('進入編輯模式失敗:', error)
+    createSnackbar({
+      text: '進入編輯模式失敗，請稍後再試',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+  } finally {
+    editLoading.value = false
   }
+}
+
 
   // 取消編輯
   const cancelEdit = () => {
@@ -818,8 +824,8 @@
       saving.value = false
     }
   }
-// 格式化日期供輸入框使用
-const formatDateForInput = dateString => {
+  // 格式化日期供輸入框使用
+  const formatDateForInput = dateString => {
     if (!dateString) return ''
     const date = new Date(dateString)
     const year = date.getFullYear()
@@ -847,14 +853,14 @@ const formatDateForInput = dateString => {
   }
 
   // 新增：監聽排序變化，重置分頁
-   watch(sortBy, () => {
+  watch(sortBy, () => {
     page.value = 1
   })
 
   // 新增：新增回憶對話框
   const newMemoryDialog = ref({
     open: false,
-    submitting: false
+    submitting: false,
   })
 
   // 修改：新增回憶表單（移除 images 屬性）
@@ -863,7 +869,7 @@ const formatDateForInput = dateString => {
     title: '',
     description: '1. \n2. \n3. ',
     category: '快樂',
-    sell: true
+    sell: true,
   })
 
   // 修改：表單錯誤訊息（移除 images 錯誤）
@@ -872,7 +878,7 @@ const formatDateForInput = dateString => {
     title: [],
     description: [],
     category: [],
-    sell: []
+    sell: [],
   })
 
   // 修改：開啟新增回憶對話框
@@ -890,7 +896,7 @@ const formatDateForInput = dateString => {
       title: '',
       description: '1. \n2. \n3. ',
       category: '快樂',
-      sell: true
+      sell: true,
     }
 
     // 清除錯誤訊息
@@ -899,7 +905,7 @@ const formatDateForInput = dateString => {
       title: [],
       description: [],
       category: [],
-      sell: []
+      sell: [],
     }
 
     // 重置文件上傳
@@ -925,7 +931,7 @@ const formatDateForInput = dateString => {
       title: [],
       description: [],
       category: [],
-      sell: []
+      sell: [],
     }
 
     let isValid = true
@@ -946,7 +952,7 @@ const formatDateForInput = dateString => {
     }
 
     // 驗證分類
-    if (!categoryOptionsForEdit.includes(newMemoryForm.value.category)) {
+    if (!categoryOptionsForEdit.has(newMemoryForm.value.category)) {
       newMemoryErrors.value.category.push('請選擇有效的分類')
       isValid = false
     }
@@ -1028,6 +1034,23 @@ const formatDateForInput = dateString => {
       newMemoryDialog.value.submitting = false
     }
   }
+
+  // 在 script setup 部分，在現有的響應式變數附近添加
+const editLoading = ref(false)
+
+  // 在 script setup 部分添加 canEdit 計算屬性
+const canEdit = computed(() => {
+  // 檢查用戶是否已登入
+  if (!user.isLoggedIn) return false
+
+  // 檢查是否有當前回憶
+  if (!detailDialog.value.diary) return false
+
+  // 這裡可以添加更多權限檢查邏輯
+  // 例如：只有回憶的創建者才能編輯
+  // 或者：管理員可以編輯所有回憶
+  return true
+})
 
 
 
