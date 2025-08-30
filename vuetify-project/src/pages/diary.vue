@@ -56,8 +56,8 @@
       </v-col>
     </v-row>
 
-    <!-- 新增：新增回憶對話框 -->
-    <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
+     <!-- 新增：新增回憶對話框 -->
+     <v-dialog v-model="newMemoryDialog.open" max-width="800" persistent>
       <v-form @submit.prevent="submitNewMemory">
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between pa-6">
@@ -101,12 +101,14 @@
                   v-model="newMemoryForm.category"
                   density="comfortable"
                   :error-messages="newMemoryErrors.category"
-                  :items="categoryOptionsForEdit"
+                  :items="categoryOptionsWithAddNew"
                   label="分類"
                   prepend-inner-icon="mdi-tag"
                   variant="outlined"
+                  @update:model-value="handleCategoryChange"
                 />
               </v-col>
+
 
               <!-- 標題 -->
               <v-col cols="12">
@@ -217,6 +219,76 @@
       </v-form>
     </v-dialog>
 
+     <!-- 新增：新增分類對話框 -->
+     <v-dialog v-model="addCategoryDialog.open" max-width="500" persistent>
+      <v-form @submit.prevent="submitNewCategory">
+        <v-card>
+          <v-card-title class="d-flex align-center justify-space-between pa-6">
+            <div class="d-flex align-center">
+              <v-icon
+                class="mr-3"
+                color="success"
+                icon="mdi-tag-plus"
+                size="large"
+              />
+              <span class="text-h5 font-weight-medium">新增自定義分類</span>
+            </div>
+            <v-btn
+              class="text-none"
+              icon="mdi-close"
+              variant="text"
+              @click="closeAddCategoryDialog"
+            />
+          </v-card-title>
+
+          <v-divider />
+
+          <v-card-text class="pa-6">
+            <v-text-field
+              v-model="addCategoryForm.name"
+              density="comfortable"
+              :error-messages="addCategoryErrors.name"
+              label="分類名稱"
+              placeholder="例如：今日目標、開發紀錄..."
+              prepend-inner-icon="mdi-tag"
+              variant="outlined"
+              maxlength="20"
+              counter
+            />
+            <p class="text-caption text-medium-emphasis mt-2">
+              分類名稱最多 20 個字元，新增後可以用來標記您的回憶
+            </p>
+          </v-card-text>
+
+          <v-divider />
+
+          <v-card-actions class="pa-6">
+            <v-spacer />
+            <v-btn
+              class="text-none"
+              color="grey-darken-1"
+              :disabled="addCategoryDialog.submitting"
+              variant="outlined"
+              @click="closeAddCategoryDialog"
+            >
+              取消
+            </v-btn>
+            <v-btn
+              class="text-none"
+              color="success"
+              :loading="addCategoryDialog.submitting"
+              type="submit"
+              variant="flat"
+            >
+              <v-icon icon="mdi-plus" />
+              新增分類
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+
+
     <!-- 浮動操作按鈕 -->
     <v-fab
       v-if="user.isLoggedIn"
@@ -228,23 +300,36 @@
       @click="openNewMemoryDialog"
     />
 
-    <!-- 分類按鈕 -->
-    <div class="mb-8">
-      <div class="d-flex flex-wrap gap-3">
-        <v-chip
-          v-for="category in categoryOptions"
-          :key="category"
-          class="font-weight-medium transition-all hover-lift  mr-2"
-          :color="selectedCategory === category ? 'primary' : 'default'"
-          size="large"
-          :variant="selectedCategory === category ? 'elevated' : 'outlined'"
-          @click="selectCategory(category)"
-        >
-          <v-icon class="mr-2" :icon="getCategoryIcon(category)" />
-          {{ category }}
-        </v-chip>
-      </div>
-    </div>
+   <!-- 分類按鈕 -->
+<div class="mb-8">
+  <div class="d-flex flex-wrap gap-3 align-center">
+    <v-chip
+      v-for="category in allCategoryOptions"
+      :key="category"
+      class="font-weight-medium transition-all hover-lift mr-2"
+      :color="selectedCategory === category ? 'primary' : 'default'"
+      size="large"
+      :variant="selectedCategory === category ? 'elevated' : 'outlined'"
+      @click="selectCategory(category)"
+    >
+      <v-icon class="mr-2" :icon="getCategoryIcon(category)" />
+      {{ category }}
+    </v-chip>
+
+    <!-- 新增分類按鈕 -->
+    <v-btn
+      v-if="user.isLoggedIn"
+      class="text-none"
+      color="success"
+      prepend-icon="mdi-plus"
+      size="small"
+      variant="outlined"
+      @click="openAddCategoryDialog"
+    >
+      新增分類
+    </v-btn>
+  </div>
+</div>
 
     <!-- 載入中狀態 -->
     <v-row v-if="loading">
@@ -603,7 +688,163 @@
 
   // 分類選項
   const categoryOptions = ['全部', '快樂', '難過', '生氣', '平靜', '問題', '職訓局']
-  const categoryOptionsForEdit = new Set(['快樂', '難過', '生氣', '平靜', '問題', '職訓局'])
+  // const categoryOptionsForEdit = new Set(['快樂', '難過', '生氣', '平靜', '問題', '職訓局'])
+
+
+
+// 新增：包含「新增分類」選項的分類列表
+const categoryOptionsWithAddNew = computed(() => {
+  const categories = [...categoryOptionsForEdit.value]
+  categories.push({
+    title: '➕ 新增分類',
+    value: '__add_new_category__',
+    divider: true
+  })
+  return categories
+})
+
+
+
+// 新增：自定義分類相關
+const customCategories = ref([])
+
+  // 新增：新增分類對話框
+  const addCategoryDialog = ref({
+    open: false,
+    submitting: false,
+  })
+
+  // 新增：新增分類表單
+  const addCategoryForm = ref({
+    name: '',
+  })
+
+  // 新增：新增分類錯誤訊息
+  const addCategoryErrors = ref({
+    name: [],
+  })
+
+  // 修改：計算所有分類選項（包含預設和自定義）
+const allCategoryOptions = computed(() => {
+  const defaultCategories = ['全部', '快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+  return [...defaultCategories, ...customCategories.value]
+})
+
+// 修改：編輯用的分類選項（不包含「全部」）
+const categoryOptionsForEdit = computed(() => {
+  const defaultCategories = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+  return [...defaultCategories, ...customCategories.value]
+})
+
+
+
+
+   // 新增：處理分類變更
+   const handleCategoryChange = (value) => {
+    if (value === '__add_new_category__') {
+      // 重置分類選擇
+      newMemoryForm.value.category = '快樂'
+      // 開啟新增分類對話框
+      openAddCategoryDialog()
+    }
+  }
+
+   // 新增：取得自定義分類
+   const getCustomCategories = async () => {
+    try {
+      const { data } = await diaryService.getCustomCategories()
+      customCategories.value = data.categories || []
+    } catch (error) {
+      console.error('取得自定義分類失敗:', error)
+    }
+  }
+
+  // 新增：開啟新增分類對話框
+  const openAddCategoryDialog = () => {
+    addCategoryForm.value.name = ''
+    addCategoryErrors.value.name = []
+    addCategoryDialog.value.open = true
+  }
+
+  // 新增：關閉新增分類對話框
+  const closeAddCategoryDialog = () => {
+    addCategoryDialog.value.open = false
+    addCategoryDialog.value.submitting = false
+  }
+
+  // 新增：驗證新增分類表單
+  const validateAddCategoryForm = () => {
+    addCategoryErrors.value.name = []
+
+    if (!addCategoryForm.value.name.trim()) {
+      addCategoryErrors.value.name.push('請輸入分類名稱')
+      return false
+    }
+
+    if (addCategoryForm.value.name.trim().length > 20) {
+      addCategoryErrors.value.name.push('分類名稱不能超過 20 個字元')
+      return false
+    }
+
+    // 檢查是否與預設分類重複
+    const defaultCategories = ['快樂', '難過', '生氣', '平靜', '問題', '職訓局']
+    if (defaultCategories.includes(addCategoryForm.value.name.trim())) {
+      addCategoryErrors.value.name.push('此分類名稱已存在')
+      return false
+    }
+
+    // 檢查是否與自定義分類重複
+    if (customCategories.value.includes(addCategoryForm.value.name.trim())) {
+      addCategoryErrors.value.name.push('此分類名稱已存在')
+      return false
+    }
+
+    return true
+  }
+
+  // 新增：提交新增分類
+  const submitNewCategory = async () => {
+    if (!validateAddCategoryForm()) {
+      return
+    }
+
+    addCategoryDialog.value.submitting = true
+
+    try {
+      await diaryService.addCustomCategory(addCategoryForm.value.name.trim())
+
+      createSnackbar({
+        text: '分類新增成功！',
+        snackbarProps: {
+          color: 'success',
+        },
+      })
+
+      closeAddCategoryDialog()
+      await getCustomCategories() // 重新載入分類列表
+
+      // 新增：自動選擇新建立的分類
+      newMemoryForm.value.category = addCategoryForm.value.name.trim()
+    } catch (error) {
+      console.error('新增分類失敗:', error)
+      createSnackbar({
+        text: error?.response?.data?.message || '新增失敗，請稍後再試',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+    } finally {
+      addCategoryDialog.value.submitting = false
+    }
+  }
+
+
+
+
+
+
+
+
 
   // 新增：排序選項
   const sortOptions = [
@@ -647,19 +888,96 @@
     return filtered
   })
 
-  // 取得分類圖標
-  const getCategoryIcon = category => {
-    const iconMap = {
-      全部: 'mdi-book-heart',
-      快樂: 'mdi-emoticon-happy',
-      難過: 'mdi-emoticon-sad',
-      生氣: 'mdi-emoticon-angry',
-      平靜: 'mdi-emoticon-neutral',
-      問題: 'mdi-help-circle',
-      職訓局: 'mdi-school',
-    }
-    return iconMap[category] || 'mdi-book-heart'
+  // 修改：取得分類圖標（添加更多圖標支援）
+const getCategoryIcon = category => {
+  const iconMap = {
+    全部: 'mdi-book-heart',
+    快樂: 'mdi-emoticon-happy',
+    難過: 'mdi-emoticon-sad',
+    生氣: 'mdi-emoticon-angry',
+    平靜: 'mdi-emoticon-neutral',
+    問題: 'mdi-help-circle',
+    職訓局: 'mdi-school',
+    今日目標: 'mdi-target',
+    開發紀錄: 'mdi-code-braces',
+    學習筆記: 'mdi-notebook',
+    工作心得: 'mdi-briefcase',
+    生活點滴: 'mdi-heart',
+    旅行回憶: 'mdi-airplane',
+    美食記錄: 'mdi-food',
+    運動健身: 'mdi-dumbbell',
+    閱讀心得: 'mdi-book-open',
+    音樂分享: 'mdi-music',
+    電影觀後感: 'mdi-movie',
+    寵物日常: 'mdi-paw',
+    家庭時光: 'mdi-home-heart',
+    朋友聚會: 'mdi-account-group',
+    健康管理: 'mdi-heart-pulse',
+    財務記錄: 'mdi-wallet',
+    創意發想: 'mdi-lightbulb',
+    感恩日記: 'mdi-heart-multiple',
   }
+
+  // 如果沒有對應的圖標，使用預設圖標
+  return iconMap[category] || 'mdi-tag'
+}
+
+// 修改：驗證表單（修正 categoryOptionsForEdit.has 的問題）
+const validateNewMemoryForm = () => {
+  newMemoryErrors.value = {
+    date: [],
+    title: [],
+    description: [],
+    category: [],
+    sell: [],
+  }
+
+  let isValid = true
+
+  // 驗證標題
+  if (newMemoryForm.value.title.length > 50) {
+    newMemoryErrors.value.title.push('標題最多只能有 50 字元')
+    isValid = false
+  }
+
+  // 驗證描述
+  if (!newMemoryForm.value.description.trim()) {
+    newMemoryErrors.value.description.push('請輸入回憶內容')
+    isValid = false
+  } else if (newMemoryForm.value.description.length > 1000) {
+    newMemoryErrors.value.description.push('內容最多只能有 1000 字元')
+    isValid = false
+  }
+
+  // 驗證分類（修正：使用 includes 而不是 has）
+  if (!categoryOptionsForEdit.value.includes(newMemoryForm.value.category)) {
+    newMemoryErrors.value.category.push('請選擇有效的分類')
+    isValid = false
+  }
+
+  // 驗證圖片（使用 VueFileAgent）
+  if (fileRecords.value.some(file => file.error)) {
+    createSnackbar({
+      text: '請選擇有效的圖片檔案',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+    isValid = false
+  }
+
+  if (fileRecords.value.length === 0) {
+    createSnackbar({
+      text: '請上傳回憶圖片',
+      snackbarProps: {
+        color: 'error',
+      },
+    })
+    isValid = false
+  }
+
+  return isValid
+}
 
   // 選擇分類
   const selectCategory = category => {
@@ -924,62 +1242,6 @@ const startEdit = async () => {
     rawFileRecords.value = []
   }
 
-  // 修改：驗證表單
-  const validateNewMemoryForm = () => {
-    newMemoryErrors.value = {
-      date: [],
-      title: [],
-      description: [],
-      category: [],
-      sell: [],
-    }
-
-    let isValid = true
-
-    // 驗證標題
-    if (newMemoryForm.value.title.length > 50) {
-      newMemoryErrors.value.title.push('標題最多只能有 50 字元')
-      isValid = false
-    }
-
-    // 驗證描述
-    if (!newMemoryForm.value.description.trim()) {
-      newMemoryErrors.value.description.push('請輸入回憶內容')
-      isValid = false
-    } else if (newMemoryForm.value.description.length > 1000) {
-      newMemoryErrors.value.description.push('內容最多只能有 1000 字元')
-      isValid = false
-    }
-
-    // 驗證分類
-    if (!categoryOptionsForEdit.has(newMemoryForm.value.category)) {
-      newMemoryErrors.value.category.push('請選擇有效的分類')
-      isValid = false
-    }
-
-    // 驗證圖片（使用 VueFileAgent）
-    if (fileRecords.value.some(file => file.error)) {
-      createSnackbar({
-        text: '請選擇有效的圖片檔案',
-        snackbarProps: {
-          color: 'error',
-        },
-      })
-      isValid = false
-    }
-
-    if (fileRecords.value.length === 0) {
-      createSnackbar({
-        text: '請上傳回憶圖片',
-        snackbarProps: {
-          color: 'error',
-        },
-      })
-      isValid = false
-    }
-
-    return isValid
-  }
 
   // 修改：提交新增回憶
   const submitNewMemory = async () => {
@@ -1054,10 +1316,14 @@ const canEdit = computed(() => {
 
 
 
-  // 頁面載入時取得資料
-  onMounted(() => {
-    getDiarys()
+  // 修改：頁面載入時取得資料
+  onMounted(async () => {
+    await Promise.all([
+      getDiarys(),
+      getCustomCategories(), // 新增：取得自定義分類
+    ])
   })
+
 </script>
 
 <route lang="yaml">

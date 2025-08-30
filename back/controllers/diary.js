@@ -385,3 +385,150 @@ export const deleteDiary = async (req, res) => {
     })
   }
 }
+
+
+
+// 新增：取得用戶的自定義分類
+export const getCustomCategories = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '用戶不存在',
+      })
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '取得自定義分類成功',
+      categories: user.customCategories || [],
+    })
+  } catch (error) {
+    console.log('controllers/diary.js getCustomCategories')
+    console.error(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '伺服器內部錯誤',
+    })
+  }
+}
+
+// 新增：新增自定義分類
+export const addCustomCategory = async (req, res) => {
+  try {
+    const { category } = req.body
+
+    if (!category || typeof category !== 'string' || category.trim().length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '分類名稱不能為空',
+      })
+    }
+
+    const trimmedCategory = category.trim()
+
+    // 檢查分類名稱長度
+    if (trimmedCategory.length > 20) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '分類名稱不能超過 20 個字元',
+      })
+    }
+
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '用戶不存在',
+      })
+    }
+
+    // 檢查分類是否已存在
+    if (user.customCategories && user.customCategories.includes(trimmedCategory)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '此分類已存在',
+      })
+    }
+
+    // 新增分類
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $push: { customCategories: trimmedCategory } },
+      { new: true }
+    )
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '新增分類成功',
+      categories: updatedUser.customCategories,
+    })
+  } catch (error) {
+    console.log('controllers/diary.js addCustomCategory')
+    console.error(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '伺服器內部錯誤',
+    })
+  }
+}
+
+// 新增：刪除自定義分類
+export const deleteCustomCategory = async (req, res) => {
+  try {
+    const { category } = req.params
+
+    if (!category || typeof category !== 'string') {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '分類名稱不能為空',
+      })
+    }
+
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '用戶不存在',
+      })
+    }
+
+    // 檢查分類是否存在
+    if (!user.customCategories || !user.customCategories.includes(category)) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '此分類不存在',
+      })
+    }
+
+    // 檢查是否有日記使用此分類
+    const hasDiaryWithCategory = user.diary && user.diary.some(diary => diary.category === category)
+    if (hasDiaryWithCategory) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '無法刪除正在使用的分類，請先修改相關日記的分類',
+      })
+    }
+
+    // 刪除分類
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $pull: { customCategories: category } },
+      { new: true }
+    )
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '刪除分類成功',
+      categories: updatedUser.customCategories,
+    })
+  } catch (error) {
+    console.log('controllers/diary.js deleteCustomCategory')
+    console.error(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '伺服器內部錯誤',
+    })
+  }
+}

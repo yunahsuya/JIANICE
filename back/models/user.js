@@ -174,6 +174,12 @@ const schema = new Schema(
       // type: [restaurantSchema],
     },
 
+     // 新增：自定義日記分類
+     customCategories: {
+      type: [String],
+      default: [],
+    },
+
      // 新增：日記欄位，使用跟 cart 一樣的寫法
      diary: {
       type: [diarySchema],

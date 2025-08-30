@@ -31,4 +31,19 @@ export default {
   delete (id) {
     return apiService.apiAuth.delete(`/diary/${id}`)
   },
+
+  // 新增：取得自定義分類
+  getCustomCategories () {
+    return apiService.apiAuth.get('/diary/categories')
+  },
+
+  // 新增：新增自定義分類
+  addCustomCategory (category) {
+    return apiService.apiAuth.post('/diary/categories', { category })
+  },
+
+  // 新增：刪除自定義分類
+  deleteCustomCategory (category) {
+    return apiService.apiAuth.delete(`/diary/categories/${encodeURIComponent(category)}`)
+  },
 }

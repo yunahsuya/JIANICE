@@ -14,6 +14,11 @@ router.get('/all', auth.token, diary.getAll)
 // 📝 新增日記（需登入 + 上傳圖片）
 router.post('/', auth.token, upload, diary.create)
 
+// 新增：分類管理路由（必須放在 /:id 路由之前）
+router.get('/categories', auth.token, diary.getCustomCategories)
+router.post('/categories', auth.token, diary.addCustomCategory)
+router.delete('/categories/:category', auth.token, diary.deleteCustomCategory)
+
 // 取得某篇日記（需登入）
 router.get('/:id', auth.token, diary.getId)
 
