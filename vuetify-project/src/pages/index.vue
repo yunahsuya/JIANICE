@@ -5,33 +5,38 @@
       class="h-screen"
       src="../assets/pexels-goumbik-349610.jpg"
     >
-      <div class="d-flex flex-column h-screen justify-center" style="color: #0E6200;">
-        <!-- <div class="mx-auto mx-md-10" style="max-width: 800px; "> -->
+    <div class="d-flex flex-column h-screen justify-center" style="color: #0E6200;">
+        <!-- 使用響應式容器 -->
+        <div class="mx-auto mx-md-10 px-4" style="max-width: 800px;">
+          <!-- 響應式標題 -->
+          <p class="text-h3 text-md-h1 font-weight-bold mb-2">不只是選擇餐廳</p>
+          <p class="text-h4 text-md-h2 mb-4 line-height-1-2">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
 
-        <p style="font-size: 48px; font-weight: bold; padding-left: 90px;">不只是選擇餐廳</p>
+          <!-- 響應式內文 -->
+          <p class="text-body-1 text-md-h6 line-height-1-6 mb-6">
+            在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br class="d-none d-md-block">
+            我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。
+          </p>
 
-        <p style="font-size: 48px; padding-left: 90px; line-height: 45px; margin-bottom: 25px;">解決選擇困難、營養缺口與回憶保存的飲食平台</p>
-
-        <p style="font-size: 24px; padding-left: 90px; line-height: 35px; font-weight:400"> 在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br>
-          我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。</p>
-        <v-btn
-          class="text-white"
-          color="orange-darken-2"
-          rounded
-          style="width:200px; margin-left: 90px; margin-top: 30px; height: 50px;"
-          @click="scrollToInfo"
-        >
-          <v-icon start>mdi-arrow-down</v-icon>
-          探索更多功能
-        </v-btn>
-        <!-- </div> -->
+           <!-- 響應式按鈕 -->
+           <v-btn
+            class="text-white"
+            color="orange-darken-2"
+            rounded
+            size="large"
+            @click="scrollToInfo"
+            >
+            <v-icon start>mdi-arrow-down</v-icon>
+            探索更多功能
+          </v-btn>
+        </div>
       </div>
     </v-parallax>
 
-    <!-- Features Section -->
-    <section id="info" class="bg-grey-lighten-5 h-screen">
-      <v-container class="py-16">
-        <div class="text-center mb-12">
+        <!-- Features Section -->
+        <section id="info" class="bg-grey-lighten-5">
+      <v-container class="py-16" fluid>
+        <div class="text-center mb-10">
           <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
             主要功能
           </h2>
@@ -42,13 +47,17 @@
           </p>
         </div>
 
-        <v-row class="justify-center ga-6" style="flex-wrap: nowrap;">
+        <!-- 修正卡片排列問題 -->
+        <v-row class="justify-center" style="max-width: 1300px; margin: 0 auto;">
           <v-col
             v-for="(feature, index) in features"
             :key="index"
             cols="12"
-            lg="3"
+            sm="6"
             md="6"
+            lg="3"
+            xl="3"
+            class="pa-2"
           >
             <v-card
               class="h-100 transition-swing feature-card"
@@ -66,12 +75,12 @@
                   {{ feature.title }}
                 </v-card-title>
               </div>
-              <v-card-text class="pt-0 px-6 pb-6  mt-3">
+              <v-card-text class="pt-0 px-4 pb-6 mt-3">
                 <v-list class="bg-transparent pa-0">
                   <v-list-item
                     v-for="(point, pointIndex) in feature.points"
                     :key="pointIndex"
-                    class="px-0 py-1 "
+                    class="px-0 py-1"
                   >
                     <template #prepend>
                       <v-icon class="feature-check-icon" color="success" size="small">mdi-check</v-icon>

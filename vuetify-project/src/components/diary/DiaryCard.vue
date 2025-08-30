@@ -193,8 +193,12 @@
   max-height: 120px; /* 限制最大高度 */
 }
 
+.diary-card{
+  transition: 0.3s;
+}
+
 .diary-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-15px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
   border-color: rgba(var(--v-theme-primary), 0.2);
 }
