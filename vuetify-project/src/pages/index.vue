@@ -110,7 +110,7 @@
 
         <v-row class="align-center">
           <v-col cols="12" md="6">
-            <div class="pr-md-8">
+            <div class="pr-md-8 pl-6">
               <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
                 讓健康飲食成為生活的一部分
               </h3>
@@ -129,7 +129,7 @@
             </div>
           </v-col>
 
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="6" class="pl-6">
             <v-card class="overflow-hidden mb-10" elevation="6" rounded="xl">
               <v-img
                 class="transition-swing"

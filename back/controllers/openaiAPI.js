@@ -17,15 +17,15 @@ console.log(process.env.OPENAI_API_KEY)
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-// async function run() {
-//   const response = await openai.chat.completions.create({
-//     model: 'gpt-3.5-turbo',
-//     messages: [
-//       { role: 'system', content: '你是一個幫忙寫程式的助理' },
-//       { role: 'user', content: '用 Node.js 寫一個基本的 ChatGPT 呼叫範例' },
-//     ],
-//   })
+async function run() {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      { role: 'system', content: '你是一個幫忙寫程式的助理' },
+      { role: 'user', content: '用 Node.js 寫一個基本的 ChatGPT 呼叫範例' },
+    ],
+  })
 
-//   console.log('AI 回覆：', response.choices[0].message.content)
-// }
-// run().catch(console.error)
+  console.log('AI 回覆：', response.choices[0].message.content)
+}
+run().catch(console.error)
