@@ -56,15 +56,14 @@ export const create = async (req, res) => {
     const imageUrls = req.files ? req.files.map((file) => file.path) : []
 
     // 準備新的日記資料
-    const newDiary = {
-      date: req.body.date,
-      title: req.body.title || '',  // 確保標題不為 undefined
-      description: req.body.description,
-      image: imageUrls,
-      sell: req.body.sell,
-      category: req.body.category,
-    }
-    console.log('create diary - newDiary:', newDiary)
+const newDiary = {
+  date: req.body.date,
+  title: req.body.title || '',  // 確保標題不為 undefined
+  description: req.body.description,
+  image: imageUrls,
+  sell: req.body.sell === 'true' || req.body.sell === true, // 轉換為布林值
+  category: req.body.category,
+}
 
     // 更新用戶的日記陣列
     const user = await User.findByIdAndUpdate(
