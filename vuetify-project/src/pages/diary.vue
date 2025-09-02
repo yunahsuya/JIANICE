@@ -202,7 +202,7 @@
               variant="outlined"
               @click="closeNewMemoryDialog"
             >
-              取消
+              關閉
             </v-btn>
             <v-btn
               class="text-none"
@@ -219,8 +219,8 @@
       </v-form>
     </v-dialog>
 
-     <!-- 新增：新增分類對話框 -->
-     <v-dialog v-model="addCategoryDialog.open" max-width="500" persistent>
+     <!-- 新增：分類管理對話框 -->
+     <v-dialog v-model="addCategoryDialog.open" max-width="600" persistent>
       <v-form @submit.prevent="submitNewCategory">
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between pa-6">
@@ -231,7 +231,7 @@
                 icon="mdi-tag-plus"
                 size="large"
               />
-              <span class="text-h5 font-weight-medium">新增自定義分類</span>
+              <span class="text-h5 font-weight-medium">分類管理</span>
             </div>
             <v-btn
               class="text-none"
@@ -244,20 +244,52 @@
           <v-divider />
 
           <v-card-text class="pa-6">
-            <v-text-field
-              v-model="addCategoryForm.name"
-              density="comfortable"
-              :error-messages="addCategoryErrors.name"
-              label="分類名稱"
-              placeholder="例如：今日目標、開發紀錄..."
-              prepend-inner-icon="mdi-tag"
-              variant="outlined"
-              maxlength="20"
-              counter
-            />
-            <p class="text-caption text-medium-emphasis mt-2">
-              分類名稱最多 20 個字元，新增後可以用來標記您的回憶
-            </p>
+            <!-- 新增分類區域 -->
+            <div class="mb-6">
+              <h6 class="text-subtitle-1 font-weight-medium mb-3">新增自定義分類</h6>
+              <v-text-field
+                v-model="addCategoryForm.name"
+                density="comfortable"
+                :error-messages="addCategoryErrors.name"
+                label="分類名稱"
+                placeholder="例如：今日目標、開發紀錄..."
+                prepend-inner-icon="mdi-tag"
+                variant="outlined"
+                maxlength="20"
+                counter
+              />
+              <p class="text-caption text-medium-emphasis">
+                分類名稱最多 20 個字元，新增後可以用來標記您的回憶
+              </p>
+            </div>
+
+            <v-divider class="my-4" />
+
+            <!-- 管理現有自定義分類區域 -->
+            <div>
+              <h6 class="text-subtitle-1 font-weight-medium mb-3">管理自定義分類</h6>
+              <div v-if="customCategories.length === 0" class="text-center py-4">
+                <v-icon icon="mdi-tag-off" size="large" color="grey" />
+                <p class="text-body-2 text-medium-emphasis mt-2">目前沒有自定義分類</p>
+              </div>
+              <div v-else class="d-flex flex-wrap gap-2">
+                <v-chip
+                  v-for="category in customCategories"
+                  :key="category"
+                  class="font-weight-medium"
+                  color="primary"
+                  variant="outlined"
+                  closable
+                  @click:close="confirmDeleteCategory(category)"
+                >
+                  <v-icon class="mr-2" icon="mdi-tag" />
+                  {{ category }}
+                </v-chip>
+              </div>
+              <p class="text-caption text-medium-emphasis mt-3">
+                點擊分類標籤上的 X 按鈕可以刪除該分類
+              </p>
+            </div>
           </v-card-text>
 
           <v-divider />
@@ -271,7 +303,7 @@
               variant="outlined"
               @click="closeAddCategoryDialog"
             >
-              取消
+              關閉
             </v-btn>
             <v-btn
               class="text-none"
@@ -281,11 +313,59 @@
               variant="flat"
             >
               <v-icon icon="mdi-plus" />
-              新增分類
+              分類管理
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-form>
+    </v-dialog>
+
+    <!-- 新增：刪除分類確認對話框 -->
+    <v-dialog v-model="deleteConfirmDialog.open" max-width="400" persistent>
+      <v-card>
+        <v-card-title class="d-flex align-center pa-6">
+          <v-icon
+            class="mr-3"
+            color="warning"
+            icon="mdi-alert-circle"
+            size="large"
+          />
+          <span class="text-h6 font-weight-medium">確認刪除</span>
+        </v-card-title>
+
+        <v-card-text class="pa-6">
+          <p class="text-body-1">
+            確定要刪除分類「<strong>{{ deleteConfirmDialog.category }}</strong>」嗎？
+          </p>
+          <p class="text-caption text-medium-emphasis mt-2">
+            刪除後無法復原，請確認沒有日記使用此分類。
+          </p>
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions class="pa-6">
+          <v-spacer />
+          <v-btn
+            class="text-none"
+            color="grey-darken-1"
+            variant="outlined"
+            @click="deleteConfirmDialog.open = false"
+          >
+            取消
+          </v-btn>
+          <v-btn
+            class="text-none"
+            color="error"
+            variant="flat"
+            :loading="deleteConfirmDialog.deleting"
+            @click="deleteCustomCategory(deleteConfirmDialog.category)"
+          >
+            <v-icon icon="mdi-delete" />
+            確定刪除
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
 
@@ -316,17 +396,17 @@
       {{ category }}
     </v-chip>
 
-    <!-- 新增分類按鈕 -->
+    <!-- 分類管理按鈕 -->
     <v-btn
       v-if="user.isLoggedIn"
       class="text-none"
       color="success"
-      prepend-icon="mdi-plus"
+      prepend-icon="mdi-tag-plus"
       size="small"
       variant="outlined"
       @click="openAddCategoryDialog"
     >
-      新增分類
+      分類管理
     </v-btn>
   </div>
 </div>
@@ -838,10 +918,13 @@ const categoryOptionsForEdit = computed(() => {
     }
   }
 
-
-
-
-
+  // 修改：頁面載入時取得資料
+  onMounted(async () => {
+    await Promise.all([
+      getDiarys(),
+      getCustomCategories(), // 新增：取得自定義分類
+    ])
+  })
 
 
 
@@ -1314,6 +1397,58 @@ const canEdit = computed(() => {
   return true
 })
 
+  // 新增：刪除確認對話框
+  const deleteConfirmDialog = ref({
+    open: false,
+    category: '',
+    deleting: false
+  })
+
+  // 新增：確認刪除分類
+  const confirmDeleteCategory = (category) => {
+    deleteConfirmDialog.value.category = category
+    deleteConfirmDialog.value.open = true
+  }
+
+  // 修改：刪除自定義分類
+  const deleteCustomCategory = async (category) => {
+    try {
+      deleteConfirmDialog.value.deleting = true
+
+      await diaryService.deleteCustomCategory(category)
+
+      createSnackbar({
+        text: '分類刪除成功！',
+        snackbarProps: {
+          color: 'success',
+        },
+      })
+
+      // 關閉確認對話框
+      deleteConfirmDialog.value.open = false
+
+      // 重新載入分類列表
+      await getCustomCategories()
+
+      // 如果當前選擇的是被刪除的分類，重置為預設值
+      if (newMemoryForm.value.category === category) {
+        newMemoryForm.value.category = '快樂'
+      }
+      if (editForm.value.category === category) {
+        editForm.value.category = '快樂'
+      }
+    } catch (error) {
+      console.error('刪除分類失敗:', error)
+      createSnackbar({
+        text: error?.response?.data?.message || '刪除失敗，請稍後再試',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+    } finally {
+      deleteConfirmDialog.value.deleting = false
+    }
+  }
 
 
   // 修改：頁面載入時取得資料
