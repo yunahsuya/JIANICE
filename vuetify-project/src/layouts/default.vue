@@ -102,7 +102,7 @@
 
     // { title: '產品', to: '/product', icon: 'mdi-silverware-fork-knife', show: true },
 
-    { title: '口袋名單', to: '/favorite', icon: 'mdi-heart', show: user.isLoggedIn },
+    // { title: '口袋名單', to: '/favorite', icon: 'mdi-heart', show: user.isLoggedIn },
     { title: '健康新聞', to: '/hpanews', icon: 'mdi-newspaper-variant-outline', show: true },
 
     { title: '營養管理', to: '/nutrition', icon: 'mdi-nutrition', show: user.isLoggedIn },

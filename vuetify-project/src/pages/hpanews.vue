@@ -13,24 +13,24 @@
 
             <!-- 搜尋控制項 -->
             <v-row class="align-center mb-1">
-              <v-col cols="12" md="8" class="pa-2">
+              <v-col class="pa-2" cols="12" md="8">
                 <v-text-field
                   v-model="searchKeyword"
                   clearable
+                  hide-details
                   label="搜尋關鍵字"
                   placeholder="例如：營養、健康、癌症、兒童"
-                  @keyup.enter="searchNews"
                   variant="outlined"
-                  hide-details
+                  @keyup.enter="searchNews"
                 />
               </v-col>
-              <v-col cols="12" md="2" class="pa-3">
+              <v-col class="pa-3" cols="12" md="2">
                 <v-select
                   v-model="sortOrder"
+                  hide-details
                   :items="sortOptions"
                   label="排序方式"
                   variant="outlined"
-                  hide-details
                   @update:model-value="applySorting"
                 >
                   <template #prepend-inner>
@@ -39,8 +39,8 @@
                 </v-select>
               </v-col>
 
-               <!-- 統計資訊 -->
-               <v-col cols="12" md="2" class="pa-2">
+              <!-- 統計資訊 -->
+              <v-col class="pa-2" cols="12" md="2">
                 <span class="text-body-2 text-grey-darken-1">
                   共找到 {{ newsData.length }} 篇新聞
                 </span>
@@ -60,8 +60,6 @@
                 </v-btn>
               </v-col> -->
             </v-row>
-
-
 
             <!-- 分類按鈕 -->
             <div class="mb-6">
@@ -264,33 +262,37 @@
     if (searchKeyword.value && searchKeyword.value.trim() !== '') {
       const query = searchKeyword.value.toLowerCase()
       filtered = filtered.filter(news =>
-        news.標題?.toLowerCase().includes(query) ||
-        news.內容?.toLowerCase().includes(query)
+        news.標題?.toLowerCase().includes(query)
+        || news.內容?.toLowerCase().includes(query),
       )
     }
 
     // 排序
     switch (sortOrder.value) {
-      case 'newest':
+      case 'newest': {
         return filtered.sort((a, b) => {
           const dateA = new Date(a.發布日期 || 0)
           const dateB = new Date(b.發布日期 || 0)
           return dateB - dateA // 最新的在前
         })
-      case 'oldest':
+      }
+      case 'oldest': {
         return filtered.sort((a, b) => {
           const dateA = new Date(a.發布日期 || 0)
           const dateB = new Date(b.發布日期 || 0)
           return dateA - dateB // 最舊的在前
         })
-      case 'recently_updated':
+      }
+      case 'recently_updated': {
         return filtered.sort((a, b) => {
           const dateA = new Date(a.修改日期 || a.發布日期 || 0)
           const dateB = new Date(b.修改日期 || b.發布日期 || 0)
           return dateB - dateA // 最近更新的在前
         })
-      default:
+      }
+      default: {
         return filtered
+      }
     }
   })
 
@@ -322,6 +324,7 @@
     '癌症',
     '糖尿病',
     '高血壓',
+    '膽固醇',
     '肥胖',
     '運動',
     '飲食',
