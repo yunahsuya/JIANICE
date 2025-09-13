@@ -164,6 +164,90 @@
       </v-container>
     </section> -->
 
+     <!-- 回報訊息 Section -->
+     <section class="bg-grey-lighten-5">
+      <v-container class="py-16">
+        <div class="text-center mb-12">
+          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+            回報訊息
+          </h2>
+          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+          <p class="text-body-1 text-grey-darken-1">
+            如果您在使用過程中遇到任何問題，或有任何建議，歡迎透過以下表單與我們聯繫
+          </p>
+        </div>
+
+        <v-row class="justify-center">
+          <v-col cols="12" md="8" lg="6">
+             <v-card class="pa-8" elevation="4" rounded="xl">
+               <v-form ref="reportFormRef" v-model="formValid" @submit.prevent="submitReport">
+                 <v-row>
+                   <v-col cols="12" md="6">
+                     <v-text-field
+                       v-model="reportFormData.name"
+                       label="姓名 *"
+                       :rules="nameRules"
+                       variant="outlined"
+                       required
+                     />
+                   </v-col>
+                   <v-col cols="12" md="6">
+                     <v-text-field
+                       v-model="reportFormData.email"
+                       label="電子信箱 *"
+                       :rules="emailRules"
+                       variant="outlined"
+                       type="email"
+                       required
+                     />
+                   </v-col>
+                 </v-row>
+
+                 <v-select
+                   v-model="reportFormData.category"
+                   :items="reportCategories"
+                   label="回報類別 *"
+                   :rules="categoryRules"
+                   variant="outlined"
+                   required
+                 />
+
+                 <v-text-field
+                   v-model="reportFormData.subject"
+                   label="主旨 *"
+                   :rules="subjectRules"
+                   variant="outlined"
+                   required
+                 />
+
+                 <v-textarea
+                   v-model="reportFormData.message"
+                   label="詳細描述 *"
+                   :rules="messageRules"
+                   variant="outlined"
+                   rows="6"
+                   required
+                 />
+
+                 <div class="text-center mt-6">
+                   <v-btn
+                     type="submit"
+                     color="orange-darken-2"
+                     size="large"
+                     :disabled="!formValid"
+                     :loading="isSubmitting"
+                     class="px-8"
+                   >
+                     送出回報
+                   </v-btn>
+                 </div>
+               </v-form>
+             </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
     <!-- 聯絡資訊 Section -->
     <section class="bg-white">
       <v-container class="py-16">
@@ -230,6 +314,12 @@
         </v-row>
       </v-container>
     </section>
+
+
+
+
+
+
 
     <!-- Footer -->
     <v-footer class="bg-grey-darken-4 text-white">
@@ -337,12 +427,98 @@
   //   },
   // ])
 
+
+
+
+
   const socialLinks = ref([
     { name: 'facebook', icon: 'mdi-facebook' },
     { name: 'instagram', icon: 'mdi-instagram' },
     { name: 'twitter', icon: 'mdi-twitter' },
     { name: 'youtube', icon: 'mdi-youtube' },
   ])
+
+  // 回報表單相關
+  const reportFormData = ref({
+    name: '',
+    email: '',
+    category: '',
+    subject: '',
+    message: ''
+  })
+
+  const formValid = ref(false)
+  const isSubmitting = ref(false)
+  const reportFormRef = ref(null)
+
+  const reportCategories = ref([
+    { title: '技術問題', value: 'technical' },
+    { title: '功能建議', value: 'feature' },
+    { title: '內容錯誤', value: 'content' },
+    { title: '帳戶問題', value: 'account' },
+    { title: '其他', value: 'other' }
+  ])
+
+  // 表單驗證規則
+  const nameRules = [
+    v => !!v || '姓名為必填項目',
+    v => (v && v.length >= 2) || '姓名至少需要2個字符'
+  ]
+
+  const emailRules = [
+    v => !!v || '電子信箱為必填項目',
+    v => /.+@.+\..+/.test(v) || '請輸入有效的電子信箱格式'
+  ]
+
+  const categoryRules = [
+    v => !!v || '請選擇回報類別'
+  ]
+
+  const subjectRules = [
+    v => !!v || '主旨為必填項目',
+    v => (v && v.length >= 5) || '主旨至少需要5個字符'
+  ]
+
+  const messageRules = [
+    v => !!v || '詳細描述為必填項目',
+    v => (v && v.length >= 10) || '詳細描述至少需要10個字符'
+  ]
+
+  // 提交回報表單
+  const submitReport = async () => {
+    if (!formValid.value) return
+
+    isSubmitting.value = true
+
+    try {
+      // 這裡可以添加實際的API調用來發送回報訊息
+      console.log('回報表單數據:', reportFormData.value)
+
+      // 模擬API調用延遲
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // 顯示成功訊息
+      alert('感謝您的回報！我們會盡快處理您的訊息。')
+
+      // 重置表單
+      reportFormData.value = {
+        name: '',
+        email: '',
+        category: '',
+        subject: '',
+        message: ''
+      }
+      reportFormRef.value?.reset()
+
+    } catch (error) {
+      console.error('提交回報失敗:', error)
+      alert('提交失敗，請稍後再試。')
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+
 
   const scrollToStory = () => {
     const el = document.querySelector('#story')
