@@ -202,7 +202,7 @@
               variant="outlined"
               @click="closeNewMemoryDialog"
             >
-              關閉
+              取消
             </v-btn>
             <v-btn
               class="text-none"

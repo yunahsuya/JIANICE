@@ -128,6 +128,66 @@ const clearCache = (city = null) => {
   saveCacheToFile()
 }
 
+
+// ------------------------------------------------------------------- 14. 隨機選取餐廳 ------------------------------------------------------------------------
+
+// 隨機選取餐廳 (2025/09/13 新增)
+export const getRandom = async (req, res) => {
+  try {
+    const { city, count = 1 } = req.query
+    console.log(`隨機選取餐廳 - 城市: ${city || '全部'}, 數量: ${count}`)
+
+    // 先取得所有餐廳資料
+    const allData = await getOrUpdateCache()
+
+    if (!allData || allData.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '沒有可用的餐廳資料',
+      })
+    }
+
+    // 如果指定城市，篩選該城市的餐廳
+    let filteredData = allData
+    if (city) {
+      filteredData = allData.filter(restaurant => {
+        const restaurantCity = restaurant.city || restaurant.縣市 || ''
+        return restaurantCity.includes(city) || city.includes(restaurantCity)
+      })
+    }
+
+    if (filteredData.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: city ? `沒有找到${city}的餐廳資料` : '沒有可用的餐廳資料',
+      })
+    }
+
+    // 隨機選取餐廳
+    const selectedCount = Math.min(parseInt(count) || 1, filteredData.length)
+    const shuffled = [...filteredData].sort(() => 0.5 - Math.random())
+    const randomRestaurants = shuffled.slice(0, selectedCount)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '隨機選取餐廳成功',
+      restaurants: randomRestaurants,
+      city: city || '全部',
+      total: randomRestaurants.length,
+      cached: isCacheValid('all'),
+      cacheTimestamp: cache.timestamp['all']
+        ? new Date(cache.timestamp['all']).toLocaleString()
+        : null,
+    })
+  } catch (error) {
+    console.error('隨機選取餐廳失敗:', error)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message || '隨機選取餐廳失敗' })
+  }
+}
+
+
 // ------------------------------------------------------------------- 7. API 呼叫 ------------------------------------------------------------------------
 
 // 從環保署API取得餐廳資料

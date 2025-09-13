@@ -12,6 +12,9 @@ router.get('/city/:city', restaurant.getByCity)
 // 搜尋餐廳（可選城市和關鍵字）
 router.get('/search', restaurant.search)
 
+// 隨機選取餐廳 (2025/09/13 新增)
+router.get('/random', restaurant.getRandom)
+
 // 清除快取（用於管理）
 router.delete('/cache', restaurant.clearCacheEndpoint)
 

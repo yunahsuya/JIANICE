@@ -14,5 +14,10 @@ export default {
   // 搜尋餐廳
   search (params) {
     return apiService.api.get('/restaurant/search', { params })
-  }
+  },
+
+  // 隨機選取餐廳
+  getRandom (params = {}) {
+    return apiService.api.get('/restaurant/random', { params })
+}
 }
