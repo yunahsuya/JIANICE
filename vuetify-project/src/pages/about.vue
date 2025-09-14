@@ -1,14 +1,20 @@
 <template>
   <div>
-
     <!-- 團隊故事 Section -->
     <section id="story" class="bg-white">
       <v-container class="py-16">
         <div class="text-center mb-12">
-          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+          <h2
+            class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4"
+          >
             JIANICE 的故事
           </h2>
-          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+          <v-divider
+            class="mx-auto mb-4 border-opacity-100"
+            color="orange-darken-2"
+            thickness="6"
+            width="100"
+          />
         </div>
 
         <v-row class="align-center">
@@ -21,7 +27,8 @@
                 在現代快節奏的生活中，我們發現許多人面臨著相同的困擾：不知道要吃什麼、擔心營養不均衡、以及想要記錄美好用餐時光卻找不到合適的方式。
               </p>
               <p class="text-body-1 text-grey-darken-1 mb-6 line-height-1-7">
-                於是，我們決定創建 JiaNice，一個整合餐廳推薦、營養管理、健康資訊和回憶保存的綜合平台，讓每一次用餐都成為值得期待的美好體驗。
+                於是，我們決定創建
+                JiaNice，一個整合餐廳推薦、營養管理、健康資訊和回憶保存的綜合平台，讓每一次用餐都成為值得期待的美好體驗。
               </p>
             </div>
           </v-col>
@@ -44,11 +51,17 @@
     <section class="bg-grey-lighten-5">
       <v-container class="py-16">
         <div class="text-center mb-12">
-          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+          <h2
+            class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4"
+          >
             技術特色
           </h2>
-          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
-
+          <v-divider
+            class="mx-auto mb-4 border-opacity-100"
+            color="orange-darken-2"
+            thickness="6"
+            width="100"
+          />
         </div>
 
         <v-row class="justify-center">
@@ -68,8 +81,15 @@
               @mouseleave="tech.hover = false"
             >
               <div class="text-center pa-6">
-                <v-icon class="mb-4" color="orange-darken-2" :icon="tech.icon" size="48" />
-                <v-card-title class="text-h6 font-weight-bold text-grey-darken-3 text-center">
+                <v-icon
+                  class="mb-4"
+                  color="orange-darken-2"
+                  :icon="tech.icon"
+                  size="48"
+                />
+                <v-card-title
+                  class="text-h6 font-weight-bold text-grey-darken-3 text-center"
+                >
                   {{ tech.title }}
                 </v-card-title>
               </div>
@@ -88,11 +108,17 @@
     <section class="bg-white">
       <v-container class="py-16">
         <div class="text-center mb-12">
-          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+          <h2
+            class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4"
+          >
             發展歷程
           </h2>
-          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
-
+          <v-divider
+            class="mx-auto mb-4 border-opacity-100"
+            color="orange-darken-2"
+            thickness="6"
+            width="100"
+          />
         </div>
 
         <v-timeline align="start" side="end">
@@ -164,16 +190,21 @@
       </v-container>
     </section> -->
 
-
-
-   <!-- 聯絡資訊 Section -->
-   <section class="bg-white">
+    <!-- 聯絡資訊 Section -->
+    <section class="bg-white">
       <v-container class="py-16">
         <div class="text-center mb-12">
-          <h2 class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4">
+          <h2
+            class="text-h3 text-md-h2 font-weight-bold text-grey-darken-3 mb-4"
+          >
             聯絡我們
           </h2>
-          <v-divider class="mx-auto mb-4 border-opacity-100" color="orange-darken-2" thickness="6" width="100" />
+          <v-divider
+            class="mx-auto mb-4 border-opacity-100"
+            color="orange-darken-2"
+            thickness="6"
+            width="100"
+          />
         </div>
 
         <v-row class="justify-center">
@@ -187,29 +218,38 @@
                   <div class="mb-4">
                     <!-- 信箱 -->
                     <div class="d-flex align-center mb-3">
-                      <v-icon class="mr-3" color="orange-darken-2">mdi-email</v-icon>
+                      <v-icon
+                        class="mr-3"
+                        color="orange-darken-2"
+                      >mdi-email</v-icon>
                       <span class="text-body-1">yunahsuya@gmail.com</span>
                     </div>
 
                     <!-- 電話 -->
                     <div class="d-flex align-center mb-3">
-                      <v-icon class="mr-3" color="orange-darken-2">mdi-phone</v-icon>
+                      <v-icon
+                        class="mr-3"
+                        color="orange-darken-2"
+                      >mdi-phone</v-icon>
                       <span class="text-body-1">0905-336-968</span>
                     </div>
 
                     <!-- 網站連結 -->
                     <div class="d-flex align-center mb-3">
-                      <v-icon class="mr-3" color="orange-darken-2">mdi-github</v-icon>
-                      <a class="text-body-1" href="https://github.com/yunahsuya">https://github.com/yunahsuya</a>
+                      <v-icon
+                        class="mr-3"
+                        color="orange-darken-2"
+                      >mdi-github</v-icon>
+                      <a
+                        class="text-body-1"
+                        href="https://github.com/yunahsuya"
+                      >https://github.com/yunahsuya</a>
                     </div>
-
-
-
                   </div>
                 </v-col>
 
-                 <!-- 新增：回報問題表單 -->
-                 <v-col cols="12" md="6">
+                <!-- 新增：回報問題表單 -->
+                <v-col cols="12" md="6">
                   <h3 class="text-h5 font-weight-bold text-grey-darken-3 mb-4">
                     回報問題
                   </h3>
@@ -221,64 +261,63 @@
                   >
                     <v-text-field
                       v-model="reportFormData.name"
-                      :rules="nameRules"
+                      class="mb-3"
                       label="姓名"
                       prepend-inner-icon="mdi-account"
+                      :rules="nameRules"
                       variant="outlined"
-                      class="mb-3"
                     />
 
                     <v-text-field
                       v-model="reportFormData.email"
-                      :rules="emailRules"
+                      class="mb-3"
                       label="電子信箱"
                       prepend-inner-icon="mdi-email"
+                      :rules="emailRules"
                       variant="outlined"
-                      class="mb-3"
                     />
 
                     <v-select
                       v-model="reportFormData.category"
-                      :rules="categoryRules"
+                      class="mb-3"
                       :items="reportCategories"
                       label="回報類別"
                       prepend-inner-icon="mdi-tag"
+                      :rules="categoryRules"
                       variant="outlined"
-                      class="mb-3"
                     />
 
                     <v-text-field
                       v-model="reportFormData.subject"
-                      :rules="subjectRules"
+                      class="mb-3"
                       label="主旨"
                       prepend-inner-icon="mdi-format-title"
+                      :rules="subjectRules"
                       variant="outlined"
-                      class="mb-3"
                     />
 
                     <v-textarea
                       v-model="reportFormData.message"
-                      :rules="messageRules"
+                      class="mb-4"
                       label="詳細描述"
                       prepend-inner-icon="mdi-message-text"
-                      variant="outlined"
                       rows="4"
-                      class="mb-4"
+                      :rules="messageRules"
+                      variant="outlined"
                     />
                     <v-btn
-                      type="submit"
-                      :loading="isSubmitting"
-                      :disabled="!formValid"
-                      color="orange-darken-2"
-                      size="large"
                       block
+                      color="orange-darken-2"
+                      :disabled="!formValid"
+                      :loading="isSubmitting"
+                      size="large"
+                      type="submit"
                     >
                       <v-icon left>mdi-send</v-icon>
                       提交回報
                     </v-btn>
                   </v-form>
                 </v-col>
-
               </v-row>
 
               <v-divider class="my-6" />
@@ -293,8 +332,10 @@
                     :key="social.name"
                     class="mx-2"
                     color="orange-darken-2"
+                    :href="social.url"
                     :icon="social.icon"
                     size="large"
+                    target="_blank"
                     variant="text"
                   />
                 </div>
@@ -304,12 +345,6 @@
         </v-row>
       </v-container>
     </section>
-
-
-
-
-
-
 
     <!-- Footer -->
     <v-footer class="bg-grey-darken-4 text-white">
@@ -419,15 +454,27 @@
   //   },
   // ])
 
-
-
-
-
   const socialLinks = ref([
-    { name: 'facebook', icon: 'mdi-facebook' },
-    { name: 'instagram', icon: 'mdi-instagram' },
-    { name: 'twitter', icon: 'mdi-twitter' },
-    { name: 'youtube', icon: 'mdi-youtube' },
+    {
+      name: '文章分享',
+      icon: 'mdi-newspaper-variant-outline',
+      url: 'https://vocus.cc/salon/6647b6a6fd89780001f99044',
+    },
+    {
+      name: '104 人才社群',
+      icon: 'mdi-numeric-1-circle',
+      url: 'https://profile.104.com.tw/profile/3bca6284-3679-4ace-9c60-576bbc4fd9d2/about?isView',
+    },
+    {
+      name: 'Yuna\'s Portfolio',
+      icon: 'mdi-information-slab-circle-outline',
+      url: 'https://yunahsuya.github.io/Portfolio/',
+    },
+    {
+      name: 'GitHub',
+      icon: 'mdi-github',
+      url: 'https://github.com/yunahsuya',
+    },
   ])
 
   // 回報表單相關
@@ -436,7 +483,7 @@
     email: '',
     category: '',
     subject: '',
-    message: ''
+    message: '',
   })
 
   const formValid = ref(false)
@@ -448,32 +495,30 @@
     { title: '功能建議', value: 'feature' },
     { title: '內容錯誤', value: 'content' },
     { title: '帳戶問題', value: 'account' },
-    { title: '其他', value: 'other' }
+    { title: '其他', value: 'other' },
   ])
 
   // 表單驗證規則
   const nameRules = [
     v => !!v || '姓名為必填項目',
-    v => (v && v.length >= 2) || '姓名至少需要2個字符'
+    v => (v && v.length >= 2) || '姓名至少需要2個字符',
   ]
 
   const emailRules = [
     v => !!v || '電子信箱為必填項目',
-    v => /.+@.+\..+/.test(v) || '請輸入有效的電子信箱格式'
+    v => /.+@.+\..+/.test(v) || '請輸入有效的電子信箱格式',
   ]
 
-  const categoryRules = [
-    v => !!v || '請選擇回報類別'
-  ]
+  const categoryRules = [v => !!v || '請選擇回報類別']
 
   const subjectRules = [
     v => !!v || '主旨為必填項目',
-    v => (v && v.length >= 5) || '主旨至少需要5個字符'
+    v => (v && v.length >= 5) || '主旨至少需要5個字符',
   ]
 
   const messageRules = [
     v => !!v || '詳細描述為必填項目',
-    v => (v && v.length >= 10) || '詳細描述至少需要10個字符'
+    v => (v && v.length >= 10) || '詳細描述至少需要10個字符',
   ]
 
   // 提交回報表單
@@ -483,10 +528,8 @@
     isSubmitting.value = true
 
     try {
-
       // 調用 Gmail API
       const result = await reportService.submit(reportFormData.value)
-
 
       // // 這裡可以添加實際的API調用來發送回報訊息
       // console.log('回報表單數據:', reportFormData.value)
@@ -503,23 +546,21 @@
         email: '',
         category: '',
         subject: '',
-        message: ''
+        message: '',
       }
       reportFormRef.value?.reset()
-
     } catch (error) {
       console.error('提交回報失敗:', error)
       alert('提交失敗，請稍後再試。')
 
-       // 顯示錯誤訊息
-       const errorMessage = error.response?.data?.message || '提交失敗，請稍後再試。'
+      // 顯示錯誤訊息
+      const errorMessage
+        = error.response?.data?.message || '提交失敗，請稍後再試。'
       alert(errorMessage)
     } finally {
       isSubmitting.value = false
     }
   }
-
-
 
   const scrollToStory = () => {
     const el = document.querySelector('#story')
@@ -528,7 +569,7 @@
 </script>
 
 <route lang="yaml">
-  meta:
-    title: '關於我們'
-    admin: false
+meta:
+  title: "關於我們"
+  admin: false
 </route>
