@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { sendReportEmail, sendConfirmationEmail } from './email.js'
-
-// ... 其餘程式碼保持不變
+import User from '../models/user.js'
 
 // 創建回報訊息（只發 email，不存資料庫）
 export const create = async (req, res) => {
@@ -34,6 +33,46 @@ export const create = async (req, res) => {
       })
     }
 
+    // 檢查用戶是否存在，如果不存在則創建
+    let user = await User.findOne({ email: email.trim().toLowerCase() })
+
+    if (!user) {
+      // 如果用戶不存在，創建一個新用戶（只包含必要欄位）
+      user = new User({
+        email: email.trim().toLowerCase(),
+        account: email.split('@')[0], // 使用 email 前綴作為帳號
+        password: 'temp_password', // 臨時密碼，用戶可以稍後設定
+        reportCount: 0,
+        lastReportDate: null,
+      })
+      await user.save()
+    }
+
+    // 檢查今天的回報次數限制
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // 設定為今天的開始時間
+
+    const lastReportDate = user.lastReportDate ? new Date(user.lastReportDate) : null
+    const isNewDay = !lastReportDate || lastReportDate < today
+
+    // 如果是新的一天，重置計數
+    if (isNewDay) {
+      user.reportCount = 0
+      user.lastReportDate = today
+    }
+
+    // 檢查是否超過每日限制
+    if (user.reportCount >= 10) {
+      return res.status(StatusCodes.TOO_MANY_REQUESTS).json({
+        success: false,
+        message: '今天已達到回報訊息的上限（10次），請明天再試',
+      })
+    }
+
+    // 增加回報計數
+    user.reportCount += 1
+    await user.save()
+
     const reportData = {
       name: name.trim(),
       email: email.trim().toLowerCase(),
@@ -50,7 +89,7 @@ export const create = async (req, res) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '回報訊息已成功提交！我們已發送確認 email 給您，並會盡快處理您的問題。',
+      message: `回報訊息已成功提交！我們已發送確認 email 給您，並會盡快處理您的問題。\n今日剩餘回報次數：${10 - user.reportCount}次`,
     })
   } catch (error) {
     console.error('處理回報訊息失敗:', error)
