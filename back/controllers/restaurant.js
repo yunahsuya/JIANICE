@@ -314,6 +314,171 @@ export const getByCity = async (req, res) => {
   }
 }
 
+// ------------------------------------------------------------------- 17. 智能分類函數 ------------------------------------------------------------------------
+
+// 根據餐廳名稱智能推斷食物類型
+const getCategoryFromName = (restaurantName) => {
+  const name = restaurantName.toLowerCase()
+  
+  // 壽司相關
+  if (name.includes('壽司') || name.includes('sushi') || name.includes('藏壽司') || name.includes('爭鮮')) {
+    return '壽司'
+  }
+  
+  // 拉麵相關（擴展關鍵字）
+  if (name.includes('拉麵') || name.includes('ramen') || name.includes('一蘭') || 
+      name.includes('一風堂') || name.includes('花月嵐') || name.includes('豚將') || 
+      name.includes('鬼匠') || name.includes('旬味') || name.includes('豚十三') || 
+      name.includes('奧特') || name.includes('京阪豚骨') || name.includes('一家拉麵') ||
+      name.includes('玖貳玖牛羊肉拉麵')) {
+    return '拉麵'
+  }
+  
+  // 義大利麵相關
+  if (name.includes('義大利麵') || name.includes('pasta') || name.includes('義式') || name.includes('義大利')) {
+    return '義大利麵'
+  }
+  
+  // 披薩相關
+  if (name.includes('披薩') || name.includes('pizza') || name.includes('必勝客') || name.includes('達美樂')) {
+    return '披薩'
+  }
+  
+  // 漢堡相關
+  if (name.includes('漢堡') || name.includes('burger') || name.includes('麥當勞') || name.includes('肯德基') || name.includes('摩斯')) {
+    return '漢堡'
+  }
+  
+  // 麵相關
+  if (name.includes('麵') && !name.includes('拉麵') && !name.includes('義大利麵')) {
+    return '麵'
+  }
+  
+  // 飯相關
+  if (name.includes('飯') || name.includes('便當') || name.includes('丼飯')) {
+    return '飯'
+  }
+  
+  // 飲料相關
+  if (name.includes('飲料') || name.includes('茶') || name.includes('咖啡') || name.includes('手搖') || name.includes('星巴克') || name.includes('85度c') || name.includes('豆花')) {
+    return '飲料'
+  }
+  
+  // 烤肉相關
+  if (name.includes('烤肉') || name.includes('燒肉') || name.includes('燒烤') || name.includes('bbq') || name.includes('石鍋')) {
+    return '烤肉'
+  }
+  
+  // 夜市相關
+  if (name.includes('夜市') || name.includes('小吃') || name.includes('攤販')) {
+    return '夜市'
+  }
+  
+  // 早餐相關
+  if (name.includes('早餐') || name.includes('早午餐') || name.includes('brunch')) {
+    return '早餐'
+  }
+  
+  // 蔬食相關
+  if (name.includes('蔬食') || name.includes('素食') || name.includes('vegan') || name.includes('vegetarian')) {
+    return '蔬食'
+  }
+  
+  // 日式相關
+  if (name.includes('日式') || name.includes('和食') || name.includes('居酒屋') || name.includes('日料')) {
+    return '日式'
+  }
+  
+  // 韓式相關
+  if (name.includes('韓式') || name.includes('韓料') || name.includes('韓國') || name.includes('韓式料理')) {
+    return '韓式'
+  }
+  
+  // 美式相關
+  if (name.includes('美式') || name.includes('american') || name.includes('牛排')) {
+    return '美式'
+  }
+  
+  // 台式相關（預設）
+  return '台式'
+}
+
+// ------------------------------------------------------------------- 15. 根據食物類型篩選餐廳 ------------------------------------------------------------------------
+
+// 根據食物類型取得餐廳
+export const getByCategory = async (req, res) => {
+  try {
+    const { category } = req.params
+    console.log(`請求食物類型餐廳資料: ${category}`)
+
+    // 先取得所有餐廳資料
+    const allRestaurants = await getOrUpdateCache()
+
+    // 在記憶體中篩選指定食物類型的餐廳（使用智能分類）
+    const filteredRestaurants = allRestaurants.filter((restaurant) => {
+      const restaurantName = restaurant.name || restaurant.名稱 || ''
+      const inferredCategory = getCategoryFromName(restaurantName)
+      return inferredCategory === category
+    })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: `${category}餐廳資料（已快取）`,
+      restaurants: filteredRestaurants,
+      category: category,
+      total: filteredRestaurants.length,
+      cached: isCacheValid('all'),
+      cacheTimestamp: cache.timestamp['all']
+        ? new Date(cache.timestamp['all']).toLocaleString()
+        : null,
+    })
+  } catch (error) {
+    console.error(`取得${req.params.category}餐廳資料失敗:`, error)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message || '取得餐廳資料失敗' })
+  }
+}
+
+// ------------------------------------------------------------------- 16. 根據城市和食物類型篩選餐廳 ------------------------------------------------------------------------
+
+// 根據城市和食物類型取得餐廳
+export const getByCityAndCategory = async (req, res) => {
+  try {
+    const { city, category } = req.params
+    console.log(`請求${city}的${category}餐廳資料`)
+
+    // 先取得所有餐廳資料
+    const allRestaurants = await getOrUpdateCache()
+
+    // 在記憶體中篩選指定城市和食物類型的餐廳（使用智能分類）
+    const filteredRestaurants = allRestaurants.filter((restaurant) => {
+      const restaurantCity = restaurant.city || restaurant.縣市 || ''
+      const restaurantName = restaurant.name || restaurant.名稱 || ''
+      const inferredCategory = getCategoryFromName(restaurantName)
+      return restaurantCity.includes(city) && inferredCategory === category
+    })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: `${city}的${category}餐廳資料（已快取）`,
+      restaurants: filteredRestaurants,
+      city: city,
+      category: category,
+      total: filteredRestaurants.length,
+      cached: isCacheValid('all'),
+      cacheTimestamp: cache.timestamp['all']
+        ? new Date(cache.timestamp['all']).toLocaleString()
+        : null,
+    })
+  } catch (error) {
+    console.error(`取得${req.params.city}的${req.params.category}餐廳資料失敗:`, error)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message || '取得餐廳資料失敗' })
+  }
+}
+
 // ------------------------------------------------------------------- 11. 搜尋餐廳 ------------------------------------------------------------------------
 
 // 搜尋餐廳（可選城市和關鍵字）

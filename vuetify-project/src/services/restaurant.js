@@ -11,6 +11,16 @@ export default {
     return apiService.api.get(`/restaurant/city/${city}`)
   },
 
+  // 根據食物類型篩選餐廳
+  getByCategory (category) {
+    return apiService.api.get(`/restaurant/category/${category}`)
+  },
+
+  // 根據城市和食物類型篩選餐廳
+  getByCityAndCategory (city, category) {
+    return apiService.api.get(`/restaurant/city/${city}/category/${category}`)
+  },
+
   // 搜尋餐廳
   search (params) {
     return apiService.api.get('/restaurant/search', { params })
@@ -19,5 +29,5 @@ export default {
   // 隨機選取餐廳
   getRandom (params = {}) {
     return apiService.api.get('/restaurant/random', { params })
-}
+  }
 }
