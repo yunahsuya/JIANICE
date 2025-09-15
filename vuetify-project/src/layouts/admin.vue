@@ -152,7 +152,7 @@ const navItems = [
   // },
   {
     title: "使用者管理",
-    to: "/admin/users",
+    to: "/admin",
     icon: "mdi-account-group",
   },
   // {
