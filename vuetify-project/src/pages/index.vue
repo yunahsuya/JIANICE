@@ -18,7 +18,7 @@
           <p class="text-body-1 text-md-h6 line-height-1-6 mb-6">
             在日常生活裡，吃飯本來應該是快樂的事，卻常常成為小小的壓力。<br
               class="d-none d-md-block"
-            />
+            >
             我們會因為選擇太多而猶豫，會因為缺少營養而擔心健康，也會因為沒有地方保存回憶，而覺得遺憾。
           </p>
 
@@ -107,8 +107,7 @@
                         class="feature-check-icon"
                         color="success"
                         size="small"
-                        >mdi-check</v-icon
-                      >
+                      >mdi-check</v-icon>
                     </template>
                     <v-list-item-title
                       class="text-body-2 text-grey-darken-1 feature-point-text"
@@ -226,9 +225,10 @@
     <v-dialog v-model="randomRestaurantDialog" max-width="600" persistent>
       <v-card>
         <v-card-title class="text-h5 d-flex align-center">
-          <v-icon class="mr-2" color="orange-darken-2"
-            >mdi-dice-multiple</v-icon
-          >
+          <v-icon
+            class="mr-2"
+            color="orange-darken-2"
+          >mdi-dice-multiple</v-icon>
           隨機抽餐廳
         </v-card-title>
 
@@ -258,8 +258,8 @@
               {{
                 selectedCity
                   ? `將從${
-                      cities.find((c) => c.value === selectedCity)?.label
-                    }中隨機選取`
+                    cities.find((c) => c.value === selectedCity)?.label
+                  }中隨機選取`
                   : "將從全台餐廳中隨機選取"
               }}
             </p>
@@ -276,8 +276,8 @@
               {{
                 selectedCity
                   ? `正在從${
-                      cities.find((c) => c.value === selectedCity)?.label
-                    }抽選餐廳...`
+                    cities.find((c) => c.value === selectedCity)?.label
+                  }抽選餐廳...`
                   : "正在為您抽選餐廳..."
               }}
             </p>
@@ -298,7 +298,20 @@
             <div class="text-left">
               <div class="d-flex align-center mb-3">
                 <v-icon class="mr-3" color="primary">mdi-map-marker</v-icon>
-                <span class="text-body-1">{{ randomRestaurant.address }}</span>
+                <a
+                  class="text-body-1 text-primary text-decoration-none"
+                  :href="
+                    getGoogleMapsUrl(
+                      randomRestaurant.address,
+                      randomRestaurant.name
+                    )
+                  "
+                  style="cursor: pointer"
+                  target="_blank"
+                >
+                  {{ randomRestaurant.address }}
+                  <v-icon class="ml-1" size="small">mdi-open-in-new</v-icon>
+                </a>
               </div>
 
               <div
@@ -320,6 +333,26 @@
             <p class="text-body-1 text-grey-darken-1 mb-4">
               恭喜！這就是為您抽選的餐廳，希望您用餐愉快！️
             </p>
+
+            <!-- 新增：立即前往按鈕 -->
+            <div class="text-center mb-4">
+              <v-btn
+                class="text-white"
+                color="orange-darken-2"
+                :href="
+                  getGoogleMapsUrl(
+                    randomRestaurant.address,
+                    randomRestaurant.name
+                  )
+                "
+                size="large"
+                target="_blank"
+                variant="elevated"
+              >
+                <v-icon left>mdi-navigation</v-icon>
+                立即前往
+              </v-btn>
+            </div>
           </div>
 
           <!-- 錯誤狀態 -->
@@ -392,178 +425,184 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useSnackbar } from "vuetify-use-dialog";
-import VisionCard from "@/components/VisionCard.vue";
-import restaurantService from "@/services/restaurant";
-import { useUserStore } from "../stores/user";
+  import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useSnackbar } from 'vuetify-use-dialog'
+  import VisionCard from '@/components/VisionCard.vue'
+  import restaurantService from '@/services/restaurant'
+  import { useUserStore } from '../stores/user'
 
-const userStore = useUserStore();
-const router = useRouter();
-const createSnackbar = useSnackbar();
+  const userStore = useUserStore()
+  const router = useRouter()
+  const createSnackbar = useSnackbar()
 
-// 隨機餐廳相關狀態
-const randomRestaurantDialog = ref(false);
-const randomRestaurant = ref(null);
-const loadingRandom = ref(false);
-const selectedCity = ref("");
-const hasError = ref(false); // 新增錯誤狀態
+  // 隨機餐廳相關狀態
+  const randomRestaurantDialog = ref(false)
+  const randomRestaurant = ref(null)
+  const loadingRandom = ref(false)
+  const selectedCity = ref('')
+  const hasError = ref(false) // 新增錯誤狀態
 
-// 縣市選項
-const cities = [
-  { label: "全部縣市", value: "" },
-  { label: "台北市", value: "臺北市" },
-  { label: "新北市", value: "新北市" },
-  { label: "桃園市", value: "桃園市" },
-  { label: "台中市", value: "臺中市" },
-  { label: "台南市", value: "臺南市" },
-  { label: "高雄市", value: "高雄市" },
-  { label: "基隆市", value: "基隆市" },
-  { label: "新竹市", value: "新竹市" },
-  { label: "嘉義市", value: "嘉義市" },
-  { label: "新竹縣", value: "新竹縣" },
-  { label: "苗栗縣", value: "苗栗縣" },
-  { label: "彰化縣", value: "彰化縣" },
-  { label: "南投縣", value: "南投縣" },
-  { label: "雲林縣", value: "雲林縣" },
-  { label: "嘉義縣", value: "嘉義縣" },
-  { label: "屏東縣", value: "屏東縣" },
-  { label: "宜蘭縣", value: "宜蘭縣" },
-  { label: "花蓮縣", value: "花蓮縣" },
-  { label: "台東縣", value: "台東縣" },
-  { label: "澎湖縣", value: "澎湖縣" },
-  { label: "金門縣", value: "金門縣" },
-  { label: "連江縣", value: "連江縣" },
-];
+  // 縣市選項
+  const cities = [
+    { label: '全部縣市', value: '' },
+    { label: '台北市', value: '臺北市' },
+    { label: '新北市', value: '新北市' },
+    { label: '桃園市', value: '桃園市' },
+    { label: '台中市', value: '臺中市' },
+    { label: '台南市', value: '臺南市' },
+    { label: '高雄市', value: '高雄市' },
+    { label: '基隆市', value: '基隆市' },
+    { label: '新竹市', value: '新竹市' },
+    { label: '嘉義市', value: '嘉義市' },
+    { label: '新竹縣', value: '新竹縣' },
+    { label: '苗栗縣', value: '苗栗縣' },
+    { label: '彰化縣', value: '彰化縣' },
+    { label: '南投縣', value: '南投縣' },
+    { label: '雲林縣', value: '雲林縣' },
+    { label: '嘉義縣', value: '嘉義縣' },
+    { label: '屏東縣', value: '屏東縣' },
+    { label: '宜蘭縣', value: '宜蘭縣' },
+    { label: '花蓮縣', value: '花蓮縣' },
+    { label: '台東縣', value: '台東縣' },
+    { label: '澎湖縣', value: '澎湖縣' },
+    { label: '金門縣', value: '金門縣' },
+    { label: '連江縣', value: '連江縣' },
+  ]
 
-const features = ref([
-  {
-    image: "https://cdn-icons-gif.flaticon.com/11686/11686496.gif",
-    icon: "mdi-dice-multiple",
-    title: "隨機抽餐廳",
-    route: "/restaurant",
-    points: [
-      "不再為「要吃什麼？」煩惱",
-      "透過轉盤或拉霸的方式，讓選擇多一點驚喜",
-      "幫助快速決定，也讓用餐更有趣",
-    ],
-    hover: false,
-  },
-  {
-    image: "https://cdn-icons-gif.flaticon.com/15578/15578646.gif",
-    image: "https://cdn-icons-gif.flaticon.com/11779/11779519.gif",
+  const features = ref([
+    {
+      image: 'https://cdn-icons-gif.flaticon.com/11686/11686496.gif',
+      icon: 'mdi-dice-multiple',
+      title: '隨機抽餐廳',
+      route: '/restaurant',
+      points: [
+        '不再為「要吃什麼？」煩惱',
+        '透過轉盤或拉霸的方式，讓選擇多一點驚喜',
+        '幫助快速決定，也讓用餐更有趣',
+      ],
+      hover: false,
+    },
+    {
+      image: 'https://cdn-icons-gif.flaticon.com/15578/15578646.gif',
+      image: 'https://cdn-icons-gif.flaticon.com/11779/11779519.gif',
 
-    icon: "mdi-nutrition",
-    title: "營養管理",
-    route: "/nutrition",
-    points: [
-      "系統會根據你的紀錄，提醒缺少的營養素",
-      "自動推薦對應的食物與餐廳",
-      "讓健康飲食變得更直觀、更貼近生活",
-    ],
-    hover: false,
-  },
-  {
-    image: "https://cdn-icons-gif.flaticon.com/15747/15747266.gif",
-    icon: "mdi-newspaper",
-    title: "健康新聞",
-    route: "/hpanews",
-    points: [
-      "即時抓取健康署發布的最新健康新聞",
-      "內容可靠，避免不正確的飲食資訊",
-      "隨時掌握營養與健康的最新趨勢",
-    ],
-    hover: false,
-  },
-  {
-    image: "https://cdn-icons-gif.flaticon.com/12743/12743782.gif",
-    icon: "mdi-book-heart",
-    title: "回憶保存",
-    route: "/diary",
-    points: [
-      "不只是記錄「吃了什麼」，還能記錄「和誰、在什麼心情下吃」",
-      "支援加密保護，讓某些回憶只屬於你",
-      "打造專屬的飲食日記，讓每一次用餐都留下痕跡",
-    ],
-    hover: false,
-  },
-]);
+      icon: 'mdi-nutrition',
+      title: '營養管理',
+      route: '/nutrition',
+      points: [
+        '系統會根據你的紀錄，提醒缺少的營養素',
+        '自動推薦對應的食物與餐廳',
+        '讓健康飲食變得更直觀、更貼近生活',
+      ],
+      hover: false,
+    },
+    {
+      image: 'https://cdn-icons-gif.flaticon.com/15747/15747266.gif',
+      icon: 'mdi-newspaper',
+      title: '健康新聞',
+      route: '/hpanews',
+      points: [
+        '即時抓取健康署發布的最新健康新聞',
+        '內容可靠，避免不正確的飲食資訊',
+        '隨時掌握營養與健康的最新趨勢',
+      ],
+      hover: false,
+    },
+    {
+      image: 'https://cdn-icons-gif.flaticon.com/12743/12743782.gif',
+      icon: 'mdi-book-heart',
+      title: '回憶保存',
+      route: '/diary',
+      points: [
+        '不只是記錄「吃了什麼」，還能記錄「和誰、在什麼心情下吃」',
+        '支援加密保護，讓某些回憶只屬於你',
+        '打造專屬的飲食日記，讓每一次用餐都留下痕跡',
+      ],
+      hover: false,
+    },
+  ])
 
-const socialIcons = [
-  { name: "github", icon: "mdi-github" },
-  { name: "instagram", icon: "mdi-instagram" },
-  { name: "facebook", icon: "mdi-facebook" },
-  { name: "twitter", icon: "mdi-twitter" },
-];
+  const socialIcons = [
+    { name: 'github', icon: 'mdi-github' },
+    { name: 'instagram', icon: 'mdi-instagram' },
+    { name: 'facebook', icon: 'mdi-facebook' },
+    { name: 'twitter', icon: 'mdi-twitter' },
+  ]
 
-const scrollToInfo = () => {
-  const el = document.querySelector("#info");
-  if (el) el.scrollIntoView({ behavior: "smooth" });
-};
-
-// 處理功能卡片點擊
-const handleFeatureClick = (feature) => {
-  if (feature.title === "隨機抽餐廳") {
-    openRandomDialog();
-  } else {
-    navigateToFeature(feature.route);
+  const scrollToInfo = () => {
+    const el = document.querySelector('#info')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
-};
 
-// 打開隨機餐廳對話框
-const openRandomDialog = () => {
-  randomRestaurantDialog.value = true;
-  randomRestaurant.value = null;
-  selectedCity.value = "";
-  hasError.value = false; // 重置錯誤狀態
-};
-
-// 關閉對話框
-const closeDialog = () => {
-  randomRestaurantDialog.value = false;
-  randomRestaurant.value = null;
-  selectedCity.value = "";
-  hasError.value = false; // 重置錯誤狀態
-};
-
-// 隨機選取餐廳
-const getRandomRestaurant = async () => {
-  loadingRandom.value = true;
-  hasError.value = false; // 重置錯誤狀態
-
-  try {
-    const params = { count: 1 };
-    if (selectedCity.value) {
-      params.city = selectedCity.value;
-    }
-
-    const { data } = await restaurantService.getRandom(params);
-
-    if (data.success && data.restaurants && data.restaurants.length > 0) {
-      randomRestaurant.value = data.restaurants[0];
-      hasError.value = false; // 確保成功時清除錯誤狀態
+  // 處理功能卡片點擊
+  const handleFeatureClick = feature => {
+    if (feature.title === '隨機抽餐廳') {
+      openRandomDialog()
     } else {
-      throw new Error("沒有可用的餐廳資料");
+      navigateToFeature(feature.route)
     }
-  } catch (error) {
-    console.error("隨機選取餐廳失敗:", error);
-    hasError.value = true; // 設定錯誤狀態
-    createSnackbar({
-      text: "隨機選取餐廳失敗，請稍後再試",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-  } finally {
-    loadingRandom.value = false;
   }
-};
 
-// 修正：使用 useRouter() 來獲取路由實例
-const navigateToFeature = (route) => {
-  router.push(route);
-};
+  // 打開隨機餐廳對話框
+  const openRandomDialog = () => {
+    randomRestaurantDialog.value = true
+    randomRestaurant.value = null
+    selectedCity.value = ''
+    hasError.value = false // 重置錯誤狀態
+  }
+
+  // 關閉對話框
+  const closeDialog = () => {
+    randomRestaurantDialog.value = false
+    randomRestaurant.value = null
+    selectedCity.value = ''
+    hasError.value = false // 重置錯誤狀態
+  }
+
+  // 隨機選取餐廳
+  const getRandomRestaurant = async () => {
+    loadingRandom.value = true
+    hasError.value = false // 重置錯誤狀態
+
+    try {
+      const params = { count: 1 }
+      if (selectedCity.value) {
+        params.city = selectedCity.value
+      }
+
+      const { data } = await restaurantService.getRandom(params)
+
+      if (data.success && data.restaurants && data.restaurants.length > 0) {
+        randomRestaurant.value = data.restaurants[0]
+        hasError.value = false // 確保成功時清除錯誤狀態
+      } else {
+        throw new Error('沒有可用的餐廳資料')
+      }
+    } catch (error) {
+      console.error('隨機選取餐廳失敗:', error)
+      hasError.value = true // 設定錯誤狀態
+      createSnackbar({
+        text: '隨機選取餐廳失敗，請稍後再試',
+        snackbarProps: {
+          color: 'red',
+        },
+      })
+    } finally {
+      loadingRandom.value = false
+    }
+  }
+
+  // 修正：使用 useRouter() 來獲取路由實例
+  const navigateToFeature = route => {
+    router.push(route)
+  }
+
+  // 新增：生成 Google 地圖 URL
+  const getGoogleMapsUrl = (address, name) => {
+    const query = encodeURIComponent(`${name} ${address}`)
+    return `https://www.google.com/maps/search/?api=1&query=${query}`
+  }
 </script>
 
 <style scoped>
