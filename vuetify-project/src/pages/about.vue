@@ -404,7 +404,7 @@
     {
       date: '2025年5月',
       title: '證照考試',
-      description: '進入前端框架與版面設計，學習彈性盒、響應式設計、Bootstrap，開始使用 Vue，練習建立 LINE 機器人及 Vue List，並完成丙級考題練習。',
+      description: '學習響應式設計、Bootstrap，開始使用 Vue，練習建立 LINE 機器人及 Vue List，並完成丙級考題練習。',
       color: 'blue',
     },
     {
