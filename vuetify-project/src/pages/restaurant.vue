@@ -12,10 +12,11 @@
             v-model="search"
             class="rounded-lg"
             hide-details
-            placeholder="搜尋餐廳名稱..."
+            placeholder="搜尋餐廳名稱或地址..."
             prepend-inner-icon="mdi-magnify"
             rounded="lg"
             variant="outlined"
+            @keyup.enter="performSearch"
           />
         </div>
       </div>
@@ -144,6 +145,7 @@
   const restaurantSection = ref(null)
   const citySection = ref(null)
   const foodSection = ref(null)
+  const isSearchMode = ref(false) // 新增：追蹤是否為搜尋模式
 
   // 地區分類資料
   const cityCategories = [
@@ -281,34 +283,83 @@
     return '台式'
   }
 
+  // 執行搜尋
+  const performSearch = async () => {
+    if (!search.value.trim()) {
+      // 如果搜尋欄為空，回到一般模式
+      isSearchMode.value = false
+      await getRestaurants()
+      return
+    }
+
+    isSearchMode.value = true
+    loading.value = true
+    page.value = 1
+
+    try {
+      const params = {
+        keyword: search.value.trim()
+      }
+
+      // 如果選擇了城市，也加入搜尋參數
+      if (selectedCity.value) {
+        params.city = selectedCity.value
+      }
+
+      const { data } = await restaurantService.search(params)
+      restaurants.value = data.restaurants || []
+
+      if (!Array.isArray(restaurants.value)) {
+        restaurants.value = []
+      }
+
+      // 滾動到餐廳列表區域
+      scrollToSection(restaurantSection)
+
+      createSnackbar({
+        text: `找到 ${restaurants.value.length} 間相關餐廳`,
+        snackbarProps: {
+          color: 'success',
+        },
+      })
+    } catch (error) {
+      console.error('Error searching restaurants:', error)
+      restaurants.value = []
+      const errorMessage = error.response?.data?.message || '搜尋失敗'
+      createSnackbar({
+        text: errorMessage,
+        snackbarProps: {
+          color: 'red',
+        },
+      })
+    } finally {
+      loading.value = false
+    }
+  }
+
     // 過濾邏輯
     const filteredRestaurants = computed(() => {
     let filtered = restaurants.value
 
-    // 城市過濾
-    if (selectedCity.value) {
-      filtered = filtered.filter(restaurant => {
-        const restaurantCity = restaurant.city || restaurant.縣市 || ''
-        return restaurantCity.includes(selectedCity.value)
-          || selectedCity.value.includes(restaurantCity)
-      })
-    }
+    // 如果不是搜尋模式，才進行本地過濾
+    if (!isSearchMode.value) {
+      // 城市過濾
+      if (selectedCity.value) {
+        filtered = filtered.filter(restaurant => {
+          const restaurantCity = restaurant.city || restaurant.縣市 || ''
+          return restaurantCity.includes(selectedCity.value)
+            || selectedCity.value.includes(restaurantCity)
+        })
+      }
 
-    // 食物類型過濾（使用智能分類）
-    if (selectedFoodType.value) {
-      filtered = filtered.filter(restaurant => {
-        const restaurantName = restaurant.name || restaurant.名稱 || ''
-        const inferredCategory = getCategoryFromName(restaurantName)
-        return inferredCategory === selectedFoodType.value
-      })
-    }
-
-    // 搜尋過濾
-    if (search.value) {
-      filtered = filtered.filter(restaurant => {
-        const restaurantName = restaurant.name || restaurant.名稱 || ''
-        return restaurantName.toLowerCase().includes(search.value.toLowerCase())
-      })
+      // 食物類型過濾（使用智能分類）
+      if (selectedFoodType.value) {
+        filtered = filtered.filter(restaurant => {
+          const restaurantName = restaurant.name || restaurant.名稱 || ''
+          const inferredCategory = getCategoryFromName(restaurantName)
+          return inferredCategory === selectedFoodType.value
+        })
+      }
     }
 
     return filtered
@@ -347,7 +398,7 @@
     scrollToSection(citySection)
 
     // 如果已經有資料，直接使用過濾功能
-    if (restaurants.value.length > 0) {
+    if (restaurants.value.length > 0 && !isSearchMode.value) {
       return
     }
 
@@ -370,7 +421,7 @@
     scrollToSection(foodSection)
 
     // 如果已經有資料，直接使用過濾功能
-    if (restaurants.value.length > 0) {
+    if (restaurants.value.length > 0 && !isSearchMode.value) {
       return
     }
 
@@ -489,7 +540,9 @@
 
   // 取得載入訊息
   const getLoadingMessage = () => {
-    if (selectedCity.value && selectedFoodType.value) {
+    if (isSearchMode.value) {
+      return `正在搜尋「${search.value}」相關餐廳...`
+    } else if (selectedCity.value && selectedFoodType.value) {
       return `正在載入${selectedCity.value}的${selectedFoodType.value}餐廳資料...`
     } else if (selectedCity.value) {
       return `正在載入${selectedCity.value}餐廳資料...`
@@ -502,7 +555,9 @@
 
   // 取得頁面標題
   const getPageTitle = () => {
-    if (selectedCity.value && selectedFoodType.value) {
+    if (isSearchMode.value) {
+      return `搜尋結果：「${search.value}」`
+    } else if (selectedCity.value && selectedFoodType.value) {
       return `${selectedCity.value}的${selectedFoodType.value}餐廳`
     } else if (selectedCity.value) {
       return `${selectedCity.value}餐廳`
@@ -515,7 +570,9 @@
 
   // 取得無資料訊息
   const getNoDataMessage = () => {
-    if (selectedCity.value && selectedFoodType.value) {
+    if (isSearchMode.value) {
+      return `沒有找到與「${search.value}」相關的餐廳`
+    } else if (selectedCity.value && selectedFoodType.value) {
       return `目前沒有${selectedCity.value}的${selectedFoodType.value}餐廳資料`
     } else if (selectedCity.value) {
       return `目前沒有${selectedCity.value}的餐廳資料`
