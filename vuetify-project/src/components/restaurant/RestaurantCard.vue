@@ -53,8 +53,22 @@
     <!-- 操作按鈕 -->
     <v-card-actions class="pa-4 pt-0 mt-auto">
       <div class="d-flex flex-column flex-md-row w-100  ">
+
+
         <v-btn
-          class="font-weight-medium flex-1 mb-3 mr-md-2  "
+          class="font-weight-medium flex-1  mb-3 mr-md-2 "
+          color="success"
+          rounded="lg"
+          style="min-width: 160px;"
+          variant="outlined"
+          @click.stop="showNutritionTips = true"
+        >
+          <v-icon class="mr-2" icon="mdi-food-apple" />
+          營養提示
+        </v-btn>
+
+        <v-btn
+          class="font-weight-medium flex-1  "
           color="primary"
           rounded="lg"
           style="min-width: 160px;"
@@ -65,17 +79,7 @@
           詳情
         </v-btn>
 
-        <v-btn
-          class="font-weight-medium flex-1"
-          color="success"
-          rounded="lg"
-          style="min-width: 160px;"
-          variant="outlined"
-          @click.stop="showNutritionTips = true"
-        >
-          <v-icon class="mr-2" icon="mdi-food-apple" />
-          營養提示
-        </v-btn>
+
 
       </div>
 
@@ -243,21 +247,22 @@
 
   // 打開 Google Maps
   const openGoogleMaps = () => {
-    if (props.latitude && props.longitude) {
-      // 如果有座標，直接使用座標打開 Google Maps
-      const url = `https://www.google.com/maps?q=${props.latitude},${props.longitude}`
-      window.open(url, '_blank')
-    } else if (props.address) {
-      // 如果沒有座標但有地址，使用地址搜尋
-      const encodedAddress = encodeURIComponent(`${props.name} ${props.address}`)
-      const url = `https://www.google.com/maps/search/${encodedAddress}`
-      window.open(url, '_blank')
-    } else {
-      // 如果都沒有，只搜尋餐廳名稱
-      const encodedName = encodeURIComponent(props.name)
-      const url = `https://www.google.com/maps/search/${encodedName}`
-      window.open(url, '_blank')
+    // 優先使用餐廳名稱搜尋，這樣 Google Maps 會顯示餐廳的詳細資訊
+    let searchQuery = props.name
+
+    // 如果有地址，加上地址讓搜尋更精確
+    if (props.address) {
+      searchQuery += ` ${props.address}`
     }
+
+    // 如果有城市資訊，也加上城市
+    if (props.city) {
+      searchQuery += ` ${props.city}`
+    }
+
+    const encodedQuery = encodeURIComponent(searchQuery)
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`
+    window.open(url, '_blank')
   }
 
   // 根據餐廳名稱智能判斷餐廳類型

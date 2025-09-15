@@ -117,7 +117,7 @@ const sendEmail = async (reportData, accessToken) => {
         
         <div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
           <p style="margin: 0; color: #2e7d32;">
-            <strong>�� 提示：</strong> 您可以回覆此封 email 來直接回覆用戶
+            <strong>提示：</strong> 您可以回覆此封 email 來直接回覆用戶
           </p>
         </div>
         
