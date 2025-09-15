@@ -8,36 +8,74 @@
   <v-app-bar color="#36652A">
     <v-container class="d-flex align-center">
       <v-app-bar-title class="cursor-pointer" @click="$router.push('/')">JIANICE</v-app-bar-title>
-      <!--
-          <template v-for="item of navItems" :key="item.to">
-          用這個迴圈，把所有 navItems 依序渲染成按鈕
 
-          v-if="item.show" => 只有 item.show === true 的按鈕會出現在畫面上
-      -->
-      <template v-for="item of navItems" :key="item.to">
-        <!--
-             <v-btn>
-             :prepend-icon="item.icon"：左邊顯示對應圖示
+      <!-- 桌面版導航按鈕 - 只在 md 以上螢幕顯示 -->
+      <div class="d-none d-md-flex align-center">
+        <template v-for="item of navItems" :key="item.to">
+          <v-btn
+            v-if="item.show"
+            :prepend-icon="item.icon"
+            :to="item.to"
+            variant="text"
+            class="text-white"
+          >
+            {{ item.title }}
+            <v-badge v-if="item.to === '/cart' && user.cartTotal > 0" color="red" :content="user.cartTotal" floating />
+          </v-btn>
+        </template>
 
-             :to="item.to"：點擊後 Vue Router 會導到指定路由
-
-             v-if="item.to === '/cart' && user.cartTotal > 0"：購物車按鈕會有紅色小徽章顯示購物車裡商品數量（user.cartTotal）
-        -->
-        <v-btn v-if="item.show" :prepend-icon="item.icon" :to="item.to">
-          {{ item.title }}
-          <v-badge v-if="item.to === '/cart' && user.cartTotal > 0" color="red" :content="user.cartTotal" floating />
+        <!-- 登出按鈕 -->
+        <v-btn
+          v-if="user.isLoggedIn"
+          prepend-icon="mdi-logout"
+          @click="logout"
+          variant="text"
+          class="text-white"
+        >
+          登出
         </v-btn>
-      </template>
-      <!--
-          登出按鈕
-          只有登入狀態 (user.isLoggedIn) 才會看到
+      </div>
 
-          點擊會呼叫 logout 函式來執行登出流程
-      -->
-      <v-btn v-if="user.isLoggedIn" prepend-icon="mdi-logout" @click="logout">登出</v-btn>
-
+      <!-- 手機版漢堡選單按鈕 - 移到右邊 -->
+      <v-app-bar-nav-icon
+        class="d-md-none ms-auto"
+        @click="drawer = !drawer"
+      />
     </v-container>
   </v-app-bar>
+
+  <!-- 手機版側邊導航欄 -->
+  <v-navigation-drawer
+    v-model="drawer"
+    :temporary="$vuetify.display.smAndDown"
+    color="#36652A"
+    class="d-md-none"
+    location="right"
+  >
+    <v-list class="pa-4">
+      <v-list-item
+        v-for="item of navItems"
+        :key="item.to"
+        :to="item.to"
+        :prepend-icon="item.icon"
+        class="text-white mb-2"
+        @click="drawer = false"
+      >
+        <v-list-item-title class="text-white">{{ item.title }}</v-list-item-title>
+      </v-list-item>
+
+      <!-- 登出按鈕 -->
+      <v-list-item
+        v-if="user.isLoggedIn"
+        prepend-icon="mdi-logout"
+        @click="logout"
+        class="text-white mb-2"
+      >
+        <v-list-item-title class="text-white">登出</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+
 
   <!--
       <v-main> 與 <router-view>
@@ -62,7 +100,7 @@
 
 <script setup>
   // computed：建立計算屬性
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
 
   // useRouter：操作路由導向
   import { useRouter } from 'vue-router'
@@ -86,6 +124,9 @@
 
   const createSnackbar = useSnackbar()
   const router = useRouter()
+
+  // 手機版側邊欄控制
+  const drawer = ref(false)
 
   /*
     navItems 是一個計算屬性 (computed)
