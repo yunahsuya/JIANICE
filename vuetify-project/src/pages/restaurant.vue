@@ -19,12 +19,54 @@
             @keyup.enter="performSearch"
           />
         </div>
+
+        <!-- 收藏按鈕 -->
+        <div class="mx-auto mt-6" style="max-width: 500px;">
+          <v-btn
+            :color="showFavorites ? 'red' : 'grey'"
+            :variant="showFavorites ? 'elevated' : 'outlined'"
+            @click="toggleFavorites"
+            class="font-weight-medium"
+            block
+          >
+            <v-icon class="mr-2" :icon="showFavorites ? 'mdi-heart' : 'mdi-heart-outline'" />
+            {{ showFavorites ? '查看全部餐廳' : `我的收藏 (${favoriteCount})` }}
+          </v-btn>
+        </div>
       </div>
     </div>
 
     <v-container class="rounded-t-xl mt-n5 pa-10" style="min-height: calc(100vh - 300px);">
-      <!-- 地區分類標籤 -->
-      <div ref="citySection" class="mb-8 sticky-top">
+      <!-- 收藏模式提示 -->
+      <div v-if="showFavorites" class="mb-8">
+        <v-alert
+          type="info"
+          variant="tonal"
+          class="mb-4"
+        >
+          <template #prepend>
+            <v-icon icon="mdi-heart" />
+          </template>
+          <div class="d-flex justify-space-between align-center">
+            <div>
+              <strong>我的收藏</strong>
+              <p class="mb-0 text-body-2">您收藏了 {{ favoriteRestaurants.length }} 間餐廳</p>
+            </div>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              size="small"
+              @click="refreshFavorites"
+            >
+              <v-icon class="mr-2" icon="mdi-refresh" />
+              重新整理
+            </v-btn>
+          </div>
+        </v-alert>
+      </div>
+
+      <!-- 地區分類標籤 (只在非收藏模式顯示) -->
+      <div v-if="!showFavorites" ref="citySection" class="mb-8 sticky-top">
         <h2 class="font-weight-semibold mb-4">選擇地區</h2>
         <div class="d-flex flex-wrap gap-3">
           <v-chip
@@ -43,8 +85,8 @@
         </div>
       </div>
 
-      <!-- 食物類型分類標籤 -->
-      <div ref="foodSection" class="mb-8 sticky-top" style="top: 200px;">
+      <!-- 食物類型分類標籤 (只在非收藏模式顯示) -->
+      <div v-if="!showFavorites" ref="foodSection" class="mb-8 sticky-top" style="top: 200px;">
         <h2 class="font-weight-semibold mb-4">選擇食物類型</h2>
         <div class="d-flex flex-wrap gap-3">
           <v-chip
@@ -129,14 +171,16 @@
 </template>
 
 <script setup>
-  import { computed, nextTick, ref, watch } from 'vue'
+  import { computed, nextTick, ref, watch, onMounted } from 'vue'
   import { useSnackbar } from 'vuetify-use-dialog'
   import RestaurantCard from '@/components/restaurant/RestaurantCard.vue'
   import restaurantService from '@/services/restaurant'
+  import localFavoriteService from '../stores/localFavorite'
 
   const createSnackbar = useSnackbar()
 
   const restaurants = ref([])
+  const favoriteRestaurants = ref([])
   const loading = ref(false)
   const search = ref('')
   const selectedCity = ref('')
@@ -145,7 +189,9 @@
   const restaurantSection = ref(null)
   const citySection = ref(null)
   const foodSection = ref(null)
-  const isSearchMode = ref(false) // 新增：追蹤是否為搜尋模式
+  const isSearchMode = ref(false)
+  const showFavorites = ref(false) // 新增：控制是否顯示收藏模式
+  const favoriteCount = ref(0) // 新增：收藏數量
 
   // 地區分類資料
   const cityCategories = [
@@ -283,6 +329,57 @@
     return '台式'
   }
 
+  // 切換收藏模式
+  const toggleFavorites = () => {
+    showFavorites.value = !showFavorites.value
+    page.value = 1
+
+    if (showFavorites.value) {
+      loadFavorites()
+    } else {
+      // 回到一般模式，重新載入餐廳
+      if (restaurants.value.length === 0) {
+        getRestaurants()
+      }
+    }
+  }
+
+  // 載入收藏清單
+  const loadFavorites = () => {
+    try {
+      favoriteRestaurants.value = localFavoriteService.getFavorites()
+    } catch (error) {
+      console.error('載入收藏清單失敗:', error)
+      createSnackbar({
+        text: '載入收藏清單失敗',
+        snackbarProps: {
+          color: 'error',
+        },
+      })
+    }
+  }
+
+  // 重新整理收藏清單
+  const refreshFavorites = () => {
+    loadFavorites()
+    createSnackbar({
+      text: '收藏清單已重新整理',
+      snackbarProps: {
+        color: 'success',
+      },
+    })
+  }
+
+  // 更新收藏數量
+  const updateFavoriteCount = () => {
+    try {
+      favoriteCount.value = localFavoriteService.getFavoriteCount()
+    } catch (error) {
+      console.error('取得收藏數量失敗:', error)
+      favoriteCount.value = 0
+    }
+  }
+
   // 執行搜尋
   const performSearch = async () => {
     if (!search.value.trim()) {
@@ -339,6 +436,11 @@
 
     // 過濾邏輯
     const filteredRestaurants = computed(() => {
+    if (showFavorites.value) {
+      // 收藏模式：顯示收藏的餐廳
+      return favoriteRestaurants.value
+    }
+
     let filtered = restaurants.value
 
     // 如果不是搜尋模式，才進行本地過濾
@@ -540,7 +642,9 @@
 
   // 取得載入訊息
   const getLoadingMessage = () => {
-    if (isSearchMode.value) {
+    if (showFavorites.value) {
+      return '正在載入收藏清單...'
+    } else if (isSearchMode.value) {
       return `正在搜尋「${search.value}」相關餐廳...`
     } else if (selectedCity.value && selectedFoodType.value) {
       return `正在載入${selectedCity.value}的${selectedFoodType.value}餐廳資料...`
@@ -555,7 +659,9 @@
 
   // 取得頁面標題
   const getPageTitle = () => {
-    if (isSearchMode.value) {
+    if (showFavorites.value) {
+      return '我的收藏'
+    } else if (isSearchMode.value) {
       return `搜尋結果：「${search.value}」`
     } else if (selectedCity.value && selectedFoodType.value) {
       return `${selectedCity.value}的${selectedFoodType.value}餐廳`
@@ -570,7 +676,9 @@
 
   // 取得無資料訊息
   const getNoDataMessage = () => {
-    if (isSearchMode.value) {
+    if (showFavorites.value) {
+      return '還沒有收藏任何餐廳，去探索美食天地收藏您喜愛的餐廳吧！'
+    } else if (isSearchMode.value) {
       return `沒有找到與「${search.value}」相關的餐廳`
     } else if (selectedCity.value && selectedFoodType.value) {
       return `目前沒有${selectedCity.value}的${selectedFoodType.value}餐廳資料`
@@ -588,8 +696,14 @@
     page.value = 1
   })
 
-  // 初始載入
-  getRestaurants()
+  // 組件掛載時載入資料
+  onMounted(() => {
+    getRestaurants()
+    updateFavoriteCount()
+
+    // 監聽收藏變化
+    window.addEventListener('favoriteChanged', updateFavoriteCount)
+  })
 </script>
 
 <route lang="yaml">

@@ -13,14 +13,15 @@
         height="200"
         :src="defaultImage"
       />
+      <!-- 收藏按鈕 -->
       <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
         <v-btn
-          color="white"
-          icon="mdi-heart"
+          :color="isFavorite ? 'red' : 'white'"
+          :icon="isFavorite ? 'mdi-heart' : 'mdi-heart-outline'"
           size="small"
           style="background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);"
           variant="text"
-          @click.stop="addToFavorites"
+          @click.stop="toggleFavorite"
         />
       </div>
     </div>
@@ -52,11 +53,9 @@
 
     <!-- 操作按鈕 -->
     <v-card-actions class="pa-4 pt-0 mt-auto">
-      <div class="d-flex flex-column flex-md-row w-100  ">
-
-
+      <div class="d-flex flex-column flex-md-row w-100">
         <v-btn
-          class="font-weight-medium flex-1  mb-3 mr-md-2 "
+          class="font-weight-medium flex-1 mb-3 mr-md-2"
           color="success"
           rounded="lg"
           style="min-width: 160px;"
@@ -68,7 +67,7 @@
         </v-btn>
 
         <v-btn
-          class="font-weight-medium flex-1  "
+          class="font-weight-medium flex-1"
           color="primary"
           rounded="lg"
           style="min-width: 160px;"
@@ -78,22 +77,7 @@
           <v-icon class="mr-2" icon="mdi-map-marker" />
           詳情
         </v-btn>
-
-
-
       </div>
-
-      <!-- <v-btn
-        class="font-weight-medium"
-        color="secondary"
-        rounded="lg"
-        style="min-width: 120px;"
-        variant="outlined"
-        @click.stop="addToFavorites"
-      >
-        <v-icon class="mr-2" icon="mdi-heart" />
-        收藏
-      </v-btn> -->
     </v-card-actions>
 
     <!-- 詳情對話框 -->
@@ -219,7 +203,11 @@
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
+  import { computed, ref, onMounted } from 'vue'
+  import { useSnackbar } from 'vuetify-use-dialog'
+  import localFavoriteService from '@/stores/localFavorite'
+
+  const createSnackbar = useSnackbar()
 
   const props = defineProps({
     restid: String,
@@ -235,9 +223,55 @@
   const showDetails = ref(false)
   const showNutritionTips = ref(false)
   const defaultImage = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop'
+  const isFavorite = ref(false)
 
-  const addToFavorites = () => {
-    console.log('加入收藏:', props.name)
+  // 檢查收藏狀態
+  const checkFavoriteStatus = () => {
+    isFavorite.value = localFavoriteService.isFavorite(props.restid)
+  }
+
+  // 切換收藏狀態
+  const toggleFavorite = () => {
+    if (isFavorite.value) {
+      // 移除收藏
+      const result = localFavoriteService.removeFavorite(props.restid)
+      if (result.success) {
+        isFavorite.value = false
+        createSnackbar({
+          text: result.message,
+          snackbarProps: {
+            color: 'info',
+          },
+        })
+      }
+    } else {
+      // 添加收藏
+      const restaurant = {
+        restid: props.restid,
+        name: props.name,
+        address: props.address,
+        city: props.city,
+        phone: props.phone
+      }
+
+      const result = localFavoriteService.addFavorite(restaurant)
+      if (result.success) {
+        isFavorite.value = true
+        createSnackbar({
+          text: result.message,
+          snackbarProps: {
+            color: 'success',
+          },
+        })
+      } else {
+        createSnackbar({
+          text: result.message,
+          snackbarProps: {
+            color: 'warning',
+          },
+        })
+      }
+    }
   }
 
   // 處理卡片點擊事件 - 修改為顯示營養提示
@@ -555,10 +589,14 @@
       { icon: 'mdi-water', title: '多喝水', description: '保持身體水分' },
     ]
   }
+
+  // 組件掛載時檢查收藏狀態
+  onMounted(() => {
+    checkFavoriteStatus()
+  })
 </script>
 
 <style scoped>
-
 .restaurant-card:hover {
   transform: translateY(-8px);
   transition: all 0.3s ease;
