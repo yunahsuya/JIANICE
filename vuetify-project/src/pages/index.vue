@@ -405,6 +405,7 @@
                 :icon="icon.icon"
                 size="large"
                 variant="text"
+                @click="openLink(icon.url)"
               />
             </div>
 
@@ -523,12 +524,35 @@
     },
   ])
 
-  const socialIcons = [
-    { name: 'github', icon: 'mdi-github' },
-    { name: 'instagram', icon: 'mdi-instagram' },
-    { name: 'facebook', icon: 'mdi-facebook' },
-    { name: 'twitter', icon: 'mdi-twitter' },
-  ]
+  // const socialIcons = [
+  //   { name: 'github', icon: 'mdi-github' },
+  //   { name: 'instagram', icon: 'mdi-instagram' },
+  //   { name: 'facebook', icon: 'mdi-facebook' },
+  //   { name: 'twitter', icon: 'mdi-twitter' },
+  // ]
+
+  const socialIcons = ref([
+    {
+      name: '文章分享',
+      icon: 'mdi-newspaper-variant-outline',
+      url: 'https://vocus.cc/salon/6647b6a6fd89780001f99044',
+    },
+    {
+      name: '104 人才社群',
+      icon: 'mdi-numeric-1-circle',
+      url: 'https://profile.104.com.tw/profile/3bca6284-3679-4ace-9c60-576bbc4fd9d2/about?isView',
+    },
+    {
+      name: 'Yuna\'s Portfolio',
+      icon: 'mdi-information-slab-circle-outline',
+      url: 'https://yunahsuya.github.io/Portfolio/',
+    },
+    {
+      name: 'GitHub',
+      icon: 'mdi-github',
+      url: 'https://github.com/yunahsuya',
+    },
+  ])
 
   const scrollToInfo = () => {
     const el = document.querySelector('#info')
@@ -598,10 +622,15 @@
     router.push(route)
   }
 
-  // 新增：生成 Google 地圖 URL
-  const getGoogleMapsUrl = (address, name) => {
+    // 新增：生成 Google 地圖 URL
+    const getGoogleMapsUrl = (address, name) => {
     const query = encodeURIComponent(`${name} ${address}`)
     return `https://www.google.com/maps/search/?api=1&query=${query}`
+  }
+
+  // 新增：開啟外部連結
+  const openLink = (url) => {
+    window.open(url, '_blank')
   }
 </script>
 
