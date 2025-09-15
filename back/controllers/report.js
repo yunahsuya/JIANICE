@@ -62,10 +62,10 @@ export const create = async (req, res) => {
     }
 
     // 檢查是否超過每日限制
-    if (user.reportCount >= 10) {
+    if (user.reportCount >= 3) {
       return res.status(StatusCodes.TOO_MANY_REQUESTS).json({
         success: false,
-        message: '今天已達到回報訊息的上限（10次），請明天再試',
+        message: '今天已達到回報訊息的上限（3次），請明天再試',
       })
     }
 
@@ -89,7 +89,7 @@ export const create = async (req, res) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: `回報訊息已成功提交！我們已發送確認 email 給您，並會盡快處理您的問題。\n今日剩餘回報次數：${10 - user.reportCount}次`,
+      message: `回報訊息已成功提交！我們已發送確認 email 給您，並會盡快處理您的問題。\n今日剩餘回報次數：${3 - user.reportCount}次`,
     })
   } catch (error) {
     console.error('處理回報訊息失敗:', error)
