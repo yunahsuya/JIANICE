@@ -6,8 +6,44 @@
         <h1 class="text-h2 font-weight-bold mb-4 text-shadow mt-2">探索美食天地</h1>
         <p class="text-h5 mb-10 opacity-90">發現您附近最棒的餐廳</p>
 
-        <!-- 搜尋欄 -->
+
+
+
+                          <!-- 隨機抽餐廳和收藏按鈕 -->
         <div class="mx-auto" style="max-width: 500px;">
+          <div class="mb-8 d-flex flex-column flex-md-row flex-column-reverse   ga-3 justify-center align-center">
+
+
+            <!-- 我的收藏按鈕 (下面/左邊) -->
+            <v-btn
+              :color="showFavorites ? 'red' : 'purple'"
+              class="font-weight-medium w-100 w-md-auto"
+              rounded="lg"
+              size="large"
+              variant="elevated"
+              @click="toggleFavorites"
+            >
+              <v-icon class="mr-2" :icon="showFavorites ? 'mdi-heart' : 'mdi-heart-outline'" />
+              {{ showFavorites ? '查看全部餐廳' : `我的收藏 (${favoriteCount})` }}
+            </v-btn>
+
+             <!-- 隨機抽餐廳按鈕 (上面/右邊) -->
+             <v-btn
+              class="font-weight-medium w-100 w-md-auto"
+              color="orange-darken-2"
+              rounded="lg"
+              size="large"
+              variant="elevated"
+              @click="openRandomDialog"
+            >
+              <v-icon class="mr-2" icon="mdi-dice-multiple" />
+              隨機抽餐廳
+            </v-btn>
+          </div>
+        </div>
+
+        <!-- 搜尋欄 -->
+    <div class="mx-auto" style="max-width: 500px;">
           <v-text-field
             v-model="search"
             class="rounded-lg"
@@ -19,22 +55,10 @@
             @keyup.enter="performSearch"
           />
         </div>
-
-        <!-- 收藏按鈕 -->
-        <div class="mx-auto mt-6" style="max-width: 500px;">
-          <v-btn
-            :color="showFavorites ? 'red' : 'grey'"
-            :variant="showFavorites ? 'elevated' : 'outlined'"
-            @click="toggleFavorites"
-            class="font-weight-medium"
-            block
-          >
-            <v-icon class="mr-2" :icon="showFavorites ? 'mdi-heart' : 'mdi-heart-outline'" />
-            {{ showFavorites ? '查看全部餐廳' : `我的收藏 (${favoriteCount})` }}
-          </v-btn>
-        </div>
       </div>
     </div>
+
+
 
     <v-container class="rounded-t-xl mt-n5 pa-10" style="min-height: calc(100vh - 300px);">
       <!-- 收藏模式提示 -->
@@ -167,6 +191,177 @@
         </div>
       </div>
     </v-container>
+
+    <!-- 隨機餐廳對話框 -->
+    <v-dialog v-model="randomRestaurantDialog" max-width="600" persistent>
+      <v-card>
+        <v-card-title class="text-h5 d-flex align-center">
+          <v-icon
+            class="mr-2"
+            color="orange-darken-2"
+          >mdi-dice-multiple</v-icon>
+          隨機抽餐廳
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <!-- 縣市選擇區域 -->
+          <div
+            v-if="!randomRestaurant && !loadingRandom && !hasError"
+            class="mb-6"
+          >
+            <h4 class="text-h6 mb-4">選擇縣市</h4>
+            <v-select
+              v-model="randomSelectedCity"
+              clearable
+              item-title="label"
+              item-value="value"
+              :items="cities"
+              label="請選擇縣市"
+              variant="outlined"
+            >
+              <template #prepend-inner>
+                <v-icon>mdi-map-marker</v-icon>
+              </template>
+            </v-select>
+            <p class="text-body-2 text-grey mt-2">
+              {{
+                randomSelectedCity
+                  ? `將從${
+                    cities.find((c) => c.value === randomSelectedCity)?.label
+                  }中隨機選取`
+                  : "將從全台餐廳中隨機選取"
+              }}
+            </p>
+          </div>
+
+          <!-- 載入狀態 -->
+          <div v-if="loadingRandom" class="text-center py-8">
+            <v-progress-circular
+              color="orange-darken-2"
+              indeterminate
+              size="64"
+            />
+            <p class="mt-4 text-body-1">
+              {{
+                randomSelectedCity
+                  ? `正在從${
+                    cities.find((c) => c.value === randomSelectedCity)?.label
+                  }抽選餐廳...`
+                  : "正在為您抽選餐廳..."
+              }}
+            </p>
+          </div>
+
+          <!-- 餐廳結果 -->
+          <div v-else-if="randomRestaurant" class="text-center">
+            <v-avatar class="mb-4" color="orange-lighten-5" size="80">
+              <v-icon color="orange-darken-2" size="40">mdi-food</v-icon>
+            </v-avatar>
+
+            <h3 class="text-h4 font-weight-bold mb-2">
+              {{ randomRestaurant.name }}
+            </h3>
+
+            <v-divider class="my-4" />
+
+            <div class="text-left">
+              <div class="d-flex align-center mb-3">
+                <v-icon class="mr-3" color="orange-darken-2">mdi-map-marker</v-icon>
+                <a
+                  class="text-body-1 text-orange-darken-3 text-decoration-none"
+                  :href="
+                    getGoogleMapsUrl(
+                      randomRestaurant.address,
+                      randomRestaurant.name
+                    )
+                  "
+                  style="cursor: pointer"
+                  target="_blank"
+                >
+                  {{ randomRestaurant.address }}
+                  <v-icon class="ml-1" size="small">mdi-open-in-new</v-icon>
+                </a>
+              </div>
+
+              <div
+                v-if="randomRestaurant.phone"
+                class="d-flex align-center mb-3"
+              >
+                <v-icon class="mr-3" color="orange-darken-2">mdi-phone</v-icon>
+                <span class="text-body-1">{{ randomRestaurant.phone }}</span>
+              </div>
+
+              <div class="d-flex align-center mb-3">
+                <v-icon class="mr-3" color="orange-darken-2">mdi-city</v-icon>
+                <span class="text-body-1">{{ randomRestaurant.city }}</span>
+              </div>
+            </div>
+
+            <v-divider class="my-4" />
+
+            <p class="text-body-1 text-grey-darken-1 mb-4">
+              恭喜！這就是為您抽選的餐廳，希望您用餐愉快！🎉
+            </p>
+
+            <!-- 立即前往按鈕 -->
+            <div class="text-center mb-4">
+              <v-btn
+                class="text-white"
+                color="orange-darken-2"
+                :href="
+                  getGoogleMapsUrl(
+                    randomRestaurant.address,
+                    randomRestaurant.name
+                  )
+                "
+                size="large"
+                target="_blank"
+                variant="elevated"
+              >
+                <v-icon left>mdi-navigation</v-icon>
+                立即前往
+              </v-btn>
+            </div>
+          </div>
+
+          <!-- 錯誤狀態 -->
+          <div v-else-if="hasError" class="text-center py-8">
+            <v-icon color="error" size="64">mdi-alert-circle</v-icon>
+            <p class="text-body-1 mt-4">無法取得餐廳資料，請稍後再試</p>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn
+            color="orange-darken-2"
+            variant="outlined"
+            @click="closeRandomDialog"
+          >
+            關閉
+          </v-btn>
+          <v-btn
+            v-if="randomRestaurant"
+            color="orange-darken-2"
+            :loading="loadingRandom"
+            @click="getRandomRestaurant"
+          >
+            再抽一次
+          </v-btn>
+          <v-btn
+            v-else
+            color="orange-darken-2"
+            :loading="loadingRandom"
+            @click="getRandomRestaurant"
+
+          >
+            開始抽選
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -190,8 +385,42 @@
   const citySection = ref(null)
   const foodSection = ref(null)
   const isSearchMode = ref(false)
-  const showFavorites = ref(false) // 新增：控制是否顯示收藏模式
-  const favoriteCount = ref(0) // 新增：收藏數量
+  const showFavorites = ref(false)
+  const favoriteCount = ref(0)
+
+  // 隨機餐廳對話框相關狀態
+  const randomRestaurantDialog = ref(false)
+  const randomRestaurant = ref(null)
+  const loadingRandom = ref(false)
+  const randomSelectedCity = ref('')
+  const hasError = ref(false)
+
+  // 縣市選項
+  const cities = [
+    { label: '全部縣市', value: '' },
+    { label: '台北市', value: '臺北市' },
+    { label: '新北市', value: '新北市' },
+    { label: '桃園市', value: '桃園市' },
+    { label: '台中市', value: '臺中市' },
+    { label: '台南市', value: '臺南市' },
+    { label: '高雄市', value: '高雄市' },
+    { label: '基隆市', value: '基隆市' },
+    { label: '新竹市', value: '新竹市' },
+    { label: '嘉義市', value: '嘉義市' },
+    { label: '新竹縣', value: '新竹縣' },
+    { label: '苗栗縣', value: '苗栗縣' },
+    { label: '彰化縣', value: '彰化縣' },
+    { label: '南投縣', value: '南投縣' },
+    { label: '雲林縣', value: '雲林縣' },
+    { label: '嘉義縣', value: '嘉義縣' },
+    { label: '屏東縣', value: '屏東縣' },
+    { label: '宜蘭縣', value: '宜蘭縣' },
+    { label: '花蓮縣', value: '花蓮縣' },
+    { label: '台東縣', value: '台東縣' },
+    { label: '澎湖縣', value: '澎湖縣' },
+    { label: '金門縣', value: '金門縣' },
+    { label: '連江縣', value: '連江縣' },
+  ]
 
   // 地區分類資料
   const cityCategories = [
@@ -327,6 +556,61 @@
 
     // 台式相關（預設）
     return '台式'
+  }
+
+  // 打開隨機餐廳對話框
+  const openRandomDialog = () => {
+    randomRestaurantDialog.value = true
+    randomRestaurant.value = null
+    randomSelectedCity.value = ''
+    hasError.value = false
+  }
+
+  // 關閉隨機餐廳對話框
+  const closeRandomDialog = () => {
+    randomRestaurantDialog.value = false
+    randomRestaurant.value = null
+    randomSelectedCity.value = ''
+    hasError.value = false
+  }
+
+  // 隨機抽餐廳功能
+  const getRandomRestaurant = async () => {
+    loadingRandom.value = true
+    hasError.value = false
+
+    try {
+      const params = { count: 1 }
+      if (randomSelectedCity.value) {
+        params.city = randomSelectedCity.value
+      }
+
+      const { data } = await restaurantService.getRandom(params)
+
+      if (data.success && data.restaurants && data.restaurants.length > 0) {
+        randomRestaurant.value = data.restaurants[0]
+        hasError.value = false
+      } else {
+        throw new Error('沒有可用的餐廳資料')
+      }
+    } catch (error) {
+      console.error('隨機選取餐廳失敗:', error)
+      hasError.value = true
+      createSnackbar({
+        text: '隨機選取餐廳失敗，請稍後再試',
+        snackbarProps: {
+          color: 'red',
+        },
+      })
+    } finally {
+      loadingRandom.value = false
+    }
+  }
+
+  // 生成 Google 地圖 URL
+  const getGoogleMapsUrl = (address, name) => {
+    const query = encodeURIComponent(`${name} ${address}`)
+    return `https://www.google.com/maps/search/?api=1&query=${query}`
   }
 
   // 切換收藏模式
