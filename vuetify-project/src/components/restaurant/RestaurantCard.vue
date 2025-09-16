@@ -220,10 +220,12 @@
     city: String,
   })
 
-  const showDetails = ref(false)
-  const showNutritionTips = ref(false)
-  const defaultImage = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop'
-  const isFavorite = ref(false)
+   // 定義 emit 事件
+   const emit = defineEmits(['favorite-changed'])
+const showDetails = ref(false)
+const showNutritionTips = ref(false)
+const defaultImage = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop'
+const isFavorite = ref(false)
 
   // 檢查收藏狀態
   const checkFavoriteStatus = () => {
@@ -237,10 +239,12 @@
       const result = localFavoriteService.removeFavorite(props.restid)
       if (result.success) {
         isFavorite.value = false
+        // 觸發收藏變化事件
+        emit('favorite-changed')
         createSnackbar({
           text: result.message,
           snackbarProps: {
-            color: 'info',
+            color: 'error',
           },
         })
       }
@@ -257,6 +261,8 @@
       const result = localFavoriteService.addFavorite(restaurant)
       if (result.success) {
         isFavorite.value = true
+        // 觸發收藏變化事件
+        emit('favorite-changed')
         createSnackbar({
           text: result.message,
           snackbarProps: {

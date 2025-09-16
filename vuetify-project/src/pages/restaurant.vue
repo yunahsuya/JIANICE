@@ -161,7 +161,10 @@
               sm="6"
               xl="3"
             >
-              <RestaurantCard v-bind="restaurant" />
+              <RestaurantCard
+                v-bind="restaurant"
+                @favorite-changed="updateFavoriteCount"
+              />
             </v-col>
           </v-row>
 
